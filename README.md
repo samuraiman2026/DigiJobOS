@@ -1,7 +1,7 @@
 # Job Search OS — BD/Partnerships Edition
-**Version 3.1 · April 2026**
+**Version 4.1 · April 2026**
 
-A personal job search operating system built on Claude. Not a prompt library. Not a chatbot. A persistent, connected workspace that knows who you are, reads your calendar and email, tracks your outreach, generates tailored resumes, and runs structured interactive workflows on command.
+A personal job search operating system built on Claude. Not a prompt library. Not a chatbot. A persistent, connected workspace that knows who you are, reads your calendar and email, tracks your outreach, generates tailored resumes, maps your referral network, and runs structured interactive workflows on command.
 
 ---
 
@@ -9,8 +9,8 @@ A personal job search operating system built on Claude. Not a prompt library. No
 
 | File | What it is |
 |---|---|
-| `job-search-os-v4.html` | Full dashboard — all workflows + resume generator in one file |
-| `jobos-chrome-extension-v2.zip` | Chrome extension v2 — nudge alerts, Gist sync, outreach tracker sync |
+| `job-search-os-v5.html` | Full dashboard — all workflows + resume generator + 5 Tools panels |
+| `jobos-chrome-extension-v2.zip` | Chrome extension v2 — fully fixed (MV3 compliant), nudge alerts, Gist sync |
 | `CLAUDE.md` | Master context file — your brain, loaded into every Claude session |
 | `DEV_CONTEXT.md` | Developer reference — full system architecture for LLMs and engineers |
 | `bd-partnerships-os-v2.zip` | Claude Code OS — slash commands + sub-agents for terminal use |
@@ -21,17 +21,18 @@ A personal job search operating system built on Claude. Not a prompt library. No
 ## Setup in 10 minutes
 
 ### 1. Open the dashboard
-Download `job-search-os-v4.html`. Double-click. Opens in Chrome or Safari — no server, no install, no internet required. All data saves automatically between sessions. The resume generator is built in — no separate file needed.
+Download `job-search-os-v5.html`. Double-click. Opens in Chrome or Safari — no server, no install, no internet required. All data saves automatically between sessions. The resume generator and all five Tools panels are built in.
 
 ### 2. Install the Chrome extension v2
 ```
-1. Unzip jobos-chrome-extension-v2.zip
-2. Chrome → chrome://extensions
-3. Enable Developer mode (top right)
+1. Remove any previous version: chrome://extensions → Job Search OS → Remove
+2. Unzip jobos-chrome-extension-v2.zip
+3. Chrome → chrome://extensions → Developer mode on
 4. Load unpacked → select the jobos-extension-v2 folder
 5. Pin it to your toolbar
-6. If upgrading from v1: remove the old extension first
 ```
+
+> **Note**: The extension was fully rebuilt in this version to fix a Manifest V3 issue that silently broke every button. If buttons weren't working before, this version fixes it.
 
 ### 3. Set up your Claude Project
 1. Go to claude.ai → create a Project called **Job Search OS**
@@ -41,158 +42,196 @@ Download `job-search-os-v4.html`. Double-click. Opens in Chrome or Safari — no
 
 If Claude responds with your Huawei/Qualia/Pandora background, target roles, and gap bridges without you pasting anything — it's working.
 
-### 4. (Optional) Configure Gist profile sync in the extension
+### 4. (Optional) Deploy to GitHub Pages for live sync
+Deploy `job-search-os-v5.html` as `index.html` in a GitHub repo with Pages enabled. Once deployed, use the `/sync` panel in the dashboard to configure the URL. This gives the Chrome extension and your Claude Project a stable URL to reference for live outreach data.
+
+### 5. (Optional) Set up weekly Google Sheets export
+Go to Tools → Weekly export → Configure tab → "Generate Apps Script →". Copy the script into script.google.com and run `createJobSearchSheet()` once. It builds a 5-tab Google Sheet and sets a Sunday 9am email reminder automatically.
+
+### 6. (Optional) Configure Gist profile sync in the extension
 1. Create a public GitHub Gist with a file called `profile.json`
 2. Copy the raw URL (click Raw in GitHub Gist)
 3. Open the extension → Nudges tab → paste raw URL → Save
-4. The extension will fetch the latest version every time it opens — no hardcoded strings to update
 
 ---
 
-## The daily workflow (20 minutes)
+## The daily workflow
 
 | When | Action | Tool |
 |---|---|---|
 | Morning (2 min) | Run briefing — top 3 actions, follow-up alerts | Dashboard `/brief` → paste into Claude |
 | Morning | Check nudge badge — amber number = overdue follow-ups | Chrome extension → Nudges tab |
+| Morning | Run email digest — score all new LinkedIn alerts + recruiter replies | Dashboard `/digest` → paste into Claude |
 | Before applying | Score any JD on LinkedIn | Chrome extension → auto-scores on open |
-| After scoring | One-click → resume generator with role pre-filled | Extension `/score` → "Build resume" button |
+| After scoring | One-click → resume generator with role pre-filled | Extension `/score` → score→resume button |
+| Before applying | Check your referral path to the company first | Dashboard `/network` → select company |
 | Before applying | Build warm intro before submitting | Dashboard `/referral` → paste into Claude |
 | When applying | Full application package — resume, gap bridge, cover note | Dashboard `/apply` or `/resume` panel |
 | Night before interview | Full prep with live company research | Dashboard `/prep` → paste into Claude |
 | Morning of interview | Interactive mock — one Q at a time, live scoring | Dashboard `/mock` → paste into Claude |
 | Within 2 hrs after | Debrief — score answers, draft thank-you | Dashboard `/debrief` → paste into Claude |
 | When offer arrives | Negotiation strategy + exact call script | Dashboard `/negotiate` → paste into Claude |
-| Weekly | Pipeline review — what's moving, what's stalling | Dashboard `/pipeline` → paste into Claude |
+| Weekly (Sunday) | Export all data to Google Sheets | Dashboard `/export` → download CSVs or full JSON |
+| Weekly | Pipeline review + sync extension → dashboard | Dashboard `/pipeline` + `/sync` panel |
+| Monthly | Write a LinkedIn post on your AI partnership expertise | Dashboard `/post` → select pillar |
 | After 3+ interviews | Pattern analysis — find weak spots | Dashboard `/pattern` → paste into Claude |
 
 ---
 
-## Component 1 — Dashboard (`job-search-os-v4.html`)
+## Component 1 — Dashboard (`job-search-os-v5.html`)
 
-### What changed in v4
-The resume generator is now fully integrated — it lives as the `/resume` panel in the sidebar, not as a separate file. The `/score` panel now has a **→ /resume — build resume for this role** button that appears after scoring: one click pre-fills the resume generator with the company name and full JD already loaded. The dashboard quick-launch grid also has a `/resume → build` button.
+### What's new in v4.1
 
-### All panels
+Three additions on top of the v4 Tools panels:
 
-**Dashboard** — Live calendar, pipeline health snapshot, 26-week activity heatmap, 4 live metrics (active roles, commands run, interviews logged, day streak). Quick-launch buttons: `/brief`, `/score`, `/resume`, `/prep`, `/debrief`.
+**Weekly export panel (`/export`)** — Export all your data to Google Sheets every Sunday. Five CSV download buttons, a direct paste-to-Sheets clipboard copy, a full JSON export, a generated Apps Script for automated setup, and a weekly summary copier for Claude review. See Tools — `/export` below.
 
-**Pipeline tracker** — Stage pills, health dots (green/amber/red), last action, next step. Add and remove roles.
+**Pipeline tracker — stage editing + strike-through** — Each pipeline role now has an inline **Move** dropdown in the table to change stage without deleting and re-adding. New stages: Withdrawn, Rejected, Closed. Roles with any of these stages appear at 45% opacity with the company name struck through.
 
-**Outreach tracker** — 59 companies pre-loaded from your Google Sheet. Track daily reach-outs, follow-up counts per company, 14-day velocity chart. Daily goal bar (default 5/day, adjustable). Bulk outreach prompt generator — select companies, generate personalized Claude prompts for each.
+**Outreach tracker — Not Interested strike-through** — Changing a company's status to "Not Interested" now visually strikes through that row and dims it to 45% opacity. Data is preserved, but the row is visually removed from your active list.
 
-**Usage history** — Every command logged automatically. Four views: all activity, workflow usage bars, interviews, scored roles. Export JSON. Streak counter.
+### All sidebar sections
 
-**10 workflow panels** — Each generates a complete, pre-filled Claude prompt using your actual background and metrics. See workflow table above.
+**Overview**: Dashboard, Pipeline, Outreach, Usage history
 
-**`/resume` panel (new in v4)** — 5-step resume generator integrated directly:
-1. Enter role or quick-load (Tenstorrent, Placer.ai, Typeface, Nothing.tech, Microsoft, Emissary, G42, Apple). Live JD scoring as you type.
-2. Choose template (Enterprise / Edge AI / Startup) and role type — auto-detected from JD.
-3. Review and toggle bullets — auto-selected from your full library based on role type.
-4. Claude rewrites bullets via Anthropic API streaming, preserving every metric.
-5. Download a Node.js script — run it to produce the formatted .docx.
+**Workflows**: /brief, /score, /apply, /referral, /prep, /mock, /debrief, /negotiate, /pattern, /resume
 
-**5 sub-agent panels** — @hiring-manager, @recruiter, @bd-peer, @skeptic, @coach. One-click copy.
+**Tools**: /sync, /network, /digest, /post, /export *(new in v4.1)*
 
-### Score → Resume handoff
-Score a role in the `/score` panel. When the result appears, click **→ /resume — build resume for this role**. The resume generator opens with company, role title, and full JD pre-populated, template auto-selected, and cursor on step 2. This is the intended flow for any role scoring ≥75%.
+**Agents**: Sub-agents
 
-### Role-type bullet selection
+---
 
-| Role type | Leads with | Avoids |
-|---|---|---|
-| Enterprise alliances | Huawei ISV 1,000+ at scale, GTM infrastructure | Consumer/entertainment framing |
-| Edge AI / hardware | Kirin 9000 on-device AI, 300% SDK adoption | SSP/publisher bullets |
-| Hardware / OEM | Pandora OEM (Sony/Samsung/Honda), Kirin 9000 | AdTech language |
-| Startup / 0-to-1 | Qualia first BD hire $9M 120%, Wove 90-day first 3 partners | Large-scale enterprise depth |
-| Strategic alliances | Huawei portfolio management (Adobe/Meta/Airbnb), Qualia governance | Heavy consumer framing |
-| Supply / publisher | Mobclix $16M 185% YoY, Pandora remnant $35M | SaaS/fintech framing |
+### Tools — `/sync` (Outreach sync)
 
-### Data persistence
-All data saves to `localStorage` automatically. To reset: browser developer tools → Application → Local Storage → delete `jobos_v3` and `jobos_outreach_v1`.
+Connects the dashboard to the Chrome extension and your Claude Project via a shared URL.
+
+- GitHub Pages deployment steps, URL input saved to `jobos_sync_url`
+- Export outreach tracker as JSON (download or copy)
+- Import from Chrome extension: paste JSON, companies are added with auto-tier from score
+- Claude Project sync prompt: pre-written, tells Claude to fetch your live data at session start
+- Live tracker snapshot: companies tracked, reached out, with named contact, overdue
+
+---
+
+### Tools — `/network` (Network map)
+
+Maps every warm referral path to 20+ priority target companies.
+
+- Color-coded strength dots: 🟢 direct (3) · 🟡 warm/2nd degree (2) · 🔵 community (1) · grey = cold
+- Filterable by: All / Warm path only / Tier 1 only / No contact yet
+- Company detail: connection + angle + nudge strategy + "Generate referral strategy →" Claude prompt
+- Pre-mapped: Meta, Adobe, Microsoft, Airbnb, Salesforce, Tenstorrent, Nothing.tech, Apple, Google, Amazon, Anthropic, Notion, OpenAI, Figma, Typeface, NVIDIA, Databricks, Snowflake, Zoom, Emissary
+
+---
+
+### Tools — `/digest` (Email digest)
+
+Turns your Gmail inbox into a scored, prioritized morning digest.
+
+- **Generate tab**: Date range + section toggles. Builds a Claude prompt that reads Gmail via MCP, scores every new role, injects overdue follow-ups live from your tracker, asks for top 3 actions.
+- **Configure tab**: Min score (65%), always-include companies, sources, nudge threshold (days). Generates a Gmail Apps Script for 7am daily automation.
+- **History tab**: Logs of digest runs.
+
+---
+
+### Tools — `/post` (LinkedIn post generator)
+
+Practitioner-grade LinkedIn posts via Claude API streaming.
+
+| Pillar | What it produces |
+|---|---|
+| AI Partnership Stack | Posts on your 6-layer framework — layer focus + hook style |
+| Hard-won lesson | Specific lesson from Huawei/Qualia/Pandora with story + principle |
+| AI ecosystem observation | What you're seeing in AI partnerships right now |
+| Myth vs reality | Myth disproven with a real story, restated as actionable principle |
+| Builder's take | 0-to-1 program design specifics — intake, first 90 days, co-sell, metrics |
+
+Enforces: 150–250 words, no "Excited to share" openers, ends with a practitioner question. Regenerate, Refine in Claude, Copy post. Post history saves last 20.
+
+---
+
+### Tools — `/export` (Weekly export to Google Sheets) *(new in v4.1)*
+
+Exports your full job search data to Google Sheets every Sunday.
+
+**Export buttons:**
+- ↓ Pipeline tracker (CSV)
+- ↓ Outreach tracker — all companies (CSV)
+- ↓ Scored roles this week (CSV)
+- ↓ Weekly activity log (CSV)
+- ↓ Full export — all tabs as JSON
+
+**Paste to Sheets (fastest):** Copies tab-separated data to clipboard — open any Sheet, click A1, paste.
+
+**Apps Script setup (one time):**
+1. Click "Generate Apps Script →" in the Configure tab
+2. Copy → paste into script.google.com → New project
+3. Run `createJobSearchSheet` once — creates 5-tab Sheet (Pipeline, Outreach, Scored Roles, Activity Log, Weekly Summaries)
+4. Sets a Sunday 9am email reminder automatically
+5. Use `importFullExport()` to write all data with a week tag each Sunday
+
+**Weekly summary:** Formats your full week as a structured Claude briefing — pipeline, outreach, activity, active interviews — ready to paste for "what are my top 3 priorities next week" review.
+
+---
+
+### All other panels (unchanged from v3.1)
+
+**Dashboard** — Live calendar, pipeline health snapshot, 26-week activity heatmap, 4 live metrics. Quick-launch: `/brief`, `/score`, `/resume`, `/network`, `/digest`, `/post`, `/export`.
+
+**Pipeline tracker** — Stage pills, health dots, last action, next step. Inline stage editing (Move dropdown). Withdrawn/Rejected/Closed rows struck through.
+
+**Outreach tracker** — 59 companies pre-loaded. 14-day velocity chart, daily goal bar, bulk outreach prompt generator. Not Interested rows struck through.
+
+**Usage history** — Every command logged. Four views, export JSON, streak counter.
+
+**10 workflow panels** — Each generates a complete pre-filled Claude prompt.
+
+**`/resume` panel** — 5-step generator with score→resume handoff from `/score`.
+
+**5 sub-agent panels** — @hiring-manager, @recruiter, @bd-peer, @skeptic, @coach.
+
+### Data persistence — all localStorage keys
+
+| Key | What it stores |
+|---|---|
+| `jobos_v3` | Main OS state: pipeline, history, scores, stats, activity map |
+| `jobos_outreach_v1` | Outreach tracker: 59 companies + all status/date/followup data |
+| `jobos_sync_url` | Deployed GitHub Pages URL for live outreach sync |
+| `jobos_digest_config` | Digest configuration: min score, always-include, sources, nudge days |
+| `jobos_post_history` | Last 20 LinkedIn posts generated (pillar, text, date) |
+
+To reset: browser developer tools → Application → Local Storage → delete all `jobos_*` keys.
 
 ---
 
 ## Component 2 — Chrome Extension v2 (`jobos-chrome-extension-v2.zip`)
 
-### What's new in v2
+### What was fixed in this version
 
-**Follow-up nudge badge** — The badge now shows a number in amber when contacts in your outreach tracker are overdue for a follow-up (default threshold: 10 days after last outreach with status Reached Out or Follow-up Sent). A yellow banner also appears inside the popup across all tabs when nudges are pending. The badge count takes priority over the green `▶` job-page indicator.
+**All buttons were broken due to a Manifest V3 CSP issue.** MV3 Chrome extensions enforce a strict Content Security Policy that silently blocks all inline `onclick="..."` attribute handlers. Every button in the popup was wired this way, so nothing worked. The fix: `popup.html` rebuilt with zero inline handlers. A single `wireButtons()` function in `popup.js` wires everything via `addEventListener`.
 
-**Nudges tab (new)** — A dedicated tab showing every overdue contact with days-since, contact name, role, and two actions: *Copy nudge →* generates a specific "add value, don't just check in" follow-up prompt for Claude tailored to that company; *Mark sent* updates the last outreach date and refreshes the badge immediately.
+**To install**: Remove any old version first → unzip → chrome://extensions → Load unpacked → select folder → pin.
 
-**Outreach tracker sync** — After scoring any role, a **+ Add to outreach tracker** button appears. One click saves the company, role, score, and POV to `chrome.storage.local` under key `jobos_outreach_sync`. The Nudges tab shows a count and an **Export scored roles as JSON** button — download and import into the OS dashboard outreach tracker.
+### Features
 
-**GitHub Gist profile sync** — Your background context (used in all scoring and prompt generation) can now be hosted as a live `profile.json` on a public GitHub Gist. Paste the raw URL in the Nudges tab → Gist config section. The extension fetches the latest version every time it opens. If the URL is blank or fetch fails, falls back to hardcoded strings automatically. No extension reload required to update your profile.
+**Badge**: Amber number = overdue follow-ups (priority); green `▶` = on job page; empty = neither.
 
-**Improved extraction reliability** — The content script now uses multiple selector strategies per job board, retries after 800ms if extracted text is under 300 characters (handles LinkedIn's lazy-loaded descriptions), and has better fallback logic for generic job pages. The `at Company` title parser handles `@`, `—`, and `|` delimiters.
+**6 tabs**: /score (auto-extract + sync to tracker), /apply, /brief, Nudges (follow-up alerts + export + Gist config), Log, ⚡ (shortcuts).
 
-**Hourly nudge check** — Background service worker runs via `chrome.alarms` every hour, parses `lastOutreach` dates from your synced contacts, and updates the badge count across all tabs.
+**Nudges tab**: Overdue contacts with days-since, Copy nudge → (value-add follow-up prompt), Mark sent (updates date + status).
 
-### Installation
-```
-1. Remove v1 if installed: chrome://extensions → Job Search OS → Remove
-2. Unzip jobos-chrome-extension-v2.zip
-3. Chrome → chrome://extensions → Developer mode on
-4. Load unpacked → select jobos-extension-v2 folder
-5. Pin to toolbar
-```
+**Gist profile sync**: Host `profile.json` on public Gist, paste raw URL in Nudges tab. Fetches live on every popup open.
 
-### All tabs
+**Outreach sync**: Score a role → "+ Add to outreach tracker" → export JSON → import in dashboard `/sync` panel.
 
-| Tab | What it does |
-|---|---|
-| `/score` | Auto-extracts JD, scores on open. Manual paste fallback. "Open in Claude ↗" + "Copy prompt". After scoring: "+ Add to outreach tracker" button. |
-| `/apply` | Role type + contact situation → full application package prompt |
-| `/brief` | Morning briefing prompt generator |
-| `Nudges` | Overdue follow-up alerts with copy-nudge prompts. Also: outreach tracker export + Gist profile config. |
-| `Log` | Total commands, today's count, roles scored, streak, recent activity |
-| `⚡` | One-click copy: /referral, /prep, /mock, /debrief, /negotiate, /pattern, @hiring-manager, @skeptic |
-
-### Badge states
-
-| Badge | Meaning |
-|---|---|
-| Amber number (e.g. `6`) | Follow-ups overdue — click to see who needs a nudge |
-| Green `▶` | On a recognized job page, no overdue nudges |
-| No badge | Not on a job page, no overdue nudges |
-
-### Gist profile.json format
-```json
-{
-  "name": "Pranjal Mahna",
-  "background": "Huawei (0-to-1 ISV ecosystem...), Qualia (...), Pandora (...)",
-  "bulletMap": {
-    "hardware":   "Lead with: Pandora OEM (Sony/Samsung/Honda), Kirin 9000...",
-    "enterprise": "Lead with: Huawei ISV 1,000+ at scale...",
-    "startup":    "Lead with: Qualia first BD hire $9M 120%...",
-    "supply":     "Lead with: Mobclix 185% YoY $16M...",
-    "alliances":  "Lead with: Huawei portfolio management...",
-    "privacy":    "Lead with: Huawei on-device AI local inference..."
-  }
-}
-```
-Any keys present in the Gist override the hardcoded fallback. Keys not present fall back to defaults. This means you can update just `background` without touching `bulletMap`.
-
-### Storage keys (Chrome extension)
-
-| Key | Lives in | What it stores |
-|---|---|---|
-| `jobos_ext_v1` | `chrome.storage.local` | Usage history, scored roles, streak stats |
-| `jobos_outreach_sync` | `chrome.storage.local` | Companies synced from scoring (exportable to OS) |
-| `jobos_gist_url` | `chrome.storage.local` | GitHub Gist raw URL for profile sync |
+**Improved extraction**: Multi-selector LinkedIn extraction, 800ms retry for lazy-loaded content.
 
 ---
 
 ## Component 3 — CLAUDE.md (Master context file)
 
 The most important file in the system. Everything else is scaffolding.
-
-**What's inside**: Identity and positioning, every career metric across all roles, complete bullet library from 8 resume versions, 5 interview stories in STAR format, 4 active target roles with gap bridges, behavioral instructions.
-
-**How to use**:
-- **Claude.ai Projects**: Upload to Project knowledge base — auto-loads every session
-- **Claude Code**: Place as `CLAUDE.md` in project root — auto-loaded on session start
 
 **How to update** (run monthly or when job search evolves):
 ```
@@ -214,112 +253,47 @@ Keep the same structure. Flag anything outdated.
 
 For terminal users. Full slash commands + sub-agents + local file automation.
 
-### Installation
 ```bash
 unzip bd-partnerships-os-v2.zip -d ~/job-search-os
 cd ~/job-search-os
-claude  # starts Claude Code — CLAUDE.md auto-loads
+claude  # CLAUDE.md auto-loads
 ```
 
-### File structure
-```
-job-search-os/
-├── CLAUDE.md
-├── .claude/commands/
-│   ├── brief.md  score.md  apply.md  referral.md  prep.md
-│   ├── mock.md   debrief.md  negotiate.md  pipeline.md  pattern.md
-├── sub-agents/
-│   ├── hiring-manager.md  recruiter.md  bd-peer.md  skeptic.md  coach.md
-├── context/
-│   └── pattern-log.md       ← Append after every /debrief
-└── templates/
-    ├── resume-bullets.md  story-builder.md
-```
-
-### Using the pattern log
-After every `/debrief`, paste the session summary into `pattern-log.md`:
-```
-SESSION: [company] — [role] — [round] — [date]
-Questions asked: [list]
-Scores per answer: [relevance/specificity/impact 1-5]
-Weak answers: [below 3.5 avg]
-Strong answers: [above 4.0]
-Key learning: [one sentence]
-Outcome: [moved forward / rejected / offer]
-```
-
-After 3 sessions, `/pattern` finds trends. After 10, it knows your habits better than you do.
-
----
-
-## Platform migration
-
-| Feature | Claude.ai Projects | Claude Code | ChatGPT Projects | Gemini Gems |
-|---|---|---|---|---|
-| Context auto-load | ✅ Project knowledge | ✅ CLAUDE.md | ✅ Custom instructions | ✅ Gem instructions |
-| Slash commands | ✅ (copy from panels) | ✅ Native | Saved responses | Saved responses |
-| Sub-agents | ✅ (copy from panels) | ✅ @name syntax | Separate GPTs | Inline personas |
-| Live calendar | ✅ (Google Cal MCP) | Manual input | Zapier required | — |
-| Live Gmail | ✅ (Gmail MCP) | Manual input | Zapier required | — |
-| Pattern log | In Project knowledge | Local file | Upload to Project | External doc |
-
-The HTML dashboard and Chrome extension work on all platforms — they're standalone tools.
-
----
-
-## Adapting for a different function
-
-**Rebuild CLAUDE.md for your background:**
-```
-I'm setting up a Job Search OS built on Claude. Rewrite the CLAUDE.md master
-context file for my specific background.
-
-My resume: [paste or attach]
-Current CLAUDE.md as structure template: [paste CLAUDE.md]
-
-Rewrite completely for me. Preserve exact structure and section headings.
-Fill in identity, proof points with real metrics, core stories in STAR format,
-active target roles, and gap bridges. Where I don't have a metric, flag with
-[ADD METRIC]. Do not invent numbers.
-```
-
-**Adapt commands to a different role type:**
-```
-I have a Job Search OS built for BD/Partnerships. Adapt it for [ROLE TYPE].
-
-Command files: [paste .claude/commands/ contents]
-Sub-agent files: [paste sub-agents/ contents]
-
-Rewrite all commands so workflows, questions, scoring dimensions, and outputs
-suit [ROLE TYPE]. Replace @bd-peer with an appropriate peer reviewer.
-Update scoring dimensions in /score. Update question bank in /prep.
-Keep all interactive behavior. Only change content.
-```
+Use the pattern log religiously — after 10 debriefs it finds habits you can't see yourself.
 
 ---
 
 ## FAQ
 
-**Do I need Claude Code or will Claude.ai work?**
-Claude.ai Projects is the recommended home for daily use — live Google Calendar, Gmail, web search, and Monday.com all active simultaneously. Claude Code adds native slash commands. For most use cases, Claude.ai Projects is sufficient.
+**Why weren't the extension buttons working?**
+Manifest V3 Chrome extensions block all inline `onclick=` attributes via a strict Content Security Policy — this happened silently with no error message. Every button was wired that way. The v2 extension in this version is fully rebuilt with `addEventListener` and works correctly. Remove any old version and reinstall.
 
-**The extension badge shows a number — what does that mean?**
-An amber number means you have that many contacts in your outreach tracker who haven't heard from you in 10+ days. Click the extension → Nudges tab to see who and generate a follow-up prompt for each.
+**What's new in v4.1?**
+Weekly export panel (`/export`) — CSV/JSON download, direct paste to Sheets, Apps Script generator for automated Sunday export. Pipeline stage editing inline (Move dropdown) with Withdrawn/Rejected/Closed stages showing as struck-through. Outreach tracker Not Interested status now strikes through the row visually.
 
-**How do I get scored roles from the extension into the OS dashboard outreach tracker?**
-Score a role → click "+ Add to outreach tracker" in the `/score` tab. Then in the Nudges tab, click "Export scored roles as JSON". Open the OS dashboard → Outreach tracker → use the import function, or manually add the companies using the "+ Add company" modal.
+**How does the weekly Sheets export work?**
+Tools → Weekly export → generate Apps Script → paste into script.google.com → run `createJobSearchSheet()` once. Then every Sunday: click Full JSON export, run `importFullExport()` in the script to write all data to your Sheet with a week tag. Or click "Copy outreach → paste into Sheets" for a quick manual update.
 
-**What's the Gist profile sync for?**
-It means when you update your background (new roles, new proof points, new metrics), you update one JSON file on GitHub Gist and every extension prompt instantly uses the new version — without reinstalling or editing extension files. If you don't set it up, the extension uses hardcoded fallbacks that are always current as of the last install.
+**Can I tick off companies I'm no longer pursuing?**
+Yes — two ways. In the outreach tracker, change status to **Not Interested** — the row dims and strikes through but data is preserved. In the pipeline, use the **Move** dropdown to set a role to **Withdrawn**, **Rejected**, or **Closed** — same visual treatment.
+
+**What's new in v4?**
+Four Tools panels: `/sync` (export/import + GitHub Pages), `/network` (referral map, 20+ companies), `/digest` (morning email digest + Apps Script automation), `/post` (LinkedIn post generator, 5 pillars, Claude API streaming).
+
+**How does the referral network map work?**
+Every target company has a pre-mapped connection path from your actual network. Click any company in `/network` to see your specific connection, the angle to use, and the nudge strategy. Hit "Generate referral strategy →" for a full Claude prompt.
+
+**How do I automate the morning digest?**
+`/digest` → Configure tab → "Generate Apps Script →" → script.google.com → 7am daily trigger. Searches Gmail for LinkedIn alerts and recruiter replies, emails you a pre-formatted Claude prompt each morning.
+
+**How do I sync extension-scored roles to the dashboard?**
+Score a role → "+ Add to outreach tracker" → Nudges tab → "Export scored roles as JSON" → dashboard `/sync` → Import from extension → paste JSON.
 
 **How long does setup take?**
-About 20 minutes: 5 to open the dashboard and install the extension, 10 to verify CLAUDE.md loads in your Project, 5 to score your first role and run the resume generator end-to-end.
+About 20 minutes: 5 to open the dashboard and install the extension, 10 to verify CLAUDE.md loads in your Project, 5 to score your first role.
 
 **What's the most important file to get right?**
 CLAUDE.md. Everything else inherits from it.
-
-**The resume generator downloads a .js file — why not generate the .docx directly?**
-The browser cannot run Node.js. Run `npm install -g docx && node generate_Company_resume.js` to produce the .docx. A future version could use a serverless function, but the current approach is intentionally offline-first.
 
 ---
 
@@ -329,8 +303,10 @@ The browser cannot run Node.js. Run `npm install -g docx && node generate_Compan
 |---|---|---|
 | v1 | March 2026 | Initial OS — 4 workflows, basic CLAUDE.md |
 | v2 | Early April 2026 | Morning briefing, role scorer, referral-first, negotiation, pattern tracker |
-| v3 | April 10, 2026 | Full HTML dashboard, outreach tracker (59 companies), Chrome extension v1, interactive resume generator (separate file), complete bullet library from 8 resumes, usage tracking + heatmap, weighted visual scoring |
-| v3.1 | April 11, 2026 | Resume generator integrated into dashboard (`job-search-os-v4.html`), score→resume one-click handoff, Chrome extension v2 (nudge badge, Gist profile sync, outreach tracker sync, improved extraction, Nudges tab) |
+| v3 | April 10, 2026 | Full HTML dashboard, outreach tracker (59 companies), Chrome extension v1, interactive resume generator (separate file), complete bullet library, usage tracking + heatmap, weighted visual scoring |
+| v3.1 | April 11, 2026 | Resume generator integrated into dashboard, score→resume handoff, Chrome extension v2 (nudge badge, Gist sync, outreach tracker sync, improved extraction, Nudges tab) |
+| v4 | April 11, 2026 | Four new Tools panels: `/sync`, `/network`, `/digest`, `/post`. New localStorage keys: `jobos_sync_url`, `jobos_digest_config`, `jobos_post_history`. File: `job-search-os-v5.html`. |
+| v4.1 | April 12, 2026 | Chrome extension MV3 fix (all buttons now work). Pipeline inline stage editing + Withdrawn/Rejected/Closed strike-through. Outreach Not Interested strike-through. `/export` panel: weekly CSV/JSON export, Apps Script for Google Sheets automation, weekly summary for Claude review. |
 
 ---
 

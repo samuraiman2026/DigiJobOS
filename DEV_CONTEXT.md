@@ -1,5 +1,5 @@
 # Job Search OS — Developer & LLM Context File
-**Version 3.1 · April 2026 · BD/Partnerships Edition**
+**Version 4.1 · April 2026 · BD/Partnerships Edition**
 
 This file is the authoritative reference for any LLM or developer working on the Job Search OS. Read this before touching any file in the system.
 
@@ -11,12 +11,15 @@ A personal job search operating system built on Claude for a senior BD/Partnersh
 
 1. Knows the user's full professional context at session start (via CLAUDE.md)
 2. Runs structured interactive workflows on command (/brief, /score, /apply, etc.)
-3. Parses email for new job postings and scores them automatically
+3. Parses email for new job postings and scores them automatically via a morning digest
 4. Tracks outreach across 59 target companies with daily velocity metrics
 5. Generates tailored .docx resumes via an integrated 5-step builder with Claude API rewrite
-6. Syncs scored roles from the Chrome extension to the outreach tracker
-7. Alerts on overdue follow-ups via a numeric badge with one-click nudge prompt generation
-8. Compounds over time through a debrief → pattern log → drill cycle
+6. Maps warm referral paths to 20+ priority companies with pre-loaded connection intelligence
+7. Syncs scored roles from the Chrome extension to the outreach tracker
+8. Alerts on overdue follow-ups via a numeric badge with one-click nudge prompt generation
+9. Generates practitioner-grade LinkedIn posts across five content pillars
+10. Exports weekly job search data to Google Sheets via CSV, JSON, and Apps Script automation
+11. Compounds over time through a debrief → pattern log → drill cycle
 
 **The target user** is Pranjal Mahna: 15+ years BD/Partnerships, Michigan-based (remote preferred), seeking Director or Senior Manager roles at AI-native companies. Currently consulting via PMSV while job searching. Key background: Huawei ISV ecosystem ($1M→$100M, 1,000+ ISVs, Kirin 9000 on-device AI), Qualia first BD hire ($9M at 120%), Pandora ($200M+ new channels, OEM: Sony/Samsung/Honda).
 
@@ -26,8 +29,8 @@ A personal job search operating system built on Claude for a senior BD/Partnersh
 
 ```
 outputs/
-├── job-search-os-v4.html               ← Main dashboard + integrated resume generator
-├── jobos-chrome-extension-v2.zip       ← Chrome extension v2 (nudges, Gist, sync)
+├── job-search-os-v5.html               ← Main dashboard v4.1 (4,434 lines, 263KB)
+├── jobos-chrome-extension-v2.zip       ← Chrome extension v2 (MV3 fixed, all buttons work)
 ├── CLAUDE.md                           ← Master context file (load into Claude Project)
 ├── README.md                           ← User-facing documentation
 ├── DEV_CONTEXT.md                      ← This file
@@ -40,9 +43,10 @@ home/claude/ (build environment)
 │   ├── manifest.json
 │   ├── background.js
 │   ├── content.js
-│   ├── popup.html
-│   └── popup.js
-└── job-search-os-v4.html              ← Working copy of dashboard
+│   ├── popup.html                      ← Zero inline handlers (MV3 compliant)
+│   └── popup.js                        ← wireButtons() via addEventListener
+├── job-search-os-v5.html              ← v4 (previous)
+└── job-search-os-v5-export.html       ← v4.1 working copy
 ```
 
 ---
@@ -54,14 +58,62 @@ home/claude/ (build environment)
 **Surface 1 — Claude.ai Project (primary)**
 CLAUDE.md is uploaded to Project knowledge and loads automatically on every conversation. Google Calendar, Gmail, web search, and Monday.com are live via MCP connectors.
 
-**Surface 2 — HTML Dashboard (`job-search-os-v4.html`)**
-Single-file web app, opens in any browser, no server required. As of v3.1, the resume generator is fully integrated as the `/resume` sidebar panel — no separate file. The `/score` panel has a one-click handoff to `/resume` that pre-fills company, role, and JD.
+**Surface 2 — HTML Dashboard (`job-search-os-v5.html`)**
+Single-file web app, 4,434 lines, 263KB. Opens in any browser with no server. Contains all 10 workflows, resume generator, and 5 Tools panels. Version badge: v4.
 
 **Surface 3 — Chrome Extension v2**
-Activates on job board pages. Auto-extracts JD, scores instantly, syncs scored roles to outreach tracker, shows numeric amber badge for overdue follow-ups.
+Activates on job board pages. All buttons wired via addEventListener (MV3 compliant). Auto-extracts JD, scores instantly, syncs scored roles to outreach tracker, shows numeric amber badge for overdue follow-ups.
 
 **Surface 4 — Claude Code CLI**
 For terminal users. CLAUDE.md auto-loads. Full slash command set in `.claude/commands/`. Sub-agents in `sub-agents/`. Pattern log in `context/pattern-log.md`.
+
+---
+
+## Sidebar structure (`job-search-os-v5.html`)
+
+```
+Overview
+  ◈  Dashboard
+  ⊞  Pipeline
+  ◉  Outreach
+  ◷  Usage history
+
+Workflows
+  /br  Brief
+  /sc  Score
+  /ap  Apply
+  /rf  Referral
+  /pr  Prep
+  /mk  Mock
+  /db  Debrief
+  /ng  Negotiate
+  /pt  Patterns
+  /rv  Resume
+
+Tools
+  ⇄   Sync
+  ◎   Network map
+  ◈   Email digest
+  ✦   LinkedIn post
+  ↗   Weekly export     ← new in v4.1
+
+Agents
+  @   Sub-agents
+```
+
+---
+
+## All localStorage keys
+
+| Key | Contents | Set by |
+|---|---|---|
+| `jobos_v3` | Main OS state: `{ pipeline[], history[], scores[], stats, calendar_cache }` | All workflow panels |
+| `jobos_outreach_v1` | Outreach tracker: `{ contacts[], dailyLog{} }` | Outreach panel, sync import |
+| `jobos_sync_url` | Deployed GitHub Pages URL string | `/sync` panel |
+| `jobos_digest_config` | `{ minScore, alwaysInclude, sources, nudgeDays }` | `/digest` Configure tab |
+| `jobos_post_history` | Array of last 20 posts: `[{ text, pillar, date, ts }]` | `/post` panel |
+
+No new keys in v4.1 — the export panel reads from existing keys.
 
 ---
 
@@ -69,286 +121,230 @@ For terminal users. CLAUDE.md auto-loads. Full slash command set in `.claude/com
 
 `CLAUDE.md` is the single most important file. It contains:
 
-- **Identity & positioning**: Pranjal's job search status, PMSV consulting entity, target roles
-- **Key metrics**: Every career metric across all roles (real numbers — never modify)
+- **Identity & positioning**: Job search status, PMSV consulting entity, target roles
+- **Key metrics**: Every career metric across all roles (real — never modify)
 - **Bullet library**: Every resume bullet across 8 resume versions, tagged by theme
-- **Bullet relevance mapping**: Which bullets to select for which role types (6 types)
+- **Bullet relevance mapping**: Which bullets for which role types (6 types)
 - **5 core interview stories (A–E)**: Full STAR format
 - **Active target roles**: 4 current roles with gap bridges
 - **Behavioral instructions**: Language to use, what to avoid
 
-**Loading it**: Upload to Claude.ai Project knowledge, or place as `CLAUDE.md` in Claude Code project root.
-
 ---
 
-## The 10 workflows
+## The full workflow table
 
-Each workflow exists in three forms: a panel in `job-search-os-v4.html`, a command file in `.claude/commands/`, and a tab/shortcut in the Chrome extension popup.
-
-| Command | Purpose | Key inputs | Key outputs |
+| Command | Panel type | Purpose | Key outputs |
 |---|---|---|---|
-| `/brief` | Morning game plan | Pipeline status, follow-ups | Top 3 actions, cold role flags, referral suggestions |
-| `/score` | JD fit analysis | Job description | 5-dimension bars, weighted total, verdict + → /resume button |
-| `/apply` | Full application package | JD, role type, contact | Resume restructure, gap bridge, referral strategy, cover note |
-| `/referral` | Warm intro strategy | Target company, context | Network angles, LinkedIn DM, timing |
-| `/prep` | Interview prep | Role, interviewer, round | Company research, question bank, gap bridges, tailored pitch |
-| `/mock` | Interactive mock interview | Role, mode | One Q at a time, live scoring |
-| `/debrief` | Post-interview analysis | Questions asked, notes, gut read | Answer scoring, value left on table, thank-you email |
-| `/negotiate` | Offer strategy | Comp details, competing offers | Market benchmarks, counter offer, call script |
-| `/pipeline` | Weekly review | Current pipeline | Health flags, priority actions |
-| `/pattern` | Cross-interview analysis | Debrief log history | Weak question types, over-used stories, drill targets |
-| `/resume` | Resume generator (v3.1) | Role, template, role type | 5-step interactive builder → downloadable .js → .docx |
+| `/brief` | Workflow | Morning game plan | Top 3 actions, cold role flags, referral suggestions |
+| `/score` | Workflow | JD fit analysis | 5-dimension bars, weighted total, verdict + → /resume button |
+| `/apply` | Workflow | Full application package | Resume restructure, gap bridge, referral strategy, cover note |
+| `/referral` | Workflow | Warm intro strategy | Network angles, LinkedIn DM, timing |
+| `/prep` | Workflow | Interview prep | Company research, question bank, gap bridges, tailored pitch |
+| `/mock` | Workflow | Interactive mock interview | One Q at a time, live scoring |
+| `/debrief` | Workflow | Post-interview analysis | Answer scoring, value left on table, thank-you email |
+| `/negotiate` | Workflow | Offer strategy | Market benchmarks, counter offer, call script |
+| `/pipeline` | Workflow | Weekly review | Health flags, priority actions |
+| `/pattern` | Workflow | Cross-interview analysis | Weak question types, over-used stories, drill targets |
+| `/resume` | Workflow | Resume generator | 5-step builder → Node.js script → .docx |
+| `/sync` | Tool | Outreach data sync | GitHub Pages setup, JSON export/import, Claude Project prompt |
+| `/network` | Tool | Referral network map | Warm paths to 20+ companies, connection + angle + nudge + prompt |
+| `/digest` | Tool | Morning email digest | Scored job alerts + recruiter replies + nudges + top 3 actions |
+| `/post` | Tool | LinkedIn post generator | 5 pillars, Claude API streaming, 150–250 words, practitioner voice |
+| `/export` | Tool | Weekly Google Sheets export | CSV/JSON download, paste-to-Sheets, Apps Script, weekly summary |
 
 ---
 
-## Resume generator — integrated in v3.1
+## New in v4.1 — full architecture details
 
-### Architecture
+### `/export` — Weekly export panel
 
-The resume generator lives as `panel-resume` in `job-search-os-v4.html`. All variables are prefixed `RV_` or `rv` to avoid collisions with the main OS namespace.
+**Purpose**: Export all job search data to Google Sheets on a weekly cadence.
 
-**Key variables:**
+**State**: No new localStorage keys. Reads from `STATE` (pipeline, history, scores) and `OT_STATE` (contacts, dailyLog).
+
+**Key functions**:
 ```javascript
-RV_LIB   // bullet library (same structure as standalone generator)
-RV_SEL   // selection rules mapping role types to bullet IDs
-RV       // state object: {company, role, jd, tmpl, rt, active, rewritten, timer}
-RV_STEP  // current step (1-5)
+renderExportPanel()        // wires buttons, calculates metrics, renders weekly summary
+buildPipelineCSV()         // headers + STATE.pipeline rows → comma-separated
+buildOutreachCSV()         // headers + OT_STATE.contacts rows → comma-separated
+buildScoresCSV()           // headers + STATE.scores → with verdict calculated
+buildActivityCSV()         // last 7 days of STATE.history → comma-separated
+buildPipelineTSV()         // tab-separated for direct Sheets paste
+buildOutreachTSV()         // tab-separated for direct Sheets paste
+exportAllJSON()            // full export: pipeline + outreach + scores + activityThisWeek + stats
+downloadCSV(csv, name)     // creates Blob, triggers download with date-stamped filename
+pasteToSheets(tsv, label)  // navigator.clipboard.writeText for Sheets paste workflow
+generateSheetsScript()     // produces full Apps Script with createJobSearchSheet(), importFullExport(), sendWeeklyReminder()
+renderWeeklySummary()      // calculates week metrics live from STATE + OT_STATE
+copyWeeklySummary()        // formats full structured briefing string for Claude review
 ```
 
-**Key functions:**
+**CSV structure per export**:
+- Pipeline: Company, Role, Stage, Health, Last Action, Next Step
+- Outreach: Company, Tier, Role, Contact, Status, Follow-ups, Last Outreach, POV / Angle
+- Scored Roles: Company, Score, Verdict (Apply/Consider/Skip), Date
+- Activity Log: Command, Detail, Date, Time (filtered to last 7 days)
+
+**Apps Script — `createJobSearchSheet()`**:
+- Creates Google Sheet named "Job Search OS" with 5 tabs
+- Headers frozen row 1, dark background with accent-green headers per tab
+- Sets `ScriptApp` trigger: weekly Sunday 9am → `sendWeeklyReminder()`
+- `sendWeeklyReminder()` emails Pranjal a reminder with Sheet URL and export instructions
+- `importFullExport(jsonString)` — paste the full JSON export string, writes all tabs with week tag
+
+**Button wiring** (called on every `renderExportPanel()` call — uses `replaceWith(cloneNode(true))` to avoid duplicate listeners):
 ```javascript
-rvGoStep(n)           // navigate to step n, runs buildBullets/buildManualPrompt/buildStep5
-rvJump(n)             // jump back to step n (only if n <= RV_STEP)
-rvLoadFromScore(co, role, jd)  // called from /score panel to pre-fill and open
-rvQL(co, ro, tm, rt)  // quick-load from sidebar buttons
-rvLiveScore()         // debounced scoring as user types (500ms)
-rvBuildBullets()      // renders bullet preview, populates RV.active
-rvTogB(rk, j)         // toggle bullet on/off in preview
-rvGetActive()         // returns [{role, text}] for active bullets
-rvRunClaude()         // streams Claude API rewrite, populates RV.rewritten
-rvAcceptRewrites()    // accepts rewritten bullets, advances to step 5
-rvBuildStep5()        // generates preview + CLI command + summary
-rvBuildPreview()      // renders HTML preview of resume
-rvDownloadScript()    // generates and downloads Node.js .js file
-rvCopyDocxPrompt()    // copies Claude Code prompt for build_resume.js
+const wire = (id, fn) => {
+  const el = document.getElementById(id);
+  if (el) { el.replaceWith(el.cloneNode(true)); document.getElementById(id).addEventListener('click', fn); }
+};
 ```
 
-### Score → resume handoff
+---
 
-The `/score` panel's `runScore()` function calls `saveScoreToHistory()` and then shows a hidden button:
+### Pipeline tracker — strike-through (v4.1)
+
+**New stages**: Withdrawn, Rejected, Closed (added to modal select and `stageCls` map).
+
+**`_pDone` variable** in `renderPipeline()`:
 ```javascript
-const rBtn = document.getElementById('score-to-resume-btn');
-if (rBtn) rBtn.style.display = 'inline-flex';
+const _pDone = r.stage === 'Withdrawn' || r.stage === 'Closed' || r.stage === 'Rejected';
+// Applied to row: style="${_pDone?'opacity:0.45;':''}"
+// Applied to company td: text-decoration:line-through when _pDone
 ```
 
-The button calls:
+**`updatePipelineStage(id, stage)`** — new function:
 ```javascript
-function scoreToResume() {
-  const company = document.getElementById('score-company').value.trim();
-  const jd = document.getElementById('score-jd').value.trim();
-  rvLoadFromScore(company, company.split('—')[1]?.trim() || '', jd);
+function updatePipelineStage(id, stage) {
+  const r = STATE.pipeline.find(x => x.id === id);
+  if (!r) return;
+  r.stage = stage;
+  r.lastAction = new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  saveState(); renderPipeline(); renderPipelineMini();
+  logUsage('/pipeline', `${r.company} → ${stage}`);
 }
 ```
 
-`rvLoadFromScore` sets `RV.company/role/jd`, populates the form fields, runs `rvLiveScore()`, then calls `nav('resume')`.
-
-### Resume generator CSS namespace
-
-All CSS classes specific to the resume generator use `rv-` prefix:
-- `.rv-stab` — step tabs
-- `.rv-tmpl-card` — template selection cards
-- `.rv-pill` — role type pills
-- `.rv-bsec`, `.rv-bitem`, `.rv-btog` — bullet preview
-- `.rv-cursor`, `.rv-spinner` — Claude streaming indicators
-- `.rv-name`, `.rv-title`, `.rv-b`, etc. — preview HTML styles
+**Move dropdown** added as a new table column between Next Step and Remove (×):
+```javascript
+`<select onchange="updatePipelineStage(${r.id},this.value)" style="...">
+  ${['Monitoring','Applied','Recruiter screen','HM round','Panel','Offer','Withdrawn','Rejected','Closed']
+    .map(s=>`<option value="${s}" ${r.stage===s?'selected':''}>${s}</option>`).join('')}
+</select>`
+```
 
 ---
 
-## Chrome Extension v2 — full architecture
+### Outreach tracker — strike-through (v4.1)
 
-### Files
+**`_done` variable** in `renderOutreachTable()`:
+```javascript
+const _done = c.status === 'Not Interested';
+// Row: opacity:0.45 when _done
+// Company td: text-decoration:line-through;text-decoration-color:var(--text3) when _done
+```
+
+"Not Interested" was already in the status dropdown — it now has visual meaning. Data is fully preserved; no delete occurs. The strike-through makes the row visually inactive without removing the company from history or metrics.
+
+---
+
+## Chrome Extension v2 — MV3 fix (v4.1)
+
+### Root cause
+
+Manifest V3 enforces a strict Content Security Policy that **silently blocks all inline `onclick="..."` attribute handlers** in extension popup HTML. Every button in the previous popup.html was wired with `onclick="functionName()"` — so every button was silently broken with no console error visible to the user.
+
+### Fix
+
+`popup.html` rebuilt with **zero inline handlers**. Every interactive element has a unique `id`. `popup.js` has a single `wireButtons()` function called on `DOMContentLoaded` that wires all interactions via `addEventListener`:
+
+```javascript
+function wireButtons() {
+  // Tabs
+  on('tab-score',  () => switchTab('score'));
+  on('tab-apply',  () => switchTab('apply'));
+  // ... all 6 tabs
+
+  // Score tab
+  on('btn-score-manual',     scoreManual);
+  on('btn-sync-tracker',     syncToTracker);
+  on('btn-open-claude-score',() => openClaude('score'));
+  on('btn-copy-score',       () => copyP('score'));
+
+  // Apply, Brief, Nudges, Shortcuts tabs
+  // ... all buttons wired here
+}
+
+function on(id, fn) {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('click', fn);
+}
+```
+
+**Nudge buttons** are rendered dynamically via `innerHTML` and cannot be wired in `wireButtons()`. They use `data-` attributes and are wired after `list.innerHTML` is set:
+
+```javascript
+list.querySelectorAll('[data-nudge-idx]').forEach(btn => {
+  btn.addEventListener('click', () => copyNudgePrompt(parseInt(btn.dataset.nudgeIdx)));
+});
+list.querySelectorAll('[data-done-idx]').forEach(btn => {
+  btn.addEventListener('click', () => markNudgeDone(parseInt(btn.dataset.doneIdx), btn.dataset.doneCo));
+});
+```
+
+**Rule**: Any button added dynamically to the DOM (via `innerHTML`) must be wired via `querySelectorAll` + `addEventListener` immediately after the DOM update, not in `wireButtons()`.
+
+---
+
+## Resume generator (unchanged from v3.1)
+
+Lives as `panel-resume` in `job-search-os-v5.html`. All variables prefixed `RV_` or `rv`. Score→resume handoff via `scoreToResume()` → `rvLoadFromScore()`. Full documentation in previous versions unchanged.
+
+---
+
+## Chrome Extension v2 — full architecture summary
 
 | File | What it does |
 |---|---|
-| `manifest.json` | MV3 manifest — permissions include `alarms` (new in v2) |
-| `background.js` | Service worker — hourly alarm, nudge badge, message handler, outreach sync |
-| `content.js` | Page scraper — improved multi-selector extraction with retry |
-| `popup.html` | 6-tab popup UI |
-| `popup.js` | All popup logic — scoring, Gist sync, nudge rendering, outreach sync |
+| `manifest.json` | MV3, permissions: activeTab, scripting, storage, contextMenus, alarms |
+| `background.js` | Service worker: hourly alarm, nudge badge, syncOutreach/getOverdueContacts message handler |
+| `content.js` | Page scraper: multi-selector extraction, 800ms retry for LinkedIn lazy loading |
+| `popup.html` | 6-tab popup, zero inline onclick handlers |
+| `popup.js` | All logic: wireButtons(), scoring, Gist sync, nudge rendering, outreach sync |
 
-### Storage keys
-
-| Key | Storage | Contents |
-|---|---|---|
-| `jobos_ext_v1` | `chrome.storage.local` | `{ history[], scores[], stats: {total, streak, lastDate} }` |
-| `jobos_outreach_sync` | `chrome.storage.local` | `{ contacts[], lastUpdated }` — roles synced from scoring |
-| `jobos_gist_url` | `chrome.storage.local` | Raw GitHub Gist URL string |
-
-### Background service worker
-
-**Alarms**: `chrome.alarms.create('nudge-check', { periodInMinutes: 60 })` on install. Fires `checkNudges()` every hour.
-
-**Nudge logic**:
-```javascript
-// Date parsing — handles "Apr 1", "Feb 23", "Mar 2" format
-function parseDate(str) { ... }  // returns timestamp or null
-
-// Overdue = lastOutreach set + status is Reached Out or Follow-up Sent + days >= 10
-const overdue = contacts.filter(c => {
-  const last = parseDate(c.lastOutreach);
-  return last && Math.floor((Date.now() - last) / 86400000) >= NUDGE_DAYS;
-});
-```
-
-**Badge behavior**:
-- Amber number: nudge count > 0 (takes priority)
-- Green `▶`: on job page, no nudges
-- Empty: neither
-
-**Message handler** — responds to three messages from popup:
-1. `getNudgeCount` → `{ count }`
-2. `syncOutreach` → adds company to `jobos_outreach_sync`, returns `{ added, reason? }`
-3. `getOverdueContacts` → returns contacts with `daysSince` calculated
-
-### Content script v2 improvements
-
-**LinkedIn-specific extraction** (`extractLinkedIn()`):
-- 6 title selector strategies including `h1.t-24`, `[class*="job-title"]`
-- 3 company selector strategies
-- Description retries if text < 300 chars (handles lazy loading)
-- Falls back to full `article` or `main` text if specific selectors fail
-
-**Retry on short text**:
-```javascript
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.action === 'extractJob') {
-    const data = extractJobData();
-    if (data.jobText.length > 300) {
-      sendResponse(data);
-    } else {
-      setTimeout(() => sendResponse(extractJobData()), 800);
-    }
-    return true; // keep channel open for async
-  }
-});
-```
-
-### Gist profile sync
-
-On popup init, `loadProfile()` runs:
-1. Reads `jobos_gist_url` from `chrome.storage.local`
-2. If present, fetches the URL with `cache: 'no-store'`
-3. On success: merges with `FALLBACK_PROFILE` (`{ ...FALLBACK_PROFILE, ...json }`)
-4. On failure or no URL: uses `FALLBACK_PROFILE` unchanged
-
-`profile.json` structure at the Gist:
-```json
-{
-  "background": "string — used in all prompts",
-  "bulletMap": {
-    "hardware": "string", "enterprise": "string",
-    "startup": "string",  "supply": "string",
-    "alliances": "string","privacy": "string"
-  }
-}
-```
-
-Any key present overrides the fallback. Missing keys use fallback values. This means a minimal Gist with only `background` is valid.
-
-### Outreach sync flow
-
-```
-User scores role on LinkedIn
-  → runScoreEngine() completes
-  → document.getElementById('sync-row').style.display = 'block'
-  → User clicks "+ Add to outreach tracker"
-  → syncToTracker() called in popup.js
-  → chrome.runtime.sendMessage({ action: 'syncOutreach', data: { company, role, score, pov } })
-  → background.js handles: reads jobos_outreach_sync, checks for duplicates, pushes new entry
-  → sendResponse({ added: true }) or { added: false, reason: 'already exists' }
-  → Popup updates button text + calls loadExportCount()
-```
-
-**Synced contact structure**:
-```javascript
-{
-  id: Date.now(),
-  company,
-  role,
-  tier: score >= 75 ? '1' : '2',  // auto-tier based on score
-  contact: '',
-  pov: `Scored ${score}% via Chrome extension on ${date}`,
-  followups: 0,
-  lastOutreach: '',
-  status: 'Not Started',
-  selected: false,
-  scoreFromExt: score  // extension-specific field
-}
-```
-
-### Nudge prompts
-
-The "Copy nudge →" button generates a prompt instructing Claude to write a warm follow-up that:
-- Does NOT say "just checking in" or "following up on my previous message"
-- Adds value — recent insight, relevant metric, or specific question
-- Is under 60 words
-- Ends with a clear low-pressure ask
-- References the company name and last known angle/POV
+**Storage keys** (chrome.storage.local):
+- `jobos_ext_v1`: `{ history[], scores[], stats: {total, streak, lastDate} }`
+- `jobos_outreach_sync`: `{ contacts[], lastUpdated }` — roles synced from scoring
+- `jobos_gist_url`: Raw GitHub Gist URL string
 
 ---
 
 ## Bullet library system
 
-The bullet library exists in three places (keep in sync):
-1. `job-search-os-v4.html` — `RV_LIB` / `RV_SEL` objects in the resume generator section
-2. `resume-generator.html` (standalone, now superseded but kept as reference) — `LIB` / `SEL`
-3. `build_resume.js` — `LIB` / `SELECTIONS`
+Exists in two places (keep in sync):
+1. `job-search-os-v5.html` — `RV_LIB` / `RV_SEL` in resume generator section (bullet text field is `t`)
+2. `build_resume.js` — `LIB` / `SELECTIONS`
 
-**Structure**:
-```javascript
-RV_LIB = {
-  pmsv:    { label, te, ta, ts, dates, bullets: [{id, t}] },
-  qualia:  { label, title, dates, intro, bullets: [...] },
-  huawei:  { label, te, ta, dates, intro, bullets: [...] },
-  pandora: { label, title, dates, intro, bullets: [...] },
-  mobclix: { label, title, dates, bullets: [...] },
-  sony:    { label, title, dates, bullets: [...] }
-}
-```
-
-Note: in the v4 dashboard the bullet text field is `t` (not `text`) to reduce file size.
-
-**Selection rules**:
-```javascript
-RV_SEL = {
-  enterprise: { pmsv:['p1','p2','p4','p3'], qualia:['q1','q2','q3','q4','q8'], huawei:['h1','h2','h3','h4','h5','h6'], ... },
-  edgeai:     { pmsv:['p2','p5','p3','p4'], qualia:['q5','q6','q7','q1'],       huawei:['h7','h8','h9','h10','h4'], ... },
-  hardware:   { ... }, startup: { ... }, alliances: { ... }, supply: { ... }
-}
-```
-
-**Cardinal rule**: Never include two bullets that cover the same Huawei story from different angles (e.g. `h3` = $1M→$100M revenue story, `h7` = ISV 1,000+ ecosystem story — pick one per resume). 4–5 bullets per role section max.
-
-**Role type decision guide**:
-- `enterprise`: Microsoft, Salesforce, Apple — lead with `h1`/`h3`/`h5` (scale, C-suite, revenue)
-- `edgeai`: Tenstorrent, Qualcomm — lead with `h7`/`h8` (ISV ecosystem, Kirin 9000 on-device)
-- `hardware`: Nothing.tech, OEM — lead with `pa3` (Pandora OEM Sony/Samsung/Honda) + `h8` (Kirin)
-- `startup`: Emissary, MAVI — lead with `q1`/`p3` (Qualia first hire, Wove 90-day)
-- `alliances`: Typeface, GSI roles — lead with `h9` (licensing/co-dev Meta/Adobe/Airbnb)
-- `supply`: SSP/publisher — lead with `m1` (Mobclix $16M 185% YoY) + `pa4` (Pandora remnant)
+Role type decision guide:
+- `enterprise`: lead with `h1`/`h3`/`h5` (scale, C-suite, revenue)
+- `edgeai`: lead with `h7`/`h8` (ISV ecosystem, Kirin 9000 on-device)
+- `hardware`: lead with `pa3` (Pandora OEM) + `h8` (Kirin)
+- `startup`: lead with `q1`/`p3` (Qualia first hire, Wove 90-day)
+- `alliances`: lead with `h9` (licensing/co-dev Meta/Adobe/Airbnb)
+- `supply`: lead with `m1` (Mobclix $16M) + `pa4` (Pandora remnant)
 
 ---
 
 ## Scoring system
 
-Used in three places: `/score` panel in dashboard, Chrome extension popup, and live JD preview in resume generator. All three use identical logic with the same keyword arrays.
+Identical across `/score` panel, Chrome extension popup, resume generator live preview.
 
 ```javascript
-s1 = kw(jd, ['ecosystem','partner','isv','marketplace','developer','sdk','platform','alliance','channel','co-sell','distribution','gtm'])  // 25%
-s2 = kw(jd, ['build','create','launch','from scratch','establish','first','greenfield','founding','0 to 1','zero to one','incubate'])       // 25%
-s3 = kw(jd, ['technical','engineering','api','integration','sdk','architecture','soc','npu','on-device','edge','silicon','risc-v'])         // 20%
-s4 = kw(jd, ['ai','machine learning','llm','edge ai','on-device','genai','model','intelligent','neural','inference'])                       // 20%
-s5 = kw(jd, ['director','senior manager','vp','head of','strategic','executive','global','principal','lead'])                              // 10%
+s1 = kw(jd, ['ecosystem','partner','isv',...])  // 25%
+s2 = kw(jd, ['build','create','launch',...])    // 25%
+s3 = kw(jd, ['technical','engineering','api',...]) // 20%
+s4 = kw(jd, ['ai','machine learning','llm',...]) // 20%
+s5 = kw(jd, ['director','senior manager',...])  // 10%
 
 function kw(text, words) {
   return Math.round(50 + Math.min(hits / Math.max(words.length * 0.35, 1), 1) * 50);
@@ -356,88 +352,9 @@ function kw(text, words) {
 total = s1*.25 + s2*.25 + s3*.20 + s4*.20 + s5*.10
 ```
 
-Verdicts: ≥75% = Apply now (green), 50–74% = Consider (amber), <50% = Skip (red).
+Verdicts: ≥75% Apply (green), 50–74% Consider (amber), <50% Skip (red).
 
-**Template auto-detection**: `s3>68 || s4>70 || jd includes 'soc/npu/edge ai/silicon'` → edgeai; `s2>72 || jd includes 'founding/first hire/0 to 1'` → startup; else enterprise.
-
-**If you update keyword lists**: Search for `kw(` in `job-search-os-v4.html` (two instances — score panel and resume generator), `popup.js` in the extension, and `resume-generator.html` (standalone). All four must stay in sync.
-
----
-
-## Outreach tracker
-
-### Dashboard tracker (`job-search-os-v4.html`)
-
-Storage key: `jobos_outreach_v1` in `localStorage`
-
-Data structure:
-```javascript
-{
-  id, company, tier, role, contact, pov,
-  followups: 0,
-  lastOutreach,   // "Apr 1", "Feb 23" format — matched by parseDate() in background.js
-  status,         // Not Started | Reached Out | Follow-up Sent | Replied | Interviewing | Researching | Not Interested
-  selected        // for bulk outreach prompt generation
-}
-```
-
-Daily log: `OT_STATE.dailyLog['YYYY-MM-DD'] = count` — drives the 14-day velocity chart.
-
-59 companies pre-seeded in `OUTREACH_SEED` array. Any additions via modal persist to `localStorage` and survive page reloads.
-
-### Extension tracker (`jobos_outreach_sync`)
-
-Separate key in `chrome.storage.local`. Populated when user clicks "+ Add to outreach tracker" after scoring. Same field structure as dashboard, with extra `scoreFromExt` field.
-
-### Sync between extension and dashboard
-
-There is no automatic live sync — `chrome.storage.local` and `file://` localStorage are different origins. The workflow is:
-1. Score roles in extension → "+ Add to outreach tracker" 
-2. Nudges tab → "Export scored roles as JSON" → downloads file
-3. Dashboard → Outreach tracker → "+ Add company" modal (manual) or future import feature
-
-The `lastOutreach` date format (`"Apr 1"`) is shared between both systems. The background.js `parseDate()` function handles this format for nudge calculation.
-
----
-
-## Usage tracking
-
-Dashboard logs every command to `STATE.history` in `localStorage` (key: `jobos_v3`). Entry shape: `{ cmd, detail, date, time, ts, id }`. Max 500 entries, trimmed on overflow.
-
-Chrome extension logs to `chrome.storage.local` key `jobos_ext_v1`. Entry shape: `{ cmd, detail, date, time, ts }`. Max 100 entries.
-
-Streak logic (shared between both): compare `lastDate` to today. If yesterday === lastDate, increment streak. If gap > 1 day, reset to 1.
-
----
-
-## Gmail integration
-
-Daily parsing prompt (run as part of `/brief`):
-```
-Scan my Gmail for:
-1. New LinkedIn job alert emails today — parse all roles, score each against my profile, surface any ≥75%
-2. Any replies from companies on my outreach list in the last 7 days
-3. Any roles going cold that need follow-up
-```
-
-Direct recruiter reply search:
-```
-to:pranjal.mahna@gmail.com (partnerships OR "business development" OR recruiter OR hiring)
--from:linkedin.com -from:noreply newer_than:60d
-```
-
----
-
-## Key data — active pipeline (April 2026)
-
-| Company | Role | Stage | Health |
-|---|---|---|---|
-| Nothing.tech | Director BD | Recruiter screen done | Amber |
-| Microsoft | Sr. Manager Global Partnerships | Applied, seeking referral | Amber |
-| Emissary | Founding GTM Lead | Applied | Green |
-| Turing.com | Client Partner AI Startups | Monitoring | Green |
-
-**High-priority roles from April 10 inbox scoring**: Tenstorrent (93%, apply immediately), Typeface (82%), Placer.ai (79%, $210-240K).
+**If you update keyword lists**: Search `kw(` in `job-search-os-v5.html` (two instances) and `scoreKw(` in extension `popup.js`. All three must stay in sync.
 
 ---
 
@@ -445,39 +362,43 @@ to:pranjal.mahna@gmail.com (partnerships OR "business development" OR recruiter 
 
 | Component | Stack |
 |---|---|
-| Dashboard + resume generator | Vanilla HTML/CSS/JS, single file (`job-search-os-v4.html`), localStorage |
+| Dashboard | Vanilla HTML/CSS/JS, single file, 4,434 lines, 263KB, localStorage |
 | Resume builder (CLI) | Node.js, `docx@9.6.1` |
-| Chrome extension | MV3, `chrome.storage.local`, `chrome.alarms`, content + background + popup |
+| Chrome extension | MV3, `chrome.storage.local`, `chrome.alarms`, addEventListener-only |
 | Claude API | `claude-sonnet-4-20250514`, streaming via `/v1/messages` with SSE |
-| CricVantage (separate project) | React + Vite + TypeScript + Tailwind (Vercel), FastAPI + Python (Railway) |
+| Google Sheets export | CSV/TSV download + Google Apps Script (`createJobSearchSheet`, `importFullExport`) |
+| CricVantage (separate) | React + Vite + TypeScript + Tailwind (Vercel), FastAPI + Python (Railway) |
 
 ---
 
 ## Common operations for LLMs
 
-### Adding a workflow panel to the dashboard
-1. Add sidebar nav item: `<button class="nav-item" onclick="nav('newcmd')" id="nav-newcmd">...`
-2. Add panel: `<div class="panel" id="panel-newcmd">...`
-3. Add to `nav()` function: `if (id === 'newcmd') { ... }`
-4. Add `runNewcmd()` function: reads inputs, builds prompt string, injects into `.prompt-block`, adds copy button, calls `logUsage('/newcmd', detail)`
+### Adding a new workflow panel
+1. Add sidebar nav item with `id="nav-newcmd"` and `onclick="nav('newcmd')"`
+2. Add panel div with `id="panel-newcmd"`
+3. Add to `nav()`: `if (id === 'newcmd') { renderNewCmd(); }`
+4. Add `renderNewCmd()`: reads inputs, builds prompt, injects into `.prompt-block`, logs usage
 
-### Adding a company to the outreach tracker
-Edit `OUTREACH_SEED` array in the OS JavaScript section, or use the "+ Add company" modal at runtime (persists to localStorage). New seed entries only affect new installs or after clearing storage.
+### Adding a company to the network map
+Add to `COMPANY_PATHS`: `warmPath`, `strength` (1–3), `connection`, `angle`, `nudge`. Company must also exist in `OT_STATE.contacts`.
 
-### Updating the bullet library
-Edit `RV_LIB` / `RV_SEL` in `job-search-os-v4.html` AND `LIB` / `SELECTIONS` in `build_resume.js`. Never change existing bullet IDs — only add new ones with new IDs.
+### Adding a LinkedIn post pillar
+Add to `PILLAR_CONFIGS`: `title`, `fields` (HTML string), `buildPrompt()` function. Add pillar card div with `id="pp-newpillar"` and `onclick="selectPillar('newpillar')"`.
+
+### Adding a column to the weekly export
+Update the relevant `build*CSV()` and `build*TSV()` functions, and update the `importFullExport()` in `generateSheetsScript()` to write the extra column. Also update the Apps Script `setupHeaders()` call for that tab.
+
+### Updating the digest default companies
+Change `alwaysInclude` in `loadDigestConfig()` defaults, or via the Configure tab UI.
 
 ### Changing the Claude API model
-Search for `claude-sonnet-4-20250514` in `job-search-os-v4.html` (resume generator section) and `resume-generator.html`. Update both.
+Search for `claude-sonnet-4-20250514` in `job-search-os-v5.html` — two instances (resume generator and post generator). Update both.
 
 ### Updating nudge threshold
-Change `NUDGE_THRESHOLD_DAYS` in `background.js` (currently `10`). Repack and reinstall extension.
+Change `NUDGE_THRESHOLD_DAYS` in `background.js` AND `NUDGE_DAYS` in `popup.js`. Repack and reinstall extension. The digest prompt threshold is separate — controlled by `cfg.nudgeDays` from localStorage.
 
-### Updating Gist profile without reinstalling extension
-Edit `profile.json` on GitHub Gist. Extension fetches fresh on every popup open (`cache: 'no-store'`). No action needed on the extension side.
-
-### Adding a new scoring dimension
-All scoring uses the same `kw(text, keywords)` function. To add a 6th dimension: add keyword array, update weight calculations to sum to 1.0, add bar element to HTML in all three score panels (dashboard, resume generator, extension popup).
+### Adding a new pipeline stage
+Add the stage string to: the `ar-stage` select options in the add-role modal, the `stageCls` map in `renderPipeline()`, the `_pDone` condition if it should show as struck-through, and the inline Move select options in the pipeline table row template.
 
 ---
 
@@ -487,39 +408,50 @@ All scoring uses the same `kw(text, keywords)` function. To add a 6th dimension:
 
 **2. Interactive before generative.** Every workflow asks questions before producing output.
 
-**3. One best bullet, not all versions.** Pick one best version per bullet per role. 4–5 bullets per role section max.
+**3. One best bullet, not all versions.** 4–5 bullets per role section max.
 
-**4. Metrics are non-negotiable.** Never remove or modify a metric in rewrites. $20M, 120%, 1,000+ ISVs, $1M→$100M are the proof.
+**4. Metrics are non-negotiable.** Never modify $20M, 120%, 1,000+ ISVs, $1M→$100M.
 
-**5. The pattern log compounds.** After 10 debriefs it knows the user's habits better than they do.
+**5. The pattern log compounds.** After 10 debriefs it knows habits the user can't see.
 
 **6. Sub-agents as adversarial pressure.** Never water down @skeptic or @hiring-manager.
 
-**7. Namespace isolation in combined files.** Resume generator in v4 uses `RV_` / `rv` prefixes. Outreach tracker uses `OT_` / `ot` prefixes. Never mix with base OS variable names.
+**7. Namespace isolation in combined files.** Resume: `RV_`/`rv`. Outreach: `OT_`/`ot`. No collisions.
 
-**8. Extension and dashboard are separate origins.** `chrome.storage.local` and `file://` localStorage cannot share data directly. The sync path is export → import, not live. Do not attempt to bridge them with `externally_connectable` unless serving the HTML from a web server.
+**8. Extension and dashboard are separate origins.** Sync path is always export → import, never live.
+
+**9. Post generator prompts enforce voice.** Every `buildPrompt()` must include credentials, no-opener rules, word count, ending question. Generic AI text is a failure.
+
+**10. Network map paths are grounded in real relationships.** Never invent a connection in `COMPANY_PATHS`.
+
+**11. MV3 extension: no inline handlers.** All event handling via `addEventListener` in `wireButtons()`. Dynamically rendered buttons must be wired via `querySelectorAll` immediately after the DOM update.
+
+**12. Strike-through, not delete.** Closed/withdrawn pipeline roles and Not Interested companies should dim and strike-through, not be removed. Data integrity matters for the pattern log and history.
 
 ---
 
 ## FAQ for LLMs
 
-**Q: A user wants to add a new target company to both the dashboard outreach tracker and extension sync.**
-A: Add to `OUTREACH_SEED` in `job-search-os-v4.html` for the dashboard (affects new installs). For the extension, the user clicks "+ Add to outreach tracker" after scoring the company on LinkedIn.
+**Q: Extension buttons aren't working.**
+A: Root cause is always MV3 CSP. Check `popup.html` has zero `onclick=` attributes. Check `wireButtons()` in `popup.js` covers the button. For dynamically rendered buttons (nudge cards), check they're wired via `querySelectorAll('[data-*]').forEach(btn => btn.addEventListener(...))` immediately after `innerHTML` is set.
 
-**Q: The extension badge is showing the wrong number after a user marks a nudge as done.**
-A: `markNudgeDone()` in `popup.js` updates `chrome.storage.local` then calls `loadNudges()` which calls `updateNudgeBadge()`. If the badge is stale, the issue is likely that `chrome.runtime.sendMessage({ action: 'getOverdueContacts' })` is returning cached data. The background worker recalculates on every call — check that `parseDate()` is correctly parsing the `lastOutreach` string format (`"Apr 1"`, `"Feb 23"` etc).
+**Q: A user wants to add a column to the weekly Sheets export.**
+A: Update the relevant `build*CSV()` + `build*TSV()` functions in the dashboard. Update the `setupHeaders()` call in the `generateSheetsScript()` output for that tab. Update `importFullExport()` in the script to write the new column. The script is regenerated each time the user clicks "Generate Apps Script →" so they just re-paste the new version.
 
-**Q: The Gist profile fetch is failing in the extension.**
-A: Check that `https://raw.githubusercontent.com/*` is in `host_permissions` in `manifest.json`. The URL must be a raw Gist URL (`https://gist.githubusercontent.com/user/id/raw/...`), not the Gist page URL. The fetch uses `cache: 'no-store'` to bypass caching.
+**Q: The strike-through isn't appearing on a closed pipeline role.**
+A: Check `_pDone` in `renderPipeline()`. The condition is `r.stage === 'Withdrawn' || r.stage === 'Closed' || r.stage === 'Rejected'`. If a new stage was added, add it to this condition. Check the template literal uses `${_pDone?'opacity:0.45;':''}` on the `<tr>` and `${_pDone?'text-decoration:line-through;':''}` on the company `<td>`.
 
-**Q: How do I update the scoring keyword lists across all three scoring locations?**
-A: Search for `kw(` or `scoreKw(` in `job-search-os-v4.html` (two instances), `popup.js` in the extension, and `resume-generator.html`. The dashboard OS and resume generator use `rvKw()` and `scoreKeywords()` respectively — both call the same pattern. All arrays must stay in sync.
+**Q: The weekly export CSV has incorrect data.**
+A: Check the `build*CSV()` function for that tab. Each uses `csvCell()` to escape commas/quotes. Check `STATE` vs `OT_STATE` — pipeline data is in `STATE.pipeline`, outreach in `OT_STATE.contacts`, scores in `STATE.scores`, activity in `STATE.history`. The activity export filters to `h.ts >= weekAgo` — check the ISO string comparison is valid.
 
-**Q: The user wants to raise or lower the nudge threshold from 10 days.**
-A: Change `NUDGE_THRESHOLD_DAYS` in `background.js` and `NUDGE_DAYS` in `popup.js`. Repack the extension zip and reinstall.
+**Q: A user wants to add a new target company to the network map.**
+A: Add to `COMPANY_PATHS` with `warmPath`, `strength` (1–3), `connection`, `angle`, `nudge`. Ensure the company is in `OUTREACH_SEED` or OT_STATE.
 
-**Q: Why does `rvLoadFromScore()` split the company name on `—`?**
-A: The `/score` panel's company input accepts "Company — Role Title" format (e.g. "Tenstorrent — Head of ISV Partnerships"). When handing off to the resume generator, `company.split('—')[1]?.trim()` extracts the role title portion if it was entered that way. If the company field contains only a company name, `split('—')[1]` returns `undefined` and the role falls back to empty string, which is correct.
+**Q: The digest prompt overdue section is showing the wrong contacts.**
+A: `generateDigestPrompt()` calculates overdue live from `OT_STATE.contacts`. Check `c.lastOutreach` is in `"Apr 1"` format. Status `Replied` or `Interviewing` is intentionally excluded. Threshold is `cfg.nudgeDays` from `jobos_digest_config`.
+
+**Q: How do I update the network map when Pranjal gets a new warm contact?**
+A: Update `COMPANY_PATHS` entry: increase `strength`, update `connection` and `nudge` to reference the new contact. Update the `contact` field in `OT_STATE.contacts` for that company.
 
 ---
 
@@ -527,15 +459,15 @@ A: The `/score` panel's company input accepts "Company — Role Title" format (e
 
 **Current**: PMSV Tech and Strategy (advisor, December 2022–present). Adyogi (+16% via Meta/Shopify), Wove (first 3 enterprise partners, 90 days), MobiOffice (+7% conversion), Zingerman's (AI GTM system).
 
-**Qualia** (Aug 2021–Oct 2022): Director BD. First BD hire. $20M pipeline. $9M at 120%. 60% win rate. Tiered ISV/SI program from scratch. 20% activation lift.
+**Qualia** (Aug 2021–Oct 2022): Director BD. First BD hire. $20M pipeline. $9M at 120%. 60% win rate. 20% activation lift.
 
 **Huawei** (Feb 2018–Jul 2021): Director BD / Director Strategic Partnerships. 1,000+ ISVs. SDK 300%. Revenue $1M→$100M. Users 2M→30M. Team 8. Kirin 9000: Pinterest, Porsche, Shazam, Vivino. Partners: Meta, Adobe, Match Group, Airbnb. Deal cycle −30%. 2× President's Award.
 
 **Pandora** (Oct 2012–Mar 2015): BD New Initiatives. Sponsored Listening ($155M), Retargeting ($40M), TV Ads ($10M). OEM: Sony, Microsoft, Honda. Remnant +$35M. Total $200M+.
 
-**Mobclix** (Jul 2011–Aug 2012): Sr. BD Manager. $16M revenue. 185% YoY revenue growth. 214% YoY volume. 30B impressions/year.
+**Mobclix** (Jul 2011–Aug 2012): $16M revenue. 185% YoY revenue. 214% YoY volume. 30B impressions/year.
 
-**Sony Mobile** (Feb 2008–Jun 2011): BD Manager. First Android monetization strategy. First $10M ad revenue. PlayStation integration. 16 global markets.
+**Sony Mobile** (Feb 2008–Jun 2011): First Android monetization strategy. First $10M ad revenue. 16 global markets.
 
 **Education**: MBA Marketing USC · BTech Computer Engineering Kurukshetra · AWS Generative AI with LLMs · Google Cloud Digital Leader · Pavilion GTM Leadership Accelerator.
 
@@ -547,4 +479,4 @@ A: The `/score` panel's company input accepts "Company — Role Title" format (e
 
 ---
 
-*Last updated: April 11, 2026 · Job Search OS v3.1*
+*Last updated: April 12, 2026 · Job Search OS v4.1 · file: job-search-os-v5.html*

@@ -266,7 +266,7 @@ select { appearance: none; cursor: pointer; }
     <div class="sidebar-logo">
       <div class="logo-label">Job Search</div>
       <div class="logo-title">Operating System</div>
-      <div class="logo-badge">BD/Partnerships · v3.1</div>
+      <div class="logo-badge">BD/Partnerships · v4</div>
     </div>
 
     <div class="sidebar-section">
@@ -318,6 +318,25 @@ select { appearance: none; cursor: pointer; }
       </button>
       <button class="nav-item" onclick="nav('resume')" id="nav-resume">
         <span class="ni-icon">/rv</span> Resume
+      </button>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Tools</div>
+      <button class="nav-item" onclick="nav('sync')" id="nav-sync">
+        <span class="ni-icon">⇄</span> Sync
+      </button>
+      <button class="nav-item" onclick="nav('network')" id="nav-network">
+        <span class="ni-icon">◎</span> Network map
+      </button>
+      <button class="nav-item" onclick="nav('digest')" id="nav-digest">
+        <span class="ni-icon">◈</span> Email digest
+      </button>
+      <button class="nav-item" onclick="nav('post')" id="nav-post">
+        <span class="ni-icon">✦</span> LinkedIn post
+      </button>
+      <button class="nav-item" onclick="nav('export')" id="nav-export">
+        <span class="ni-icon">↗</span> Weekly export
       </button>
     </div>
 
@@ -397,6 +416,18 @@ select { appearance: none; cursor: pointer; }
               <button class="btn" style="font-size:11px;font-family:var(--mono);" onclick="nav('debrief');logUsage('/debrief','Dashboard quick launch')">
                 /debrief → post-call
               </button>
+              <button class="btn" style="font-size:11px;font-family:var(--mono);" onclick="nav('network');logUsage('/network','Dashboard quick launch')">
+                /network → referrals
+              </button>
+              <button class="btn" style="font-size:11px;font-family:var(--mono);" onclick="nav('digest');logUsage('/digest','Dashboard quick launch')">
+                /digest → morning
+              </button>
+              <button class="btn" style="font-size:11px;font-family:var(--mono);" onclick="nav('post');logUsage('/post','Dashboard quick launch')">
+                /post → LinkedIn
+              </button>
+              <button class="btn" style="font-size:11px;font-family:var(--mono);" onclick="nav('export');logUsage('/export','Dashboard quick launch')">
+                /export → Sheets
+              </button>
             </div>
           </div>
         </div>
@@ -447,6 +478,7 @@ select { appearance: none; cursor: pointer; }
             <th>Health</th>
             <th>Last action</th>
             <th>Next step</th>
+            <th style="font-family:var(--mono);font-size:9px;color:var(--text3);">Move</th>
             <th></th>
           </tr></thead>
           <tbody id="pipeline-tbody"></tbody>
@@ -1341,6 +1373,392 @@ Tell me: (1) What is at risk of going cold? (2) What has momentum?
 
     </div><!-- /panel-resume -->
 
+    <!-- ══════════════ SYNC PANEL ══════════════ -->
+    <div class="panel" id="panel-sync">
+      <div class="panel-header">
+        <div class="panel-eyebrow">Tools · Live sync</div>
+        <div class="panel-title">Outreach sync</div>
+        <div class="panel-sub">Export your outreach tracker to a hosted URL so the Chrome extension, Claude Project, and any other surface can read the same live data.</div>
+      </div>
+
+      <div class="two-col">
+        <div>
+          <div class="card card-accent">
+            <div class="card-title" style="margin-bottom:10px;">Deploy to GitHub Pages (recommended)</div>
+            <div class="card-body" style="margin-bottom:14px;">Host this HTML file on GitHub Pages for free. Once deployed, the Chrome extension and your Claude Project can reference a stable URL instead of a local file.</div>
+            <ol style="font-size:12px;color:var(--text2);line-height:1.9;padding-left:18px;">
+              <li>Create a GitHub repo named <code style="font-family:var(--mono);font-size:10px;background:var(--bg4);padding:1px 5px;border-radius:3px;">job-search-os</code></li>
+              <li>Upload <code style="font-family:var(--mono);font-size:10px;background:var(--bg4);padding:1px 5px;border-radius:3px;">job-search-os-v5.html</code> as <code style="font-family:var(--mono);font-size:10px;background:var(--bg4);padding:1px 5px;border-radius:3px;">index.html</code></li>
+              <li>Settings → Pages → Branch: main → Save</li>
+              <li>Your URL: <code style="font-family:var(--mono);font-size:10px;background:var(--bg4);padding:1px 5px;border-radius:3px;">https://username.github.io/job-search-os</code></li>
+              <li>Paste that URL below and save</li>
+            </ol>
+            <div class="input-row" style="margin-top:12px;">
+              <label class="input-label">Your deployed URL</label>
+              <input type="text" id="sync-url" placeholder="https://username.github.io/job-search-os" oninput="saveSyncUrl()">
+            </div>
+            <div id="sync-url-status" style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:4px;"></div>
+          </div>
+
+          <div class="card" style="margin-top:12px;">
+            <div class="card-title" style="margin-bottom:10px;">Export outreach data</div>
+            <div class="card-body" style="margin-bottom:12px;">Download your current outreach tracker as JSON. Use this to import into any surface or back up your data.</div>
+            <div class="btn-row">
+              <button class="btn btn-primary" onclick="exportOutreachJSON()">Export tracker JSON</button>
+              <button class="btn" onclick="copyOutreachJSON()">Copy to clipboard</button>
+            </div>
+            <div id="sync-export-status" style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:8px;"></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="card">
+            <div class="card-title" style="margin-bottom:10px;">Import from Chrome extension</div>
+            <div class="card-body" style="margin-bottom:12px;">Paste the JSON exported from the Chrome extension's Nudges tab → Export scored roles. Companies not already in your tracker will be added.</div>
+            <div class="input-row">
+              <textarea id="sync-import-json" rows="6" placeholder='{"contacts":[{"company":"Tenstorrent","role":"Head of ISV Partnerships","score":93,...}]}'></textarea>
+            </div>
+            <div class="btn-row">
+              <button class="btn btn-primary" onclick="importFromExtension()">Import roles from extension</button>
+            </div>
+            <div id="sync-import-status" style="font-family:var(--mono);font-size:10px;margin-top:8px;"></div>
+          </div>
+
+          <div class="card" style="margin-top:12px;">
+            <div class="card-title" style="margin-bottom:10px;">Claude Project sync prompt</div>
+            <div class="card-body" style="margin-bottom:10px;">Copy this prompt into your Claude Project to let Claude read your live outreach tracker in any conversation.</div>
+            <div class="prompt-block" id="sync-claude-prompt" style="font-size:11px;">My outreach tracker is live at: [paste your GitHub Pages URL]
+
+At the start of any session where I ask about my job search, pipeline, or outreach, please fetch that URL and read the current state of my tracker before responding. Key things to look for: companies with status "Reached Out" and lastOutreach > 10 days ago (flag for nudge), companies where I have a named contact but no lastOutreach date (flag to reach out), any company in my active pipeline that isn't in the tracker (add it).
+<button class="prompt-copy-btn" onclick="copyPrompt('sync-claude-prompt')">copy</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px;">
+        <div class="card-title" style="margin-bottom:8px;">Current tracker snapshot</div>
+        <div id="sync-snapshot" style="font-family:var(--mono);font-size:11px;color:var(--text2);line-height:1.8;"></div>
+      </div>
+    </div>
+
+    <!-- ══════════════ NETWORK MAP ══════════════ -->
+    <div class="panel" id="panel-network">
+      <div class="panel-header">
+        <div class="panel-eyebrow">Tools · Referral intelligence</div>
+        <div class="panel-title">Network map</div>
+        <div class="panel-sub">Every warm path to your target companies — mapped by connection strength and angle. Select a company to generate a referral strategy.</div>
+      </div>
+
+      <div class="metrics-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px;">
+        <div class="metric-card"><div class="metric-val" id="nm-warm">0</div><div class="metric-label">Warm contacts</div></div>
+        <div class="metric-card"><div class="metric-val" id="nm-paths">0</div><div class="metric-label">Referral paths</div></div>
+        <div class="metric-card"><div class="metric-val" id="nm-untapped">0</div><div class="metric-label">Untapped T1 targets</div></div>
+        <div class="metric-card"><div class="metric-val" id="nm-reached">0</div><div class="metric-label">Already engaged</div></div>
+      </div>
+
+      <div class="two-col">
+        <div>
+          <div class="card" style="padding:0;overflow:hidden;">
+            <div style="padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
+              <span class="card-title">Target companies</span>
+              <div style="display:flex;gap:6px;">
+                <select id="nm-filter" style="font-family:var(--mono);font-size:10px;padding:4px 8px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);color:var(--text2);" onchange="renderNetworkMap()">
+                  <option value="all">All companies</option>
+                  <option value="warm">Warm path only</option>
+                  <option value="tier1">Tier 1 only</option>
+                  <option value="untapped">No contact yet</option>
+                </select>
+              </div>
+            </div>
+            <div id="nm-company-list" style="max-height:420px;overflow-y:auto;"></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="card" id="nm-detail-card">
+            <div class="card-title" style="margin-bottom:8px;">Select a company</div>
+            <div class="card-body">Click any company on the left to see your referral path, connection angles, and generate an outreach strategy.</div>
+          </div>
+
+          <div class="card" style="margin-top:12px;">
+            <div class="card-title" style="margin-bottom:8px;">Your network assets</div>
+            <div style="font-size:12px;color:var(--text2);line-height:1.8;">
+              <div style="margin-bottom:6px;"><span style="color:var(--accent);font-family:var(--mono);font-size:10px;">Huawei ISVs</span> — Pinterest, Porsche, Shazam, Vivino, Airbnb, Adobe, Meta, Match Group</div>
+              <div style="margin-bottom:6px;"><span style="color:var(--blue);font-family:var(--mono);font-size:10px;">Pandora OEM</span> — Sony, Samsung, Microsoft, Honda</div>
+              <div style="margin-bottom:6px;"><span style="color:var(--amber);font-family:var(--mono);font-size:10px;">Fintech network</span> — Qualia FI partners, bank ecosystem contacts</div>
+              <div style="margin-bottom:6px;"><span style="color:var(--teal);font-family:var(--mono);font-size:10px;">Community</span> — AI Collective alumni, Pavilion GTM, Hatched</div>
+              <div><span style="color:var(--text3);font-family:var(--mono);font-size:10px;">PMSV clients</span> — Adyogi, Wove, MobiOffice, Zingerman's</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:14px;" id="nm-prompt-card" style="display:none;">
+        <div class="card-title" style="margin-bottom:8px;">Generated referral strategy</div>
+        <div class="prompt-block" id="nm-prompt-out"><span class="output-placeholder">Select a company above to generate a strategy.</span><button class="prompt-copy-btn" onclick="copyPrompt('nm-prompt-out')">copy</button></div>
+      </div>
+    </div>
+
+    <!-- ══════════════ EMAIL DIGEST ══════════════ -->
+    <div class="panel" id="panel-digest">
+      <div class="panel-header">
+        <div class="panel-eyebrow">Tools · Morning intelligence</div>
+        <div class="panel-title">Email digest</div>
+        <div class="panel-sub">Parse your LinkedIn alerts and recruiter emails into a scored, prioritized digest. Run every morning — takes 90 seconds to read, replaces 20 minutes of manual inbox scanning.</div>
+      </div>
+
+      <div class="card card-accent" style="margin-bottom:16px;">
+        <div class="card-title" style="margin-bottom:10px;">Today's digest — April 11, 2026</div>
+        <div id="digest-today-content">
+          <div style="font-family:var(--mono);font-size:10px;color:var(--text3);">Run the digest below to populate today's report.</div>
+        </div>
+      </div>
+
+      <div class="tab-row">
+        <button class="tab-btn active" onclick="digestTab('generate')" id="dtab-generate">Generate</button>
+        <button class="tab-btn" onclick="digestTab('configure')" id="dtab-configure">Configure</button>
+        <button class="tab-btn" onclick="digestTab('history')" id="dtab-history">History</button>
+      </div>
+
+      <div class="tab-panel active" id="dpanel-generate">
+        <div class="card">
+          <div class="card-title" style="margin-bottom:10px;">Run morning digest</div>
+          <div class="card-body" style="margin-bottom:14px;">This prompt reads your Gmail for LinkedIn alerts and recruiter emails, scores every role against your profile, flags overdue follow-ups, and surfaces your top 3 actions.</div>
+
+          <div class="input-row">
+            <label class="input-label">Date range (optional override)</label>
+            <select id="digest-range" style="background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-family:var(--sans);font-size:13px;padding:9px 12px;">
+              <option value="today">Today only</option>
+              <option value="2days">Last 2 days</option>
+              <option value="week">Last 7 days</option>
+            </select>
+          </div>
+
+          <div class="input-row">
+            <label class="input-label">Include sections</label>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;">
+              <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);cursor:pointer;">
+                <input type="checkbox" id="dopt-jobs" checked style="accent-color:var(--accent);"> New job alerts
+              </label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);cursor:pointer;">
+                <input type="checkbox" id="dopt-replies" checked style="accent-color:var(--accent);"> Recruiter replies
+              </label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);cursor:pointer;">
+                <input type="checkbox" id="dopt-nudges" checked style="accent-color:var(--accent);"> Follow-up nudges
+              </label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);cursor:pointer;">
+                <input type="checkbox" id="dopt-actions" checked style="accent-color:var(--accent);"> Top 3 actions
+              </label>
+            </div>
+          </div>
+
+          <div class="btn-row">
+            <button class="btn btn-primary" onclick="generateDigestPrompt()">Generate digest prompt →</button>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:12px;">
+          <div class="card-title" style="margin-bottom:8px;">Claude prompt — copy and run in your Job Search OS Project</div>
+          <div class="prompt-block" id="digest-prompt-out" style="font-size:11px;max-height:300px;overflow-y:auto;"><span class="output-placeholder">Configure and generate above.</span><button class="prompt-copy-btn" onclick="copyPrompt('digest-prompt-out')">copy</button></div>
+        </div>
+      </div>
+
+      <div class="tab-panel" id="dpanel-configure">
+        <div class="card">
+          <div class="card-title" style="margin-bottom:12px;">Digest configuration</div>
+          <div class="input-row">
+            <label class="input-label">Minimum score to surface (default 65%)</label>
+            <input type="number" id="digest-min-score" min="50" max="90" value="65" style="width:80px;">
+          </div>
+          <div class="input-row">
+            <label class="input-label">Companies to always include regardless of score</label>
+            <input type="text" id="digest-always-include" placeholder="e.g. Tenstorrent, Nothing.tech, Microsoft">
+          </div>
+          <div class="input-row">
+            <label class="input-label">Job boards to scan</label>
+            <input type="text" id="digest-sources" value="LinkedIn, Welcome to the Jungle">
+          </div>
+          <div class="input-row">
+            <label class="input-label">Follow-up alert threshold (days)</label>
+            <input type="number" id="digest-nudge-days" min="3" max="21" value="10" style="width:80px;">
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-primary" onclick="saveDigestConfig()">Save configuration</button>
+          </div>
+          <div id="digest-config-status" style="font-family:var(--mono);font-size:10px;color:var(--accent);margin-top:8px;display:none;">✓ Saved</div>
+        </div>
+
+        <div class="card" style="margin-top:12px;">
+          <div class="card-title" style="margin-bottom:10px;">Automate with Gmail + Google Apps Script</div>
+          <div class="card-body" style="margin-bottom:12px;">Run this script in your Google account to email yourself a pre-formatted digest prompt every morning at 7am. Copy it into Google Apps Script (script.google.com).</div>
+          <div class="prompt-block" id="apps-script-out" style="font-size:10.5px;max-height:240px;overflow-y:auto;"><button class="prompt-copy-btn" onclick="copyPrompt('apps-script-out')">copy</button></div>
+          <div class="btn-row" style="margin-top:10px;">
+            <button class="btn" onclick="generateAppsScript()">Generate Apps Script →</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-panel" id="dpanel-history">
+        <div id="digest-history-list">
+          <div class="empty"><div class="empty-icon">◈</div><div class="empty-text">No digest runs logged yet.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════ LINKEDIN POST ══════════════ -->
+    <div class="panel" id="panel-post">
+      <div class="panel-header">
+        <div class="panel-eyebrow">Tools · Thought leadership</div>
+        <div class="panel-title">LinkedIn post generator</div>
+        <div class="panel-sub">Write in your voice — practitioner-grade, specific, no AI slop. Five content pillars built from your actual work and frameworks.</div>
+      </div>
+
+      <div class="two-col">
+        <div>
+          <div class="card">
+            <div class="card-title" style="margin-bottom:12px;">Content pillars</div>
+            <div id="post-pillars" style="display:grid;gap:8px;">
+
+              <div class="post-pillar" id="pp-stack" onclick="selectPillar('stack')" style="background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);padding:12px;cursor:pointer;transition:all .12s;">
+                <div style="font-size:12px;font-weight:500;color:var(--text);margin-bottom:2px;">AI Partnership Stack</div>
+                <div style="font-size:11px;color:var(--text2);">The 6-layer framework — Intelligence → Capability → Developer → Vertical → Motion → Distribution</div>
+              </div>
+
+              <div class="post-pillar" id="pp-lesson" onclick="selectPillar('lesson')" style="background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);padding:12px;cursor:pointer;transition:all .12s;">
+                <div style="font-size:12px;font-weight:500;color:var(--text);margin-bottom:2px;">Hard-won lesson</div>
+                <div style="font-size:11px;color:var(--text2);">Something specific you learned building ISV ecosystems, fintech BD, or OEM partnerships</div>
+              </div>
+
+              <div class="post-pillar" id="pp-observation" onclick="selectPillar('observation')" style="background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);padding:12px;cursor:pointer;transition:all .12s;">
+                <div style="font-size:12px;font-weight:500;color:var(--text);margin-bottom:2px;">AI ecosystem observation</div>
+                <div style="font-size:11px;color:var(--text2);">What you're seeing in AI partnerships right now — MCP, agent-to-agent, co-sell motions, what's changing</div>
+              </div>
+
+              <div class="post-pillar" id="pp-myth" onclick="selectPillar('myth')" style="background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);padding:12px;cursor:pointer;transition:all .12s;">
+                <div style="font-size:12px;font-weight:500;color:var(--text);margin-bottom:2px;">Myth vs reality</div>
+                <div style="font-size:11px;color:var(--text2);">Common misconception about BD/partnerships that you've seen disproven in the field</div>
+              </div>
+
+              <div class="post-pillar" id="pp-build" onclick="selectPillar('build')" style="background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);padding:12px;cursor:pointer;transition:all .12s;">
+                <div style="font-size:12px;font-weight:500;color:var(--text);margin-bottom:2px;">Builder's take</div>
+                <div style="font-size:11px;color:var(--text2);">What 0-to-1 program design actually looks like — the intake, the playbook, the first 90 days</div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="card" id="post-input-card">
+            <div class="card-title" style="margin-bottom:12px;" id="post-pillar-title">Select a content pillar</div>
+            <div id="post-pillar-fields">
+              <div class="card-body">Click a content pillar on the left to configure your post.</div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top:12px;" id="post-output-card" style="display:none;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+              <div class="card-title">Generated post</div>
+              <div style="display:flex;gap:6px;">
+                <button class="btn" style="font-size:10px;font-family:var(--mono);padding:5px 10px;" onclick="regeneratePost()">Regenerate</button>
+              </div>
+            </div>
+            <div id="post-output" style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:14px;font-size:13px;color:var(--text2);line-height:1.7;min-height:120px;white-space:pre-wrap;max-height:320px;overflow-y:auto;"></div>
+            <div class="btn-row" style="margin-top:10px;">
+              <button class="btn btn-primary" onclick="openPostInClaude()">Refine in Claude →</button>
+              <button class="btn" onclick="copyPostOutput()">Copy post</button>
+            </div>
+            <div id="post-char-count" style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:6px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:14px;">
+        <div class="card-title" style="margin-bottom:8px;">Post history</div>
+        <div id="post-history-list">
+          <div class="empty"><div class="empty-text" style="padding:0;text-align:left;">No posts generated yet.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════ WEEKLY EXPORT ══════════════ -->
+    <div class="panel" id="panel-export">
+      <div class="panel-header">
+        <div class="panel-eyebrow">Tools · Weekly export</div>
+        <div class="panel-title">Export to Google Sheets</div>
+        <div class="panel-sub">One click exports your pipeline, outreach tracker, scored roles, and weekly activity to CSV. Set up the Google Apps Script once and it creates a structured Sheet that stays in sync every week.</div>
+      </div>
+
+      <!-- SNAPSHOT METRICS -->
+      <div class="metrics-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px;">
+        <div class="metric-card"><div class="metric-val" id="ex-pipeline">0</div><div class="metric-label">Pipeline roles</div></div>
+        <div class="metric-card"><div class="metric-val" id="ex-outreach">0</div><div class="metric-label">Outreach companies</div></div>
+        <div class="metric-card"><div class="metric-val" id="ex-scored">0</div><div class="metric-label">Roles scored</div></div>
+        <div class="metric-card"><div class="metric-val" id="ex-cmds">0</div><div class="metric-label">Commands this week</div></div>
+      </div>
+
+      <div class="two-col">
+        <div>
+          <!-- EXPORT BUTTONS -->
+          <div class="card card-accent" style="margin-bottom:12px;">
+            <div class="card-title" style="margin-bottom:4px;">Export data — click to download CSV</div>
+            <div class="card-body" style="margin-bottom:14px;">Each button downloads a separate CSV file. Open Google Sheets → File → Import to load any of them.</div>
+            <div style="display:grid;gap:8px;">
+              <button class="btn btn-primary" id="ex-btn-pipeline">↓ Pipeline tracker</button>
+              <button class="btn btn-primary" id="ex-btn-outreach">↓ Outreach tracker (all companies)</button>
+              <button class="btn btn-primary" id="ex-btn-scores">↓ Scored roles (this week)</button>
+              <button class="btn btn-primary" id="ex-btn-activity">↓ Weekly activity log</button>
+              <button class="btn btn-primary" id="ex-btn-all">↓ Full export (all tabs as JSON)</button>
+            </div>
+          </div>
+
+          <!-- SHEET PASTE -->
+          <div class="card">
+            <div class="card-title" style="margin-bottom:8px;">Copy data as tab-separated (paste directly into Sheets)</div>
+            <div class="card-body" style="margin-bottom:10px;">Copies to clipboard — open any Google Sheet, click cell A1, and paste. Faster than CSV import for quick updates.</div>
+            <div style="display:grid;gap:8px;">
+              <button class="btn" id="ex-paste-pipeline">Copy pipeline → paste into Sheets</button>
+              <button class="btn" id="ex-paste-outreach">Copy outreach → paste into Sheets</button>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <!-- APPS SCRIPT SETUP -->
+          <div class="card">
+            <div class="card-title" style="margin-bottom:8px;">One-time setup — Google Apps Script</div>
+            <div class="card-body" style="margin-bottom:12px;">Paste this script into script.google.com once. It creates a Google Sheet with 4 tabs (Pipeline, Outreach, Scores, Activity) and sets up a weekly Sunday trigger to email you a reminder to run the export.</div>
+            <div class="btn-row" style="margin-bottom:10px;">
+              <button class="btn btn-primary" id="ex-gen-script">Generate Apps Script →</button>
+            </div>
+            <div class="prompt-block" id="ex-script-out" style="font-size:10px;max-height:220px;overflow-y:auto;"><span class="output-placeholder">Click Generate to build your personalised script.</span><button class="prompt-copy-btn" onclick="copyPrompt('ex-script-out')">copy</button></div>
+          </div>
+
+          <!-- INSTRUCTIONS -->
+          <div class="card" style="margin-top:12px;">
+            <div class="card-title" style="margin-bottom:10px;">How it works</div>
+            <ol style="font-size:12px;color:var(--text2);line-height:1.9;padding-left:16px;">
+              <li>Click "Generate Apps Script →" and copy it</li>
+              <li>Go to <strong style="color:var(--text);">script.google.com</strong> → New project</li>
+              <li>Paste the script, click Save</li>
+              <li>Run <code style="font-family:var(--mono);font-size:10px;background:var(--bg4);padding:1px 5px;border-radius:3px;">createJobSearchSheet</code> once — it builds the Sheet</li>
+              <li>Each Sunday: click "Copy outreach → paste into Sheets" here, then paste into your Sheet</li>
+              <li>Or trigger the full JSON export and paste it into the script's import function</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+
+      <!-- WEEKLY SUMMARY -->
+      <div class="card" style="margin-top:14px;">
+        <div class="card-title" style="margin-bottom:10px;">This week's summary</div>
+        <div id="ex-weekly-summary" style="font-family:var(--mono);font-size:11px;color:var(--text2);line-height:2;"></div>
+        <div class="btn-row" style="margin-top:10px;">
+          <button class="btn" id="ex-copy-summary">Copy weekly summary → paste into Claude</button>
+        </div>
+      </div>
+    </div>
+
   </main>
 </div>
 
@@ -1359,6 +1777,9 @@ Tell me: (1) What is at risk of going cold? (2) What has momentum?
         <option value="HM round">HM round</option>
         <option value="Panel">Panel</option>
         <option value="Offer">Offer</option>
+        <option value="Withdrawn">Withdrawn</option>
+        <option value="Rejected">Rejected</option>
+        <option value="Closed">Closed / No longer relevant</option>
       </select>
     </div>
     <div class="input-row"><label class="input-label">Next step</label><input type="text" id="ar-next" placeholder="e.g. Follow up with recruiter next Tuesday"></div>
@@ -1383,7 +1804,7 @@ Tell me: (1) What is at risk of going cold? (2) What has momentum?
       </div>
       <div class="input-row"><label class="input-label">Status</label>
         <select id="ac-status" style="width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-family:var(--sans);font-size:13px;padding:9px 12px;">
-          <option>Not Started</option><option>Reached Out</option><option>Follow-up Sent</option><option>Replied</option><option>Interviewing</option><option>Researching</option>
+          <option>Not Started</option><option>Reached Out</option><option>Follow-up Sent</option><option>Replied</option><option>Interviewing</option><option>Researching</option><option>Not Interested</option>
         </select>
       </div>
     </div>
@@ -1446,6 +1867,10 @@ function nav(id) {
   if (id === 'history') renderHistory();
   if (id === 'dashboard') { renderPipelineMini(); renderActivityGrid(); }
   if (id === 'outreach') { renderOutreachTable(); updateOutreachMetrics(); renderVelocityChart(); renderStatusBreakdown(); }
+  if (id === 'network') renderNetworkMap();
+  if (id === 'sync') renderSyncPanel();
+  if (id === 'digest') renderDigestPanel();
+  if (id === 'export') renderExportPanel();
 }
 
 // ==================== CALENDAR ====================
@@ -1488,15 +1913,21 @@ function renderPipeline() {
   const tbody = document.getElementById('pipeline-tbody');
   if (!tbody) return;
   tbody.innerHTML = STATE.pipeline.map(r => {
-    const stageCls = { 'Monitoring':'stage-applied','Applied':'stage-applied','Recruiter screen':'stage-screen','HM round':'stage-screen','Panel':'stage-screen','Offer':'stage-offer' }[r.stage] || 'stage-applied';
+    const stageCls = { 'Monitoring':'stage-applied','Applied':'stage-applied','Recruiter screen':'stage-screen','HM round':'stage-screen','Panel':'stage-screen','Offer':'stage-offer','Withdrawn':'stage-applied','Closed':'stage-applied','Rejected':'stage-applied' }[r.stage] || 'stage-applied';
+    const _pDone = r.stage === 'Withdrawn' || r.stage === 'Closed' || r.stage === 'Rejected';
     const healthCls = { green:'health-green', amber:'health-amber', red:'health-red' }[r.health] || 'health-amber';
-    return `<tr>
-      <td style="font-weight:500;color:var(--text);padding-left:20px;">${r.company}</td>
+    return `<tr style="${_pDone?'opacity:0.45;':''}">
+      <td style="font-weight:500;padding-left:20px;${_pDone?'color:var(--text3);text-decoration:line-through;':'color:var(--text);'}">${r.company}</td>
       <td>${r.role}</td>
       <td><span class="stage-pill ${stageCls}">${r.stage}</span></td>
       <td><span class="health-dot ${healthCls}"></span></td>
       <td style="font-family:var(--mono);font-size:10px;">${r.lastAction}</td>
       <td>${r.nextStep}</td>
+      <td>
+        <select onchange="updatePipelineStage(${r.id},this.value)" style="background:transparent;border:1px solid var(--border2);font-family:var(--mono);font-size:9px;padding:3px 6px;border-radius:4px;cursor:pointer;color:var(--text2);">
+          ${['Monitoring','Applied','Recruiter screen','HM round','Panel','Offer','Withdrawn','Rejected','Closed'].map(s=>`<option value="${s}" ${r.stage===s?'selected':''}>${s}</option>`).join('')}
+        </select>
+      </td>
       <td><button class="btn" style="font-size:10px;padding:4px 8px;" onclick="removeRole(${r.id})">×</button></td>
     </tr>`;
   }).join('');
@@ -1547,6 +1978,17 @@ function removeRole(id) {
   saveState();
   renderPipeline();
   renderPipelineMini();
+}
+
+function updatePipelineStage(id, stage) {
+  const r = STATE.pipeline.find(x => x.id === id);
+  if (!r) return;
+  r.stage = stage;
+  r.lastAction = new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  saveState();
+  renderPipeline();
+  renderPipelineMini();
+  logUsage('/pipeline', `${r.company} → ${stage}`);
 }
 
 // ==================== USAGE TRACKING ====================
@@ -2440,6 +2882,1150 @@ function rvCopyDocxPrompt() {
 // Wire /score → /resume: call rvLoadFromScore(company, role, jd) to pre-fill
 // ==================== END RESUME GENERATOR ====================
 
+// ==================== SYNC PANEL ====================
+
+const SYNC_URL_KEY = 'jobos_sync_url';
+
+function renderSyncPanel() {
+  // Load saved URL
+  const saved = localStorage.getItem(SYNC_URL_KEY) || '';
+  const urlEl = document.getElementById('sync-url');
+  if (urlEl && !urlEl.value) urlEl.value = saved;
+
+  // Build snapshot
+  const snap = document.getElementById('sync-snapshot');
+  if (!snap) return;
+  const contacts = OT_STATE.contacts;
+  const reached = contacts.filter(c => c.status !== 'Not Started').length;
+  const withContact = contacts.filter(c => c.contact).length;
+  const overdue = contacts.filter(c => {
+    if (!c.lastOutreach || c.status === 'Replied' || c.status === 'Interviewing') return false;
+    const months = {Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+    const m = c.lastOutreach.match(/^([A-Za-z]+)\s+(\d+)/);
+    if (!m) return false;
+    const d = new Date(new Date().getFullYear(), months[m[1]], parseInt(m[2]));
+    if (d > new Date()) d.setFullYear(d.getFullYear() - 1);
+    return Math.floor((Date.now() - d.getTime()) / 86400000) >= 10;
+  }).length;
+  snap.innerHTML = `Companies tracked: ${contacts.length}  ·  Reached out: ${reached}  ·  With named contact: ${withContact}  ·  Overdue nudges: ${overdue}
+Last updated: ${new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}`;
+}
+
+function saveSyncUrl() {
+  const url = document.getElementById('sync-url').value.trim();
+  localStorage.setItem(SYNC_URL_KEY, url);
+  const st = document.getElementById('sync-url-status');
+  if (st) st.textContent = url ? `✓ Saved — ${url}` : 'URL cleared';
+}
+
+function exportOutreachJSON() {
+  const data = { contacts: OT_STATE.contacts, dailyLog: OT_STATE.dailyLog, exportedAt: new Date().toISOString() };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `outreach-tracker-${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+  document.getElementById('sync-export-status').textContent = `✓ Exported ${OT_STATE.contacts.length} companies`;
+  logUsage('/sync-export', OT_STATE.contacts.length + ' contacts');
+}
+
+function copyOutreachJSON() {
+  const data = { contacts: OT_STATE.contacts, dailyLog: OT_STATE.dailyLog, exportedAt: new Date().toISOString() };
+  navigator.clipboard.writeText(JSON.stringify(data, null, 2)).then(() => toast('Outreach data copied to clipboard'));
+}
+
+function importFromExtension() {
+  const raw = document.getElementById('sync-import-json').value.trim();
+  const statusEl = document.getElementById('sync-import-status');
+  if (!raw) { toast('Paste JSON first'); return; }
+  try {
+    const data = JSON.parse(raw);
+    const incoming = data.contacts || data;
+    if (!Array.isArray(incoming)) throw new Error('Expected array of contacts');
+    let added = 0;
+    incoming.forEach(c => {
+      const exists = OT_STATE.contacts.some(x => x.company?.toLowerCase() === c.company?.toLowerCase());
+      if (!exists && c.company) {
+        OT_STATE.contacts.push({
+          id: Date.now() + Math.random(),
+          company: c.company,
+          tier: c.tier || (c.scoreFromExt >= 75 ? '1' : '2'),
+          role: c.role || '',
+          contact: c.contact || '',
+          pov: c.pov || (c.scoreFromExt ? `Scored ${c.scoreFromExt}% in extension` : ''),
+          followups: 0,
+          lastOutreach: c.lastOutreach || '',
+          status: c.status || 'Not Started',
+          selected: false
+        });
+        added++;
+      }
+    });
+    saveOutreach();
+    statusEl.textContent = `✓ Added ${added} new companies (${incoming.length - added} already existed)`;
+    statusEl.style.color = 'var(--accent)';
+    document.getElementById('badge-outreach').textContent = OT_STATE.contacts.length;
+    logUsage('/sync-import', added + ' companies added');
+    toast(`Imported ${added} companies`);
+  } catch(e) {
+    statusEl.textContent = `✗ Invalid JSON: ${e.message}`;
+    statusEl.style.color = 'var(--red)';
+  }
+}
+
+// ==================== NETWORK MAP ====================
+
+// Network assets — warm connection paths per company/domain
+const NETWORK = {
+  // Direct ISV partners from Huawei program
+  pinterest:   { type:'huawei-isv',    strength:3, angle:'Kirin 9000 on-device AI integration — you enabled their edge features', contacts:['Pinterest Partnership/BD team'] },
+  shazam:      { type:'huawei-isv',    strength:3, angle:'On-device AI and audio recognition ISV integration', contacts:['Apple/Shazam BD team'] },
+  adobe:       { type:'huawei-isv',    strength:3, angle:'Co-development deal — creative AI on-device tools', contacts:['Adobe Partnerships'] },
+  meta:        { type:'huawei-isv',    strength:3, angle:'Platform monetization deal — scale proof point', contacts:['Meta Partnerships / BD'] },
+  airbnb:      { type:'huawei-isv',    strength:2, angle:'Global distribution and monetization partnership', contacts:['Airbnb BD'] },
+  'match group':{ type:'huawei-isv',   strength:2, angle:'Consumer app ecosystem distribution deal', contacts:['Match Group Partnerships'] },
+  // Pandora OEM network
+  sony:        { type:'pandora-oem',   strength:3, angle:'Pandora OEM distribution + Sony Mobile BD relationship (2008-2011)', contacts:['Sony Network Entertainment','Sony Mobile'] },
+  microsoft:   { type:'pandora-oem',   strength:2, angle:'Pandora connected device OEM deal', contacts:['Microsoft Partnerships'] },
+  honda:       { type:'pandora-oem',   strength:2, angle:'In-car Pandora OEM integration', contacts:['Honda connected services'] },
+  samsung:     { type:'pandora-oem',   strength:2, angle:'Samsung device partnership from Pandora OEM ecosystem', contacts:['Samsung Partnerships'] },
+  // Community
+  ai_collective:{ type:'community',    strength:2, angle:'AI Collective hackathon — FutureProof AI winner, shared network', contacts:['AI Collective alumni'] },
+  pavilion:    { type:'community',     strength:2, angle:'Pavilion GTM Leadership Accelerator cohort', contacts:['Pavilion GTM community'] },
+  hatched:     { type:'community',     strength:3, angle:'Founding member — direct relationships with platform users', contacts:['Hatched founding cohort'] },
+};
+
+// Map target companies to their warmest network path
+const COMPANY_PATHS = {
+  'Meta':           { warmPath:'huawei-isv', strength:3, connection:'Direct — negotiated licensing and co-marketing deal during Huawei', angle:'Platform revenue scaling from $1M→$100M — they know what you built', nudge:'Reconnect on AI Partnership Stack MCP integration angle' },
+  'Adobe':          { warmPath:'huawei-isv', strength:3, connection:'Direct — co-development deal for on-device creative AI', angle:'Edge AI integration expertise maps to their Firefly on-device strategy', nudge:'Reference the Kirin 9000 creative AI work — direct analog to Firefly offline' },
+  'Microsoft':      { warmPath:'pandora-oem', strength:2, connection:'Pandora connected device OEM — and Microsoft ISV ecosystem work', angle:'Partner ecosystem scale + cloud/AI platform BD credentials', nudge:'Sr. Manager Global Partnerships role — use OEM partnership + ISV scale as lead' },
+  'Airbnb':         { warmPath:'huawei-isv', strength:2, connection:'Huawei ISV program — distribution agreement', angle:'Global platform distribution and monetization motion', nudge:'Reach out to BD/Partnerships contacts from the Huawei engagement' },
+  'Salesforce':     { warmPath:'community',  strength:1, connection:'Pavilion GTM community — Salesforce ecosystem professionals', angle:'Enterprise BD and partner program design at scale', nudge:'Find a Pavilion connection at Salesforce' },
+  'Tenstorrent':    { warmPath:'huawei-isv', strength:3, connection:'Strong analog — your Huawei ISV work (Kirin 9000) is a direct reference case for their ISV program', angle:'Head of ISV Partnerships — you literally built this program at Huawei', nudge:'Lead with "I built the ISV program for an AI chip at scale — same motion you need"' },
+  'Nothing.tech':   { warmPath:'pandora-oem', strength:2, connection:'Pandora OEM (Sony, Samsung, Honda) — direct hardware ecosystem BD experience', angle:'On-device experience partnerships and developer ecosystem for consumer hardware', nudge:'Carl Pei\'s network overlaps with ex-OnePlus and ex-Huawei device teams' },
+  'Apple':          { warmPath:'huawei-isv', strength:2, connection:'Careey Hardcastle (your contact) + Sony Mobile relationship (Sony = Apple partner)', angle:'Huawei ISV scale + Edge AI + Sony Mobile enterprise BD', nudge:'Reference Huawei on-device AI as the analogous program to Apple Intelligence' },
+  'Google':         { warmPath:'community',  strength:1, connection:'AI Collective + Pavilion GTM community', angle:'GTM Alliances — partner co-sell motion expertise', nudge:'Search LinkedIn for Huawei ISV partners who moved to Google' },
+  'Amazon':         { warmPath:'community',  strength:1, connection:'Pavilion GTM + PMSV advisory client network', angle:'GTM Alliances — ISV and SI co-sell motion', nudge:'Look for Qualia FI connections who work with Amazon Payments or AWS' },
+  'Anthropic':      { warmPath:'community',  strength:2, connection:'AI Collective hackathon — FutureProof AI winner', angle:'Cloud Partnerships — partner-led monetization, developer ecosystem design', nudge:'AI Collective → Anthropic partnership team is a reachable path' },
+  'Notion':         { warmPath:'community',  strength:1, connection:'Pavilion GTM community, AI Collective', angle:'Agentic AI partnership program design — 0-to-1 credentials are the fit', nudge:'Find a Pavilion contact at Notion' },
+  'OpenAI':         { warmPath:'community',  strength:1, connection:'AI Collective, Pavilion GTM community', angle:'Strategic Partnerships — platform ecosystem and enterprise distribution', nudge:'AI Collective alumni → OpenAI partnerships is a credible path' },
+  'Figma':          { warmPath:'huawei-isv', strength:2, connection:'Adobe ISV partnership → Figma/Adobe ecosystem overlap', angle:'Strategic Alliances — middleware and AI partner integration', nudge:'Adobe relationship is a warm path into Figma partnerships' },
+  'Typeface':       { warmPath:'huawei-isv', strength:2, connection:'Adobe + enterprise AI ecosystem connections', angle:'Director, Strategic Alliances GSIs & Agencies — enterprise AI content platform', nudge:'Adobe co-development work maps directly to Typeface\'s GSI motion' },
+  'NVIDIA':         { warmPath:'huawei-isv', strength:2, connection:'Huawei ISV program overlap — many shared ISV partners (Pinterest, Porsche)', angle:'Edge AI chip ISV ecosystem — direct Huawei Kirin 9000 analog', nudge:'ISV partners from the Huawei program who also work with NVIDIA' },
+  'Databricks':     { warmPath:'fintech',    strength:1, connection:'Qualia fintech FI partnerships → data infrastructure overlap', angle:'Ecosystem partnerships — enterprise data + AI platform BD', nudge:'Qualia FI contacts who use Databricks' },
+  'Snowflake':      { warmPath:'fintech',    strength:1, connection:'Qualia fintech ecosystem — FI data infrastructure contacts', angle:'Technology alliances — FI + enterprise data platform BD', nudge:'Fintech FI network → Snowflake enterprise sales contacts' },
+  'Zoom':           { warmPath:'community',  strength:2, connection:'Lauren Schlanser (direct contact, reached out Mar 2)', angle:'Strategic Partnerships — platform integrations and ISV ecosystem', nudge:'Already in contact — follow up on Lauren Schlanser thread' },
+  'Emissary':       { warmPath:'community',  strength:2, connection:'AI Collective, Hatched founding community', angle:'Founding GTM Lead — 0-to-1 credentials strongest here', nudge:'Active — follow up on existing conversation' },
+};
+
+let selectedNetworkCompany = null;
+
+function renderNetworkMap() {
+  const filter = document.getElementById('nm-filter')?.value || 'all';
+  const contacts = OT_STATE.contacts;
+
+  // Metrics
+  const warmCount = contacts.filter(c => COMPANY_PATHS[c.company]?.strength >= 2).length;
+  const pathCount = contacts.filter(c => COMPANY_PATHS[c.company]).length;
+  const untapped = contacts.filter(c => c.tier === '1' && c.status === 'Not Started' && COMPANY_PATHS[c.company]?.strength >= 2).length;
+  const reached = contacts.filter(c => c.status !== 'Not Started').length;
+  const setM = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  setM('nm-warm', warmCount); setM('nm-paths', pathCount); setM('nm-untapped', untapped); setM('nm-reached', reached);
+
+  // Filter
+  const filtered = contacts.filter(c => {
+    const path = COMPANY_PATHS[c.company];
+    if (filter === 'warm') return path && path.strength >= 2;
+    if (filter === 'tier1') return c.tier === '1';
+    if (filter === 'untapped') return !c.contact && c.status === 'Not Started';
+    return true;
+  });
+
+  const listEl = document.getElementById('nm-company-list');
+  if (!listEl) return;
+
+  listEl.innerHTML = filtered.map(c => {
+    const path = COMPANY_PATHS[c.company];
+    const strength = path?.strength || 0;
+    const dot = strength >= 3 ? '#b8e04a' : strength >= 2 ? '#e0a84a' : strength >= 1 ? '#4aa8e0' : '#5a5952';
+    const dotTitle = strength >= 3 ? 'Strong warm path' : strength >= 2 ? 'Warm path' : strength >= 1 ? 'Indirect path' : 'Cold — no known path';
+    const isSelected = selectedNetworkCompany === c.company;
+
+    return `<div onclick="selectNetworkCompany('${c.company.replace(/'/g,"\\'")}', this)"
+      style="display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s;${isSelected ? 'background:var(--accent-dim);' : ''}"
+      onmouseover="if(!this.classList.contains('nm-sel')) this.style.background='var(--bg3)'"
+      onmouseout="if(!this.classList.contains('nm-sel')) this.style.background=''">
+      <div style="width:8px;height:8px;border-radius:50%;background:${dot};flex-shrink:0;" title="${dotTitle}"></div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:13px;font-weight:500;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${c.company}</div>
+        <div style="font-size:10px;color:var(--text3);font-family:var(--mono);">${c.status || 'Not Started'}${c.contact ? ' · ' + c.contact : ''}</div>
+      </div>
+      ${path ? `<div style="font-family:var(--mono);font-size:9px;color:${dot};padding:2px 6px;border-radius:10px;background:${dot}22;border:1px solid ${dot}44;white-space:nowrap;">${'●'.repeat(strength)}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function selectNetworkCompany(company, el) {
+  selectedNetworkCompany = company;
+  document.querySelectorAll('#nm-company-list > div').forEach(d => { d.style.background = ''; d.classList.remove('nm-sel'); });
+  if (el) { el.style.background = 'var(--accent-dim)'; el.classList.add('nm-sel'); }
+
+  const contact = OT_STATE.contacts.find(c => c.company === company);
+  const path = COMPANY_PATHS[company];
+  const detail = document.getElementById('nm-detail-card');
+  if (!detail) return;
+
+  const strengthLabel = !path ? 'Cold — no mapped path' : path.strength >= 3 ? '🟢 Strong warm path' : path.strength >= 2 ? '🟡 Warm path (2nd degree)' : '🔵 Indirect path (community)';
+
+  detail.innerHTML = `
+    <div class="card-title" style="margin-bottom:8px;">${company}</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:12px;line-height:1.6;">
+      ${contact?.role ? `<strong style="color:var(--text);">Role:</strong> ${contact.role}<br>` : ''}
+      ${contact?.contact ? `<strong style="color:var(--text);">Contact:</strong> ${contact.contact}<br>` : ''}
+      <strong style="color:var(--text);">Status:</strong> ${contact?.status || 'Not Started'}<br>
+      <strong style="color:var(--text);">Warm path:</strong> ${strengthLabel}
+    </div>
+    ${path ? `
+    <div style="background:var(--bg3);border-radius:var(--r);padding:10px 12px;margin-bottom:10px;">
+      <div style="font-family:var(--mono);font-size:9px;color:var(--text3);text-transform:uppercase;margin-bottom:4px;">Connection</div>
+      <div style="font-size:12px;color:var(--text2);line-height:1.5;">${path.connection}</div>
+    </div>
+    <div style="background:var(--bg3);border-radius:var(--r);padding:10px 12px;margin-bottom:12px;">
+      <div style="font-family:var(--mono);font-size:9px;color:var(--text3);text-transform:uppercase;margin-bottom:4px;">Angle</div>
+      <div style="font-size:12px;color:var(--text2);line-height:1.5;">${path.angle}</div>
+    </div>
+    <div style="background:var(--accent-dim2);border:1px solid rgba(184,224,74,.15);border-radius:var(--r);padding:10px 12px;margin-bottom:12px;">
+      <div style="font-family:var(--mono);font-size:9px;color:var(--accent);text-transform:uppercase;margin-bottom:4px;">Nudge strategy</div>
+      <div style="font-size:12px;color:var(--text2);line-height:1.5;">${path.nudge}</div>
+    </div>` : `<div style="font-size:12px;color:var(--text3);margin-bottom:12px;">No warm path mapped yet. Use /referral to generate a cold outreach strategy.</div>`}
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="generateNetworkPrompt('${company.replace(/'/g,"\\'")}')">Generate referral strategy →</button>
+    </div>`;
+}
+
+function generateNetworkPrompt(company) {
+  const contact = OT_STATE.contacts.find(c => c.company === company);
+  const path = COMPANY_PATHS[company];
+  const prompt = `Build a referral-first outreach strategy for: ${company}${contact?.role ? ' — ' + contact.role : ''}
+
+${path ? `My warm path: ${path.connection}
+My angle: ${path.angle}
+Nudge strategy: ${path.nudge}` : 'No warm path mapped — need cold outreach strategy.'}
+${contact?.contact ? `\nNamed contact: ${contact.contact}` : ''}
+${contact?.pov ? `\nMy POV / value add: ${contact.pov}` : ''}
+
+My background: Huawei (0-to-1 ISV ecosystem, 1,000+ ISVs, $1M→$100M, Kirin 9000 Edge AI, 2x President's Award), Qualia (API BD, $9M at 120%, first BD hire), Pandora ($200M+ new channels, OEM: Sony/Samsung/Honda), PMSV advisory active.
+
+My network assets: Ex-Huawei ISV partners (Pinterest, Shazam, Adobe, Meta, Airbnb), Pandora OEM contacts (Sony, Samsung, Honda, Microsoft), Qualia fintech network, AI Collective alumni, Pavilion GTM community.
+
+Generate:
+1. Exactly who to reach out to at ${company} — name/title if possible, or the right function to target
+2. The precise angle that earns a response (not "I'm applying" — what do I offer them?)
+3. LinkedIn DM draft — under 80 words, specific to ${company}'s current priorities
+4. Whether to reach out before or after applying
+5. Follow-up plan if no reply in 7 days`;
+
+  const el = document.getElementById('nm-prompt-out');
+  if (el) {
+    el.textContent = prompt + '\n';
+    const btn = document.createElement('button');
+    btn.className = 'prompt-copy-btn'; btn.textContent = 'copy';
+    btn.onclick = () => copyPrompt('nm-prompt-out');
+    el.appendChild(btn);
+  }
+  document.getElementById('nm-prompt-card').style.display = 'block';
+  logUsage('/network', company);
+  toast('Referral strategy generated');
+}
+
+// ==================== EMAIL DIGEST ====================
+
+const DIGEST_CONFIG_KEY = 'jobos_digest_config';
+
+function loadDigestConfig() {
+  const saved = localStorage.getItem(DIGEST_CONFIG_KEY);
+  return saved ? JSON.parse(saved) : { minScore:65, alwaysInclude:'Tenstorrent, Nothing.tech, Microsoft', sources:'LinkedIn, Welcome to the Jungle', nudgeDays:10 };
+}
+
+function saveDigestConfig() {
+  const cfg = {
+    minScore: parseInt(document.getElementById('digest-min-score').value) || 65,
+    alwaysInclude: document.getElementById('digest-always-include').value,
+    sources: document.getElementById('digest-sources').value,
+    nudgeDays: parseInt(document.getElementById('digest-nudge-days').value) || 10
+  };
+  localStorage.setItem(DIGEST_CONFIG_KEY, JSON.stringify(cfg));
+  const st = document.getElementById('digest-config-status');
+  if (st) { st.style.display = 'block'; setTimeout(() => st.style.display = 'none', 2000); }
+}
+
+function renderDigestPanel() {
+  const cfg = loadDigestConfig();
+  const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
+  setVal('digest-min-score', cfg.minScore);
+  setVal('digest-always-include', cfg.alwaysInclude);
+  setVal('digest-sources', cfg.sources);
+  setVal('digest-nudge-days', cfg.nudgeDays);
+  generateAppsScript();
+}
+
+function generateDigestPrompt() {
+  const cfg = loadDigestConfig();
+  const range = document.getElementById('digest-range').value;
+  const inclJobs = document.getElementById('dopt-jobs').checked;
+  const inclReplies = document.getElementById('dopt-replies').checked;
+  const inclNudges = document.getElementById('dopt-nudges').checked;
+  const inclActions = document.getElementById('dopt-actions').checked;
+
+  const rangeLabel = { today:'today', '2days':'the last 2 days', week:'the last 7 days' }[range] || 'today';
+
+  // Build overdue list from outreach tracker
+  const overdue = OT_STATE.contacts.filter(c => {
+    if (!c.lastOutreach || c.status === 'Replied' || c.status === 'Interviewing') return false;
+    const months = {Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+    const m = c.lastOutreach.match(/^([A-Za-z]+)\s+(\d+)/);
+    if (!m) return false;
+    const d = new Date(new Date().getFullYear(), months[m[1]], parseInt(m[2]));
+    if (d > new Date()) d.setFullYear(d.getFullYear() - 1);
+    return Math.floor((Date.now() - d.getTime()) / 86400000) >= cfg.nudgeDays;
+  }).map(c => `  - ${c.company}${c.contact ? ' (' + c.contact + ')' : ''}: last outreach ${c.lastOutreach}`).join('\n');
+
+  const prompt = `Run my daily BD/Partnerships job search digest for ${rangeLabel}.
+
+My background: Huawei (0-to-1 ISV ecosystem, 1,000+ ISVs, $1M→$100M, Kirin 9000/Edge AI), Qualia (API BD, $9M at 120%, first BD hire), Pandora ($200M+ new channels, OEM: Sony/Samsung/Honda), PMSV advisory.
+${inclJobs ? `
+SECTION 1 — NEW JOB ALERTS:
+Search my Gmail for emails from jobalerts-noreply@linkedin.com and similar job alert senders from ${rangeLabel}.
+For each role found, score it on these 5 dimensions (25%/25%/20%/20%/10%):
+  1. Ecosystem/partner motion (25%)
+  2. 0-to-1 builder requirement (25%)
+  3. Technical BD depth (20%)
+  4. AI-native/Edge AI angle (20%)
+  5. Seniority/scope match (10%)
+Only surface roles scoring ≥${cfg.minScore}% OR from these companies regardless of score: ${cfg.alwaysInclude}.
+Format: Company — Role — Score% — Verdict (Apply now / Consider / Skip) — One-line why.` : ''}
+${inclReplies ? `
+SECTION 2 — RECRUITER REPLIES:
+Search my Gmail for direct replies from recruiters or hiring managers at any company. Not automated emails — actual human responses. Flag any new conversations started in ${rangeLabel}.` : ''}
+${inclNudges ? `
+SECTION 3 — FOLLOW-UP NUDGES:
+These contacts have not heard from me in ${cfg.nudgeDays}+ days and need a follow-up:
+${overdue || '  (None overdue — all contacts are within the threshold)'}
+For any that are genuinely overdue, suggest a specific value-add message angle (not "just checking in").` : ''}
+${inclActions ? `
+SECTION 4 — TOP 3 ACTIONS TODAY:
+Based on the above, what are my 3 highest-leverage actions today? Rank by impact.
+Format: [Action] — [Why this, why now] — [Estimated time]` : ''}
+
+Keep the full digest to a 2-minute read. Be direct. No filler.`;
+
+  const el = document.getElementById('digest-prompt-out');
+  if (el) {
+    el.textContent = prompt + '\n';
+    const btn = document.createElement('button'); btn.className = 'prompt-copy-btn'; btn.textContent = 'copy';
+    btn.onclick = () => copyPrompt('digest-prompt-out');
+    el.appendChild(btn);
+  }
+  logUsage('/digest', 'Morning digest generated');
+  toast('Digest prompt ready — paste into your Claude Project');
+}
+
+function generateAppsScript() {
+  const cfg = loadDigestConfig();
+  const script = `// Job Search OS — Morning Digest Automation
+// Paste this into script.google.com and set a daily trigger at 7am
+
+function sendMorningDigest() {
+  const RECIPIENT = "pranjal.mahna@gmail.com";
+  const TODAY = new Date().toLocaleDateString('en-US', {weekday:'long', month:'long', day:'numeric'});
+
+  // Search LinkedIn job alerts from last 24 hours
+  const threads = GmailApp.search('from:jobalerts-noreply@linkedin.com newer_than:1d');
+  let jobSection = "";
+  threads.forEach(t => {
+    const msg = t.getMessages()[0];
+    const body = msg.getPlainBody().substring(0, 3000);
+    jobSection += body.substring(0, 500) + "\\n---\\n";
+  });
+
+  // Search for recruiter replies
+  const replyThreads = GmailApp.search(
+    'to:pranjal.mahna@gmail.com (partnerships OR "business development" OR recruiter) -from:linkedin.com -from:noreply newer_than:1d'
+  );
+  let replySection = replyThreads.length > 0
+    ? replyThreads.map(t => t.getMessages()[0].getSubject() + " — from: " + t.getMessages()[0].getFrom()).join("\\n")
+    : "No direct recruiter replies today.";
+
+  const emailBody = \`Morning digest for \${TODAY}
+
+PASTE THIS INTO YOUR JOB SEARCH OS CLAUDE PROJECT:
+
+Run my daily BD/Partnerships job search digest.
+
+NEW JOB ALERTS FROM LINKEDIN (last 24 hours):
+\${jobSection || "No new alerts"}
+
+DIRECT RECRUITER REPLIES:
+\${replySection}
+
+Score any new roles ≥${cfg.minScore}%. Always include: ${cfg.alwaysInclude}.
+Surface top 3 actions for today.\`;
+
+  MailApp.sendEmail({
+    to: RECIPIENT,
+    subject: \`Job Search OS Digest — \${TODAY}\`,
+    body: emailBody
+  });
+}`;
+
+  const el = document.getElementById('apps-script-out');
+  if (el) {
+    el.textContent = script + '\n';
+    const btn = document.createElement('button'); btn.className = 'prompt-copy-btn'; btn.textContent = 'copy';
+    btn.onclick = () => copyPrompt('apps-script-out');
+    el.appendChild(btn);
+  }
+}
+
+function digestTab(id) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('dtab-' + id).classList.add('active');
+  document.getElementById('dpanel-' + id).classList.add('active');
+  if (id === 'configure') renderDigestPanel();
+}
+
+// ==================== LINKEDIN POST GENERATOR ====================
+
+const POST_HISTORY_KEY = 'jobos_post_history';
+let selectedPillar = null;
+let lastPostPrompt = '';
+
+const PILLAR_CONFIGS = {
+  stack: {
+    title: 'AI Partnership Stack',
+    fields: `
+      <div class="input-row">
+        <label class="input-label">Which layer to focus on?</label>
+        <select id="post-stack-layer" style="background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-family:var(--sans);font-size:13px;padding:9px 12px;">
+          <option value="full">Full 6-layer overview</option>
+          <option value="mcp">Capability extension / MCP as partnership primitive</option>
+          <option value="motion">Motion design — co-sell vs embedded vs distribution</option>
+          <option value="isv">Developer ecosystem / ISV — what most companies get wrong</option>
+          <option value="intel">Intelligence core — why the model layer changes BD</option>
+        </select>
+      </div>
+      <div class="input-row">
+        <label class="input-label">Hook angle</label>
+        <select id="post-stack-hook" style="background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-family:var(--sans);font-size:13px;padding:9px 12px;">
+          <option value="contrarian">Contrarian take — what everyone gets wrong</option>
+          <option value="framework">Framework reveal — here's how to think about it</option>
+          <option value="story">Story-first — what I learned building at scale</option>
+        </select>
+      </div>`,
+    buildPrompt: () => {
+      const layer = document.getElementById('post-stack-layer').value;
+      const hook = document.getElementById('post-stack-hook').value;
+      return `Write a LinkedIn post about the AI Partnership Stack framework — specifically the "${layer}" layer.
+
+Hook style: ${hook}
+
+My credentials: Built 1,000+ ISV ecosystem at Huawei (Kirin 9000 Edge AI), first BD hire at Qualia (fintech API platform, $9M at 120%), Pandora OEM ecosystem (Sony/Samsung/Honda). Created the AI Partnership Stack framework for practitioners navigating the shift from SaaS to AI-native BD.
+
+The 6-layer framework:
+1. Intelligence core (model layer — sets constraints on partnership strategy)
+2. Capability extension (MCP/A2A — the new API for AI partnerships)
+3. Developer ecosystem (ISV/SDK — who builds ON the platform)
+4. Vertical solution (ISVs who go deep in specific industries)
+5. Motion design (co-sell, embedded, distribution — how revenue actually flows)
+6. Distribution (who carries it to market at scale)
+
+Post requirements:
+— 150–250 words
+— Opens with a strong first line (not "I've been thinking about...")
+— Practitioner-grade — real specifics, not AI buzzword soup
+— One concrete example from Huawei or Qualia experience
+— Ends with a question that invites practitioners to respond
+— My voice: direct, specific, occasionally wry — not corporate
+— NO emojis unless it's one bullet-point dot`;
+    }
+  },
+  lesson: {
+    title: 'Hard-won lesson',
+    fields: `
+      <div class="input-row">
+        <label class="input-label">The lesson (one sentence)</label>
+        <input type="text" id="post-lesson-text" placeholder="e.g. Partner programs that look impressive on paper almost always die for the same 3 reasons">
+      </div>
+      <div class="input-row">
+        <label class="input-label">Where you learned it</label>
+        <select id="post-lesson-source" style="background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-family:var(--sans);font-size:13px;padding:9px 12px;">
+          <option value="huawei">Huawei ISV ecosystem ($1M→$100M)</option>
+          <option value="qualia">Qualia — first BD hire, fintech</option>
+          <option value="pandora">Pandora — new channel incubation</option>
+          <option value="general">General BD/partnerships experience</option>
+        </select>
+      </div>`,
+    buildPrompt: () => {
+      const lesson = document.getElementById('post-lesson-text').value || 'Partner programs fail for a predictable set of reasons';
+      const source = document.getElementById('post-lesson-source').value;
+      const sourceLabel = { huawei:'Huawei ISV program (1,000+ ISVs, $1M→$100M)', qualia:'Qualia as first BD hire ($9M at 120% of goal)', pandora:'Pandora new channel incubation ($200M+ in new revenue)', general:'15+ years of BD/partnerships experience' }[source];
+      return `Write a LinkedIn post about this lesson from my experience in BD/Partnerships:
+
+Lesson: "${lesson}"
+Learned from: ${sourceLabel}
+
+Post requirements:
+— 150–250 words
+— Opens with the counterintuitive version of the lesson (subvert expectations)
+— Tells the specific story of where I learned it — concrete details, real numbers if available
+— Draws the transferable principle at the end
+— My voice: practitioner-grade, direct, no filler, confident without being arrogant
+— Ends with a question to practitioners: "What's the version of this you've seen?"
+— No corporate speak, no "excited to share", no fluff opener`;
+    }
+  },
+  observation: {
+    title: 'AI ecosystem observation',
+    fields: `
+      <div class="input-row">
+        <label class="input-label">What are you observing?</label>
+        <input type="text" id="post-obs-topic" placeholder="e.g. MCP is becoming the de facto API layer for AI partnerships — most BD teams haven't noticed">
+      </div>
+      <div class="input-row">
+        <label class="input-label">What does it mean for BD/partnerships?</label>
+        <textarea id="post-obs-implication" rows="2" placeholder="e.g. If MCP is the new integration standard, partner programs need to be built around capability exposure, not data access..."></textarea>
+      </div>`,
+    buildPrompt: () => {
+      const obs = document.getElementById('post-obs-topic').value || 'Something significant is shifting in how AI companies structure partnerships';
+      const impl = document.getElementById('post-obs-implication').value || '';
+      return `Write a LinkedIn post sharing this observation about the AI ecosystem:
+
+Observation: "${obs}"
+${impl ? 'What it means: "' + impl + '"' : ''}
+
+My vantage point: Built ISV ecosystem for Kirin 9000 (on-device AI) at Huawei — one of the first commercial Edge AI partner programs. Now advising AI startups on US BD strategy through PMSV. Following MCP/A2A protocol development closely.
+
+Post requirements:
+— 150–250 words
+— Opens with the specific observation, not a vague "something is changing"
+— One concrete example of what this looks like in practice
+— Stakes it clearly: why this matters for people building partnership programs
+— My voice: analytically sharp, practitioner perspective, not hype
+— Ends with a question that invites other BD/Partnerships people to share what they're seeing
+— No "as an AI practitioner" opener, no buzzword soup`;
+    }
+  },
+  myth: {
+    title: 'Myth vs reality',
+    fields: `
+      <div class="input-row">
+        <label class="input-label">The myth</label>
+        <input type="text" id="post-myth-myth" placeholder="e.g. More ISV partners = more revenue">
+      </div>
+      <div class="input-row">
+        <label class="input-label">The reality</label>
+        <input type="text" id="post-myth-reality" placeholder="e.g. 20% of your ISVs will drive 80% of adoption — the rest are vanity metrics">
+      </div>`,
+    buildPrompt: () => {
+      const myth = document.getElementById('post-myth-myth').value || 'More partners = more revenue';
+      const reality = document.getElementById('post-myth-reality').value || 'Partner quality beats partner quantity every time';
+      return `Write a LinkedIn post contrasting this myth vs reality in BD/Partnerships:
+
+Myth: "${myth}"
+Reality: "${reality}"
+
+My credentials: Ran ISV programs at scale (1,000+ ISVs, Huawei), first BD hire building from zero (Qualia), incubated $200M+ in new revenue channels (Pandora).
+
+Post requirements:
+— 150–250 words
+— Opens with the myth stated directly — not "Everyone says X but..." — just: "X. Wrong."
+— Brief story from my actual experience that disproves the myth
+— Restates the reality as a principle that practitioners can apply
+— My voice: confident, a little blunt, no hedging
+— Ends with a question: invites others to share myths they've disproven
+— No passive voice, no corporate speak`;
+    }
+  },
+  build: {
+    title: "Builder's take",
+    fields: `
+      <div class="input-row">
+        <label class="input-label">What aspect of 0-to-1 program design?</label>
+        <select id="post-build-aspect" style="background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-family:var(--sans);font-size:13px;padding:9px 12px;">
+          <option value="intake">Partner intake criteria — how to decide who gets in</option>
+          <option value="90days">The first 90 days — what to build before you recruit</option>
+          <option value="playbook">The co-sell playbook — making partners actually sell</option>
+          <option value="metrics">What to measure — partner-sourced vs partner-influenced</option>
+          <option value="failure">Why most programs fail — the 3 structural mistakes</option>
+        </select>
+      </div>`,
+    buildPrompt: () => {
+      const aspect = document.getElementById('post-build-aspect').value;
+      const aspectLabel = {
+        intake:'partner intake criteria and qualification',
+        '90days':'the first 90 days of building a partner program from scratch',
+        playbook:'designing a co-sell motion that makes partners actually sell',
+        metrics:'measuring partner program performance — what actually matters',
+        failure:'why most partner programs fail structurally'
+      }[aspect];
+      return `Write a LinkedIn post about ${aspectLabel} — from someone who's actually built this.
+
+My proof: At Huawei, built the ISV intake framework for a 1,000+ partner ecosystem from scratch — 300% SDK adoption, $1M→$100M revenue. At Qualia as first BD hire, built the entire partner program and motion in 12 months — $9M at 120% of goal. At PMSV, designed 0-to-1 BD programs for early-stage AI companies.
+
+Post requirements:
+— 150–250 words
+— Opens with the practitioner reality — what it actually looks and feels like
+— 2–3 specific things I've learned that aren't in the textbooks
+— Real numbers and examples where they add credibility (they usually do)
+— My voice: from someone who did the work, not someone who managed it
+— Ends with an offer or question: "Ask me about [specific thing] if you're building this now"
+— No generic advice, no listicle format`;
+    }
+  }
+};
+
+function selectPillar(id) {
+  selectedPillar = id;
+  document.querySelectorAll('.post-pillar').forEach(p => {
+    p.style.borderColor = 'var(--border2)';
+    p.style.background = 'var(--bg3)';
+  });
+  const selected = document.getElementById('pp-' + id);
+  if (selected) { selected.style.borderColor = 'var(--accent)'; selected.style.background = 'var(--accent-dim)'; }
+
+  const config = PILLAR_CONFIGS[id];
+  if (!config) return;
+  document.getElementById('post-pillar-title').textContent = config.title;
+  document.getElementById('post-pillar-fields').innerHTML = config.fields + `
+    <div class="input-row" style="margin-top:8px;">
+      <label class="input-label">Additional context or specific angle (optional)</label>
+      <input type="text" id="post-extra" placeholder="Any specific story, metric, or angle to include...">
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="generatePost()">Generate with Claude →</button>
+    </div>`;
+}
+
+async function generatePost() {
+  const config = PILLAR_CONFIGS[selectedPillar];
+  if (!config) { toast('Select a content pillar first'); return; }
+  const outEl = document.getElementById('post-output');
+  const cardEl = document.getElementById('post-output-card');
+  if (!outEl || !cardEl) return;
+  cardEl.style.display = 'block';
+  outEl.innerHTML = '<span style="font-family:var(--mono);font-size:10px;color:var(--text3);">Generating<span style="animation:blink 1s infinite">...</span></span>';
+
+  const extra = document.getElementById('post-extra')?.value?.trim() || '';
+  lastPostPrompt = config.buildPrompt() + (extra ? '\n\nExtra context: ' + extra : '');
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 600,
+        stream: true,
+        system: "You are a ghostwriter for a senior BD/Partnerships executive. Write LinkedIn posts that are practitioner-grade, specific, and direct. Never write generic content. Never start with 'Excited to share' or 'Hot take:'. Write in first person, confident, with real examples.",
+        messages: [{ role: 'user', content: lastPostPrompt }]
+      })
+    });
+    outEl.textContent = '';
+    let full = '';
+    const reader = resp.body.getReader();
+    const dec = new TextDecoder();
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      for (const line of dec.decode(value).split('\n')) {
+        if (!line.startsWith('data: ')) continue;
+        try { const d = JSON.parse(line.slice(6)); if (d.delta?.text) { full += d.delta.text; outEl.textContent = full; } } catch(e) {}
+      }
+    }
+    document.getElementById('post-char-count').textContent = `${full.length} characters · ${full.split(/\s+/).length} words`;
+    savePostToHistory(full, selectedPillar);
+    logUsage('/post', config.title);
+    toast('Post generated');
+  } catch(err) {
+    outEl.textContent = 'Could not connect to Claude API. Copy the prompt below and paste into Claude manually.';
+    navigator.clipboard.writeText(lastPostPrompt);
+    toast('Prompt copied — paste into Claude');
+  }
+}
+
+async function regeneratePost() {
+  if (!lastPostPrompt) { toast('Generate a post first'); return; }
+  const outEl = document.getElementById('post-output');
+  outEl.textContent = 'Regenerating...';
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 600,
+        stream: true,
+        system: "You are a ghostwriter for a senior BD/Partnerships executive. Write LinkedIn posts that are practitioner-grade, specific, and direct. Each regeneration should take a meaningfully different angle or opening.",
+        messages: [{ role: 'user', content: lastPostPrompt + '\n\n(Generate a different version with a different opening hook and structure)' }]
+      })
+    });
+    outEl.textContent = '';
+    let full = '';
+    const reader = resp.body.getReader();
+    const dec = new TextDecoder();
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      for (const line of dec.decode(value).split('\n')) {
+        if (!line.startsWith('data: ')) continue;
+        try { const d = JSON.parse(line.slice(6)); if (d.delta?.text) { full += d.delta.text; outEl.textContent = full; } } catch(e) {}
+      }
+    }
+    document.getElementById('post-char-count').textContent = `${full.length} characters · ${full.split(/\s+/).length} words`;
+    savePostToHistory(full, selectedPillar);
+  } catch(err) { outEl.textContent = 'Error regenerating. Try again.'; }
+}
+
+function copyPostOutput() {
+  const text = document.getElementById('post-output')?.textContent || '';
+  navigator.clipboard.writeText(text).then(() => toast('Post copied to clipboard'));
+}
+
+function openPostInClaude() {
+  const text = document.getElementById('post-output')?.textContent || '';
+  const refinePrompt = `Here's a LinkedIn post I'm working on. Please refine it:
+
+${text}
+
+Make it tighter, more specific, and ensure the opening line is strong enough to stop scrolling. Keep my voice — direct, practitioner-grade, no fluff. The post should be 150–250 words.`;
+  navigator.clipboard.writeText(refinePrompt).then(() => {
+    chrome.tabs?.create?.({ url: 'https://claude.ai/new' });
+    window.open('https://claude.ai/new', '_blank');
+    toast('Refine prompt copied — paste into Claude');
+  });
+}
+
+function savePostToHistory(text, pillar) {
+  const history = JSON.parse(localStorage.getItem(POST_HISTORY_KEY) || '[]');
+  history.unshift({ text, pillar, date: new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'}), ts: new Date().toISOString() });
+  if (history.length > 20) history.length = 20;
+  localStorage.setItem(POST_HISTORY_KEY, JSON.stringify(history));
+  renderPostHistory();
+}
+
+function renderPostHistory() {
+  const history = JSON.parse(localStorage.getItem(POST_HISTORY_KEY) || '[]');
+  const el = document.getElementById('post-history-list');
+  if (!el) return;
+  if (!history.length) { el.innerHTML = '<div class="empty"><div class="empty-text" style="padding:0;text-align:left;">No posts generated yet.</div></div>'; return; }
+  el.innerHTML = history.slice(0, 5).map((h, i) => `
+    <div style="padding:10px 0;border-bottom:1px solid var(--border);">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+        <span style="font-family:var(--mono);font-size:10px;color:var(--accent);">${h.pillar || 'post'}</span>
+        <span style="font-family:var(--mono);font-size:9px;color:var(--text3);">${h.date}</span>
+      </div>
+      <div style="font-size:12px;color:var(--text2);line-height:1.5;overflow:hidden;max-height:48px;">${h.text.substring(0,180)}…</div>
+      <button onclick="restorePost(${i})" style="background:none;border:none;cursor:pointer;font-family:var(--mono);font-size:9px;color:var(--text3);margin-top:4px;">restore ↩</button>
+    </div>`).join('');
+}
+
+function restorePost(i) {
+  const history = JSON.parse(localStorage.getItem(POST_HISTORY_KEY) || '[]');
+  const h = history[i];
+  if (!h) return;
+  const outEl = document.getElementById('post-output');
+  const cardEl = document.getElementById('post-output-card');
+  if (outEl) outEl.textContent = h.text;
+  if (cardEl) cardEl.style.display = 'block';
+  document.getElementById('post-char-count').textContent = `${h.text.length} characters · ${h.text.split(/\s+/).length} words`;
+  toast('Post restored');
+}
+
+// ==================== END NEW FEATURES ====================
+
+// ==================== WEEKLY EXPORT ====================
+
+function renderExportPanel() {
+  // Metrics
+  const now = new Date();
+  const weekAgo = new Date(now - 7 * 86400000).toISOString();
+  const weekCmds = STATE.history.filter(h => h.ts >= weekAgo).length;
+  document.getElementById('ex-pipeline').textContent = STATE.pipeline.length;
+  document.getElementById('ex-outreach').textContent = OT_STATE.contacts.length;
+  document.getElementById('ex-scored').textContent = STATE.scores.length;
+  document.getElementById('ex-cmds').textContent = weekCmds;
+
+  // Wire buttons (called on nav to export, so safe to wire here)
+  const wire = (id, fn) => { const el = document.getElementById(id); if (el) { el.replaceWith(el.cloneNode(true)); document.getElementById(id).addEventListener('click', fn); } };
+  wire('ex-btn-pipeline',  () => downloadCSV(buildPipelineCSV(), 'pipeline'));
+  wire('ex-btn-outreach',  () => downloadCSV(buildOutreachCSV(), 'outreach'));
+  wire('ex-btn-scores',    () => downloadCSV(buildScoresCSV(),   'scored-roles'));
+  wire('ex-btn-activity',  () => downloadCSV(buildActivityCSV(), 'activity-log'));
+  wire('ex-btn-all',       exportAllJSON);
+  wire('ex-paste-pipeline',() => pasteToSheets(buildPipelineTSV(),  'Pipeline data'));
+  wire('ex-paste-outreach',() => pasteToSheets(buildOutreachTSV(), 'Outreach data'));
+  wire('ex-gen-script',    generateSheetsScript);
+  wire('ex-copy-summary',  copyWeeklySummary);
+
+  renderWeeklySummary();
+}
+
+// ── CSV BUILDERS ──────────────────────────────────────
+
+function buildPipelineCSV() {
+  const headers = ['Company','Role','Stage','Health','Last Action','Next Step'];
+  const rows = STATE.pipeline.map(r =>
+    [r.company, r.role, r.stage, r.health, r.lastAction, r.nextStep].map(csvCell)
+  );
+  return [headers, ...rows].map(r => r.join(',')).join('\n');
+}
+
+function buildPipelineTSV() {
+  const headers = ['Company','Role','Stage','Health','Last Action','Next Step'];
+  const rows = STATE.pipeline.map(r =>
+    [r.company, r.role, r.stage, r.health, r.lastAction, r.nextStep]
+  );
+  return [headers, ...rows].map(r => r.join('\t')).join('\n');
+}
+
+function buildOutreachCSV() {
+  const headers = ['Company','Tier','Role','Contact','Status','Follow-ups','Last Outreach','POV / Angle'];
+  const rows = OT_STATE.contacts.map(c =>
+    [c.company, c.tier||'', c.role||'', c.contact||'', c.status||'', c.followups||0, c.lastOutreach||'', c.pov||''].map(csvCell)
+  );
+  return [headers, ...rows].map(r => r.join(',')).join('\n');
+}
+
+function buildOutreachTSV() {
+  const headers = ['Company','Tier','Role','Contact','Status','Follow-ups','Last Outreach','POV'];
+  const rows = OT_STATE.contacts.map(c =>
+    [c.company, c.tier||'', c.role||'', c.contact||'', c.status||'', c.followups||0, c.lastOutreach||'', c.pov||'']
+  );
+  return [headers, ...rows].map(r => r.join('\t')).join('\n');
+}
+
+function buildScoresCSV() {
+  const headers = ['Company','Score','Date','Verdict'];
+  const rows = STATE.scores.map(s => {
+    const verdict = s.total >= 75 ? 'Apply now' : s.total >= 50 ? 'Consider' : 'Skip';
+    return [s.company, s.total, s.date, verdict].map(csvCell);
+  });
+  return [headers, ...rows].map(r => r.join(',')).join('\n');
+}
+
+function buildActivityCSV() {
+  const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString();
+  const headers = ['Command','Detail','Date','Time'];
+  const rows = STATE.history
+    .filter(h => h.ts >= weekAgo)
+    .map(h => [h.cmd, h.detail||'', h.date, h.time||''].map(csvCell));
+  return [headers, ...rows].map(r => r.join(',')).join('\n');
+}
+
+function csvCell(val) {
+  const str = String(val ?? '').replace(/"/g, '""');
+  return str.includes(',') || str.includes('"') || str.includes('\n') ? `"${str}"` : str;
+}
+
+// ── DOWNLOAD / PASTE ──────────────────────────────────
+
+function downloadCSV(csv, name) {
+  const date = new Date().toISOString().split('T')[0];
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `jobos-${name}-${date}.csv`;
+  a.click();
+  toast(`${name} CSV downloaded`);
+  logUsage('/export', name + ' CSV');
+}
+
+function exportAllJSON() {
+  const date = new Date().toISOString().split('T')[0];
+  const data = {
+    exportedAt: new Date().toISOString(),
+    week: `Week of ${date}`,
+    pipeline: STATE.pipeline,
+    outreach: OT_STATE.contacts,
+    scores: STATE.scores,
+    activityThisWeek: STATE.history.filter(h => h.ts >= new Date(Date.now()-7*86400000).toISOString()),
+    stats: STATE.stats
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `jobos-full-export-${date}.json`;
+  a.click();
+  toast('Full JSON export downloaded');
+  logUsage('/export', 'full JSON export');
+}
+
+function pasteToSheets(tsv, label) {
+  navigator.clipboard.writeText(tsv).then(() => {
+    toast(`${label} copied — open Sheets, click A1, paste`);
+    logUsage('/export', label + ' copied for Sheets');
+  });
+}
+
+// ── WEEKLY SUMMARY ────────────────────────────────────
+
+function renderWeeklySummary() {
+  const el = document.getElementById('ex-weekly-summary');
+  if (!el) return;
+  const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString();
+  const weekCmds = STATE.history.filter(h => h.ts >= weekAgo);
+  const applied = weekCmds.filter(h => h.cmd === '/apply').length;
+  const scored  = weekCmds.filter(h => h.cmd === '/score').length;
+  const prepped = weekCmds.filter(h => h.cmd === '/prep').length;
+  const debriefs= weekCmds.filter(h => h.cmd === '/debrief').length;
+  const reached = OT_STATE.contacts.filter(c => {
+    const months = {Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+    const m = (c.lastOutreach||'').match(/^([A-Za-z]+)\s+(\d+)/);
+    if (!m) return false;
+    const d = new Date(new Date().getFullYear(), months[m[1]], parseInt(m[2]));
+    if (d > new Date()) d.setFullYear(d.getFullYear()-1);
+    return (Date.now() - d.getTime()) < 7*86400000;
+  }).length;
+  const active = STATE.pipeline.filter(r => !['Withdrawn','Rejected','Closed'].includes(r.stage)).length;
+  const interviews = STATE.pipeline.filter(r => ['Recruiter screen','HM round','Panel'].includes(r.stage)).length;
+
+  el.innerHTML =
+    `Week ending: ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}` +
+    `\nActive pipeline: ${active} role${active!==1?'s':''} · ${interviews} in interview stage` +
+    `\nNew outreach: ${reached} companies reached out to this week` +
+    `\nJDs scored: ${scored} · Applications: ${applied} · Interview preps: ${prepped} · Debriefs: ${debriefs}` +
+    `\nTotal commands this week: ${weekCmds.length}` +
+    `\nOutreach tracker: ${OT_STATE.contacts.length} total companies`;
+}
+
+function copyWeeklySummary() {
+  const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString();
+  const weekCmds = STATE.history.filter(h => h.ts >= weekAgo);
+  const active = STATE.pipeline.filter(r => !['Withdrawn','Rejected','Closed'].includes(r.stage));
+  const interviews = active.filter(r => ['Recruiter screen','HM round','Panel'].includes(r.stage));
+  const reached = OT_STATE.contacts.filter(c => {
+    const months = {Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+    const m = (c.lastOutreach||'').match(/^([A-Za-z]+)\s+(\d+)/);
+    if (!m) return false;
+    const d = new Date(new Date().getFullYear(), months[m[1]], parseInt(m[2]));
+    if (d > new Date()) d.setFullYear(d.getFullYear()-1);
+    return (Date.now() - d.getTime()) < 7*86400000;
+  });
+
+  const summary = `Job Search Weekly Review — ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}
+
+PIPELINE (${active.length} active):
+${active.map(r => `  ${r.company} — ${r.role} — ${r.stage} [${r.health}] — Next: ${r.nextStep}`).join('\n')}
+
+OUTREACH THIS WEEK (${reached.length} companies):
+${reached.slice(0,10).map(c => `  ${c.company}${c.contact?' — '+c.contact:''} — ${c.status}`).join('\n')}${reached.length > 10 ? `\n  ...and ${reached.length-10} more` : ''}
+
+ACTIVITY THIS WEEK:
+  Commands run: ${weekCmds.length}
+  Applications: ${weekCmds.filter(h=>h.cmd==='/apply').length}
+  Roles scored: ${weekCmds.filter(h=>h.cmd==='/score').length}
+  Interviews prepped: ${weekCmds.filter(h=>h.cmd==='/prep').length}
+  Debriefs: ${weekCmds.filter(h=>h.cmd==='/debrief').length}
+
+INTERVIEWS IN PROGRESS:
+${interviews.length ? interviews.map(r => `  ${r.company} — ${r.stage}`).join('\n') : '  None currently'}
+
+Please review this week and tell me:
+1. What moved forward vs stalled?
+2. What should my top 3 priorities be next week?
+3. Any companies I should follow up with or drop?`;
+
+  navigator.clipboard.writeText(summary).then(() => toast('Weekly summary copied — paste into Claude'));
+  logUsage('/export', 'weekly summary');
+}
+
+// ── APPS SCRIPT GENERATOR ─────────────────────────────
+
+function generateSheetsScript() {
+  const script = `// Job Search OS — Google Sheets Sync Script
+// Setup: paste into script.google.com → run createJobSearchSheet once
+// Then paste CSV/TSV data from the OS dashboard each Sunday
+
+const SHEET_NAME = 'Job Search OS';
+
+function createJobSearchSheet() {
+  const ss = SpreadsheetApp.create(SHEET_NAME);
+  const url = ss.getUrl();
+
+  // Create 5 tabs
+  const tabs = ['Pipeline', 'Outreach', 'Scored Roles', 'Activity Log', 'Weekly Summaries'];
+  tabs.forEach((name, i) => {
+    let sheet;
+    if (i === 0) {
+      sheet = ss.getSheets()[0];
+      sheet.setName(name);
+    } else {
+      sheet = ss.insertSheet(name);
+    }
+    styleSheet(sheet, name);
+  });
+
+  // Set up headers for each tab
+  setupHeaders(ss.getSheetByName('Pipeline'), ['Company','Role','Stage','Health','Last Action','Next Step','Week Added']);
+  setupHeaders(ss.getSheetByName('Outreach'), ['Company','Tier','Role','Contact','Status','Follow-ups','Last Outreach','POV / Angle','Week Updated']);
+  setupHeaders(ss.getSheetByName('Scored Roles'), ['Company','Score','Verdict','Date','Week']);
+  setupHeaders(ss.getSheetByName('Activity Log'), ['Command','Detail','Date','Time','Week']);
+  setupHeaders(ss.getSheetByName('Weekly Summaries'), ['Week','Pipeline Count','Interview Count','Outreach Count','Commands Run','Applications','Scores','Debriefs','Notes']);
+
+  // Set weekly Sunday trigger
+  ScriptApp.newTrigger('sendWeeklyReminder')
+    .timeBased()
+    .onWeekDay(ScriptApp.WeekDay.SUNDAY)
+    .atHour(9)
+    .create();
+
+  Logger.log('Sheet created: ' + url);
+  Logger.log('Weekly Sunday 9am reminder trigger set');
+  SpreadsheetApp.getUi().alert('Sheet created! URL: ' + url + '\\n\\nWeekly Sunday reminder trigger has been set.');
+}
+
+function styleSheet(sheet, name) {
+  sheet.setFrozenRows(1);
+  const colors = {
+    'Pipeline': '#1a1a1a',
+    'Outreach': '#1a2a1a',
+    'Scored Roles': '#1a1a2a',
+    'Activity Log': '#2a1a1a',
+    'Weekly Summaries': '#2a2a1a'
+  };
+  sheet.getRange(1,1,1,10)
+    .setBackground(colors[name] || '#1a1a1a')
+    .setFontColor('#b8e04a')
+    .setFontFamily('Courier New')
+    .setFontSize(10)
+    .setFontWeight('bold');
+}
+
+function setupHeaders(sheet, headers) {
+  sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+  sheet.setColumnWidths(1, headers.length, 140);
+}
+
+// Run this to add a week tag to the current data snapshot
+function addWeekTag(sheet) {
+  const weekLabel = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'MMM d, yyyy');
+  const lastRow = sheet.getLastRow();
+  if (lastRow > 1) {
+    const lastCol = sheet.getLastColumn();
+    // Tag the last column with the week
+    for (let i = 2; i <= lastRow; i++) {
+      sheet.getRange(i, lastCol).setValue(weekLabel);
+    }
+  }
+}
+
+// Paste this week's summary manually into Weekly Summaries tab
+function logWeeklySummary(pipelineCount, interviewCount, outreachCount, cmdsRun, apps, scores, debriefs, notes) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName('Weekly Summaries');
+  if (!sheet) return;
+  const week = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'MMM d, yyyy');
+  sheet.appendRow([week, pipelineCount, interviewCount, outreachCount, cmdsRun, apps, scores, debriefs, notes || '']);
+}
+
+function sendWeeklyReminder() {
+  const email = Session.getActiveUser().getEmail();
+  const ss = SpreadsheetApp.openByName(SHEET_NAME);
+  const url = ss ? ss.getUrl() : 'https://script.google.com';
+  const subject = 'Job Search OS — Weekly export reminder';
+  const body = \`Your weekly Job Search OS export is due.
+
+1. Open your Job Search OS dashboard
+2. Go to Tools → Weekly export
+3. Click the export buttons for Pipeline, Outreach, Scored Roles, Activity
+4. Or click "Copy outreach → paste into Sheets" and paste directly
+
+Your Google Sheet: \${url}
+
+Quick links:
+— Download Pipeline CSV → import to Pipeline tab
+— Download Outreach CSV → import to Outreach tab
+— Copy weekly summary → paste into Claude for weekly review
+
+Have a strong week.\`;
+
+  GmailApp.sendEmail(email, subject, body);
+}
+
+// IMPORT FUNCTION — paste your JSON export here
+function importFullExport(jsonString) {
+  const data = JSON.parse(jsonString);
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const week = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'MMM d, yyyy');
+
+  // Pipeline
+  const pSheet = ss.getSheetByName('Pipeline');
+  if (pSheet && data.pipeline) {
+    const rows = data.pipeline.map(r => [r.company, r.role, r.stage, r.health, r.lastAction, r.nextStep, week]);
+    rows.forEach(row => pSheet.appendRow(row));
+    Logger.log('Pipeline: ' + rows.length + ' rows added');
+  }
+
+  // Outreach
+  const oSheet = ss.getSheetByName('Outreach');
+  if (oSheet && data.outreach) {
+    const rows = data.outreach.map(c => [c.company, c.tier||'', c.role||'', c.contact||'', c.status||'', c.followups||0, c.lastOutreach||'', c.pov||'', week]);
+    rows.forEach(row => oSheet.appendRow(row));
+    Logger.log('Outreach: ' + rows.length + ' rows added');
+  }
+
+  // Scores
+  const sSheet = ss.getSheetByName('Scored Roles');
+  if (sSheet && data.scores) {
+    const rows = data.scores.map(s => [s.company, s.total, s.total>=75?'Apply':s.total>=50?'Consider':'Skip', s.date, week]);
+    rows.forEach(row => sSheet.appendRow(row));
+    Logger.log('Scores: ' + rows.length + ' rows added');
+  }
+
+  // Activity
+  const aSheet = ss.getSheetByName('Activity Log');
+  if (aSheet && data.activityThisWeek) {
+    const rows = data.activityThisWeek.map(h => [h.cmd, h.detail||'', h.date, h.time||'', week]);
+    rows.forEach(row => aSheet.appendRow(row));
+    Logger.log('Activity: ' + rows.length + ' rows added');
+  }
+
+  // Stats summary row
+  const wSheet = ss.getSheetByName('Weekly Summaries');
+  if (wSheet && data.stats) {
+    const acts = data.activityThisWeek || [];
+    wSheet.appendRow([
+      week,
+      data.pipeline ? data.pipeline.filter(r => !['Withdrawn','Rejected','Closed'].includes(r.stage)).length : 0,
+      data.pipeline ? data.pipeline.filter(r => ['Recruiter screen','HM round','Panel'].includes(r.stage)).length : 0,
+      data.outreach ? data.outreach.length : 0,
+      acts.length,
+      acts.filter(h=>h.cmd==='/apply').length,
+      acts.filter(h=>h.cmd==='/score').length,
+      acts.filter(h=>h.cmd==='/debrief').length,
+      ''
+    ]);
+  }
+
+  SpreadsheetApp.getUi().alert('Import complete! Data added with week tag: ' + week);
+}`;
+
+  const el = document.getElementById('ex-script-out');
+  if (el) {
+    el.textContent = script + '\n';
+    const btn = document.createElement('button');
+    btn.className = 'prompt-copy-btn'; btn.textContent = 'copy';
+    btn.addEventListener('click', () => copyPrompt('ex-script-out'));
+    el.appendChild(btn);
+  }
+  toast('Apps Script generated — copy and paste into script.google.com');
+  logUsage('/export', 'Apps Script generated');
+}
+
+// ==================== END WEEKLY EXPORT ====================
+
 function init() {
   renderDashboardCalendar();
   renderPipelineMini();
@@ -2448,6 +4034,14 @@ function init() {
   renderScoreHistory();
   document.getElementById('m-active').textContent = STATE.pipeline.length;
   initOutreach();
+  renderPostHistory();
+  // Pre-load digest config into fields
+  const dcfg = loadDigestConfig();
+  const setV = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
+  setV('digest-min-score', dcfg.minScore);
+  setV('digest-always-include', dcfg.alwaysInclude);
+  setV('digest-sources', dcfg.sources);
+  setV('digest-nudge-days', dcfg.nudgeDays);
 }
 
 // ==================== OUTREACH TRACKER ====================
@@ -2565,11 +4159,12 @@ function renderOutreachTable() {
 
   tbody.innerHTML = filtered.map(c => {
     const sc = STATUS_COLORS[c.status] || STATUS_COLORS['Not Started'];
-    return `<tr style="border-top:1px solid var(--border);" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background=''">
+    const _done = c.status === 'Not Interested';
+    return `<tr style="border-top:1px solid var(--border);${_done?'opacity:0.45;':''}" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background=''">
       <td style="padding:9px 6px 9px 14px;">
         <input type="checkbox" ${c.selected?'checked':''} onchange="toggleOTSelect(${c.id})" style="width:13px;height:13px;accent-color:var(--accent);">
       </td>
-      <td style="padding:9px 8px;font-weight:500;color:var(--text);font-size:13px;">${c.company}</td>
+      <td style="padding:9px 8px;font-weight:500;font-size:13px;${_done?'color:var(--text3);text-decoration:line-through;text-decoration-color:var(--text3);':'color:var(--text);'}">${c.company}</td>
       <td style="padding:9px 8px;font-family:var(--mono);font-size:10px;color:var(--text3);">${c.tier ? 'T'+c.tier : '—'}</td>
       <td style="padding:9px 8px;font-size:12px;color:var(--text2);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${c.role||'—'}</td>
       <td style="padding:9px 8px;font-size:12px;color:var(--text2);">${c.contact||'—'}</td>

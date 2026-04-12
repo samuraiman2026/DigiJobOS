@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "Job Search OS — BD/Partnerships",
+  "version": "2.0.0",
+  "description": "Score any job instantly. Follow-up nudge alerts. Sync scored roles to your outreach tracker. Built for Pranjal's BD/Partnerships job search.",
+  "permissions": ["activeTab","scripting","storage","contextMenus","alarms"],
+  "host_permissions": [
+    "https://*.linkedin.com/*","https://*.greenhouse.io/*","https://*.lever.co/*",
+    "https://*.ashbyhq.com/*","https://jobs.ashbyhq.com/*","https://*.workday.com/*",
+    "https://*.indeed.com/*","https://*.glassdoor.com/*","https://*.builtin.com/*",
+    "https://*.wellfound.com/*","https://raw.githubusercontent.com/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {"16":"icons/icon16.png","48":"icons/icon48.png","128":"icons/icon128.png"},
+    "default_title": "Job Search OS"
+  },
+  "background": {"service_worker": "background.js"},
+  "content_scripts": [{
+    "matches": ["https://*.linkedin.com/*","https://*.greenhouse.io/*","https://*.lever.co/*",
+      "https://*.ashbyhq.com/*","https://jobs.ashbyhq.com/*","https://*.indeed.com/*",
+      "https://*.glassdoor.com/*","https://*.builtin.com/*","https://*.wellfound.com/*","https://*/*"],
+    "js": ["content.js"],
+    "run_at": "document_idle"
+  }],
+  "icons": {"16":"icons/icon16.png","48":"icons/icon48.png","128":"icons/icon128.png"}
+}
