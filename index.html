@@ -513,6 +513,7 @@ select { appearance: none; cursor: pointer; }
             <th>Role</th>
             <th>Stage</th>
             <th>Health</th>
+            <th>Added</th>
             <th>Last action</th>
             <th>Next step</th>
             <th style="font-family:var(--mono);font-size:9px;color:var(--text3);">Move</th>
@@ -1940,7 +1941,7 @@ function renderPipeline() {
   const tbody = document.getElementById('pipeline-tbody');
   if (!tbody) return;
   if (!STATE.pipeline.length) {
-    tbody.innerHTML = `<tr><td colspan="8" style="padding:24px;text-align:center;font-family:var(--mono);font-size:11px;color:var(--text3);">No roles in pipeline. Click + Add role to get started.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="9" style="padding:24px;text-align:center;font-family:var(--mono);font-size:11px;color:var(--text3);">No roles in pipeline. Click + Add role to get started.</td></tr>`;
     return;
   }
   tbody.innerHTML = STATE.pipeline.map(r => {
@@ -1958,6 +1959,7 @@ function renderPipeline() {
           <option value="red" ${r.health==='red'?'selected':''}>🔴</option>
         </select>
       </td>
+      <td style="font-family:var(--mono);font-size:10px;color:var(--text3);">${r.addedAt ? (() => { const d = new Date(r.addedAt); return d.toLocaleDateString('en-US',{month:'short',day:'numeric'}) + ' ' + d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}); })() : '—'}</td>
       <td style="font-family:var(--mono);font-size:10px;color:var(--text3);">${r.lastAction}</td>
       <td>
         <input type="text" value="${r.nextStep||''}" onblur="updatePipelineNextStep(${r.id},this.value)" style="background:transparent;border:none;border-bottom:1px solid var(--border2);font-size:12px;color:var(--text2);width:100%;min-width:120px;padding:2px 0;" placeholder="Next step...">
@@ -2027,6 +2029,7 @@ function addRole() {
     url: document.getElementById('ar-url').value.trim() || '',
     stage: document.getElementById('ar-stage').value,
     health: 'green',
+    addedAt: new Date().toISOString(),
     lastAction: new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'}),
     nextStep: document.getElementById('ar-next').value || 'TBD'
   });
@@ -4500,6 +4503,7 @@ function checkExtensionSync() {
             url: r.url || '',
             stage: r.stage || 'Applied',
             health: r.health || 'green',
+            addedAt: r.addedAt || new Date().toISOString(),
             lastAction: r.lastAction || new Date().toLocaleDateString('en-US', { month:'short', day:'numeric' }),
             nextStep: r.nextStep || 'Awaiting response'
           });
