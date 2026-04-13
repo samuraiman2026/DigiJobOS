@@ -1,5 +1,5 @@
-# Job Search OS — Optimized Master Context (v4.2)
-# Pranjal Mahna — April 2026
+# Job Search OS - Optimized Master Context (v4.2)
+# Pranjal Mahna - April 2026
 # This is the "Brain" of the OS. Read this first. 
 
 ## Slash Commands (v4.2 Dashboard)

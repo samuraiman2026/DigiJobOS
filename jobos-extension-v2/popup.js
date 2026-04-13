@@ -1,5 +1,5 @@
-// Job Search OS — Popup Script v2
-// MV3 compliant: zero inline handlers — all wired via addEventListener in init()
+// Job Search OS - Popup Script v2
+// MV3 compliant: zero inline handlers - all wired via addEventListener in init()
 'use strict';
 
 const STORAGE_KEY  = 'jobos_ext_v1';
@@ -81,7 +81,7 @@ function wireButtons() {
   on('btn-open-os',      openOSApp);
 }
 
-// Helper — safe addEventListener
+// Helper - safe addEventListener
 function on(id, fn) {
   const el = document.getElementById(id);
   if (el) el.addEventListener('click', fn);
@@ -114,7 +114,7 @@ function loadGistConfig() {
     if (el) el.value = url;
     if (st) st.innerHTML = url
       ? '<span class="g-ok">● Profile loaded from Gist</span>'
-      : '<span class="g-loading">○ Using fallback — enter Gist URL to enable live sync</span>';
+      : '<span class="g-loading">○ Using fallback - enter Gist URL to enable live sync</span>';
   });
 }
 
@@ -129,10 +129,10 @@ async function saveGistUrl() {
       if (!resp.ok) throw new Error('HTTP ' + resp.status);
       const json = await resp.json();
       profile = { ...FALLBACK_PROFILE, ...json };
-      st.innerHTML = '<span class="g-ok">● Connected — profile synced</span>';
+      st.innerHTML = '<span class="g-ok">● Connected - profile synced</span>';
       toast('Gist profile loaded ✓');
     } catch(e) {
-      st.innerHTML = '<span class="g-err">✗ Could not fetch — check URL is raw Gist link</span>';
+      st.innerHTML = '<span class="g-err">✗ Could not fetch - check URL is raw Gist link</span>';
     }
   });
 }
@@ -193,7 +193,7 @@ function scoreManual() {
   const jd = document.getElementById('manual-jd').value.trim();
   const company = document.getElementById('manual-company').value.trim();
   if (!jd && !company) { toast('Paste a JD to score'); return; }
-  jobData = { title: company.split('—')[1]?.trim()||'', company: company.split('—')[0].trim(), jobText: jd, source:'manual', url:'' };
+  jobData = { title: company.split('-')[1]?.trim()||'', company: company.split('-')[0].trim(), jobText: jd, source:'manual', url:'' };
   showJobDetected(jobData);
   runScoreEngine((jd+' '+company).toLowerCase(), jobData.title, jobData.company);
 }
@@ -220,8 +220,8 @@ function runScoreEngine(jdText, title, company) {
     document.getElementById('p-angles').innerHTML = buildAngles(jdText);
     document.getElementById('sync-row').style.display = 'block';
     prompts.score = buildScorePrompt(title, company, jobData?.jobText || jdText);
-    saveScore(company + (title ? ' — '+title : ''), total);
-    logUsage('/score', (company||'Unknown') + (title ? ' — '+title : ''));
+    saveScore(company + (title ? ' - '+title : ''), total);
+    logUsage('/score', (company||'Unknown') + (title ? ' - '+title : ''));
   }, 100);
 }
 
@@ -237,13 +237,13 @@ function anim(fId, pId, val) {
 
 function buildAngles(jd) {
   const pos=[], neg=[];
-  if (jd.includes('ecosystem')||jd.includes('isv')||jd.includes('platform')) pos.push('Ecosystem builder match — Huawei ISV program is direct proof');
-  if (jd.includes('0 to 1')||jd.includes('from scratch')||jd.includes('founding')||jd.includes('build')) pos.push('0-to-1 builder signal — Qualia first BD hire maps perfectly');
-  if (jd.includes('ai')||jd.includes('on-device')||jd.includes('edge')) pos.push('AI/Edge AI angle — Kirin 9000 on-device partnerships are the differentiator');
-  if (jd.includes('hardware')||jd.includes('device')||jd.includes('oem')) pos.push('Hardware/OEM — Pandora OEM (Sony, Samsung, Honda) is underused here');
-  if (jd.includes('saas')&&!jd.includes('enterprise')) neg.push('SaaS-only framing — emphasize API-first BD (Qualia) over platform');
-  if (jd.includes('sales')&&!jd.includes('partnership')) neg.push('Sales-heavy JD — reframe as partner-assisted and ecosystem revenue');
-  if (!jd.includes('partner')&&!jd.includes('ecosystem')) neg.push('Light partnership language — verify role type before applying');
+  if (jd.includes('ecosystem')||jd.includes('isv')||jd.includes('platform')) pos.push('Ecosystem builder match - Huawei ISV program is direct proof');
+  if (jd.includes('0 to 1')||jd.includes('from scratch')||jd.includes('founding')||jd.includes('build')) pos.push('0-to-1 builder signal - Qualia first BD hire maps perfectly');
+  if (jd.includes('ai')||jd.includes('on-device')||jd.includes('edge')) pos.push('AI/Edge AI angle - Kirin 9000 on-device partnerships are the differentiator');
+  if (jd.includes('hardware')||jd.includes('device')||jd.includes('oem')) pos.push('Hardware/OEM - Pandora OEM (Sony, Samsung, Honda) is underused here');
+  if (jd.includes('saas')&&!jd.includes('enterprise')) neg.push('SaaS-only framing - emphasize API-first BD (Qualia) over platform');
+  if (jd.includes('sales')&&!jd.includes('partnership')) neg.push('Sales-heavy JD - reframe as partner-assisted and ecosystem revenue');
+  if (!jd.includes('partner')&&!jd.includes('ecosystem')) neg.push('Light partnership language - verify role type before applying');
   return (pos.length?'<span class="a-pos">+ </span>'+pos.join('<br><span class="a-pos">+ </span>'):'') +
     (neg.length?'<br><span class="a-neg">− </span>'+neg.join('<br><span class="a-neg">− </span>'):'');
 }
@@ -252,7 +252,7 @@ function buildAngles(jd) {
 function buildScorePrompt(title, company, jd) {
   return `Run /score for this role using the rules in WORKFLOW_GUIDE.md.
 
-<role>${company ? company + ' — ' + title : title || '[role]'}</role>
+<role>${company ? company + ' - ' + title : title || '[role]'}</role>
 <jd>
 ${jd || '[paste JD here]'}
 </jd>`;
@@ -262,7 +262,7 @@ function generateApply() {
   if (!jobData && !document.getElementById('manual-jd').value) { toast('Navigate to a job page first'); return; }
   const type = document.getElementById('p-apply-type').value;
   const contact = document.getElementById('p-apply-contact').value;
-  const role = jobData ? `${jobData.company} — ${jobData.title}` : 'this role';
+  const role = jobData ? `${jobData.company} - ${jobData.title}` : 'this role';
   const jd = jobData?.jobText || document.getElementById('manual-jd').value;
   const bm = profile.bulletMap?.[type] || '';
   
@@ -273,7 +273,7 @@ function generateApply() {
 ${jd}
 </jd>
 <bullet_guidance>${bm}</bullet_guidance>
-<contact_context>${contact==='none'?'No warm contact — cold referral strategy needed':contact==='weak'?'Weak 2nd-degree — warm outreach angle needed':'Strong 1st-degree contact — referral path available'}</contact_context>`;
+<contact_context>${contact==='none'?'No warm contact - cold referral strategy needed':contact==='weak'?'Weak 2nd-degree - warm outreach angle needed':'Strong 1st-degree contact - referral path available'}</contact_context>`;
 
   const el = document.getElementById('apply-out');
   el.textContent = prompts.apply; el.style.display = 'block';
@@ -368,19 +368,19 @@ function renderNudges(overdue) {
     return;
   }
   banner.style.display = 'block';
-  bannerText.textContent = `⚠ ${overdue.length} follow-up${overdue.length===1?'':'s'} overdue — click to review`;
+  bannerText.textContent = `⚠ ${overdue.length} follow-up${overdue.length===1?'':'s'} overdue - click to review`;
   list.innerHTML = overdue.map((c, i) => `
     <div class="nudge-item" id="nudge-${i}">
       <div class="nudge-co">${c.company}</div>
       ${c.role ? `<div class="nudge-meta">${c.role}</div>` : ''}
       ${c.contact ? `<div class="nudge-meta">Contact: ${c.contact}</div>` : ''}
-      <div class="nudge-days">Last outreach: ${c.lastOutreach||'unknown'} — ${c.daysSince} days ago</div>
+      <div class="nudge-days">Last outreach: ${c.lastOutreach||'unknown'} - ${c.daysSince} days ago</div>
       <div class="nudge-btns">
         <button class="nudge-btn nb-copy" data-nudge-idx="${i}">Copy nudge →</button>
         <button class="nudge-btn nb-done" data-done-idx="${i}" data-done-co="${c.company}">Mark sent</button>
       </div>
     </div>`).join('');
-  // Wire nudge buttons — must be done after innerHTML
+  // Wire nudge buttons - must be done after innerHTML
   window._nudges = overdue;
   list.querySelectorAll('[data-nudge-idx]').forEach(btn => {
     btn.addEventListener('click', () => copyNudgePrompt(parseInt(btn.dataset.nudgeIdx)));
@@ -392,7 +392,7 @@ function renderNudges(overdue) {
 
 function copyNudgePrompt(i) {
   const c = window._nudges?.[i]; if (!c) return;
-  const prompt = `Write a brief, warm follow-up message for ${c.company}${c.contact?` (contact: ${c.contact})`:''}.\n\nLast outreach: ${c.lastOutreach||'unknown'} (${c.daysSince} days ago)\n${c.role?'Role: '+c.role:''}\n${c.pov?'My angle: '+c.pov:''}\n\nRequirements:\n— Under 60 words\n— Does NOT say "just checking in"\n— Adds value — share a recent insight about ${c.company} or a specific question\n— Ends with a clear but low-pressure ask\n\nMy full background and metrics (Huawei, Qualia, Pandora) are available in CLAUDE.md. Use that context for this prompt.`;
+  const prompt = `Write a brief, warm follow-up message for ${c.company}${c.contact?` (contact: ${c.contact})`:''}.\n\nLast outreach: ${c.lastOutreach||'unknown'} (${c.daysSince} days ago)\n${c.role?'Role: '+c.role:''}\n${c.pov?'My angle: '+c.pov:''}\n\nRequirements:\n- Under 60 words\n- Does NOT say "just checking in"\n- Adds value - share a recent insight about ${c.company} or a specific question\n- Ends with a clear but low-pressure ask\n\nMy full background and metrics (Huawei, Qualia, Pandora) are available in CLAUDE.md. Use that context for this prompt.`;
   navigator.clipboard.writeText(prompt).then(() => {
     toast(`Nudge prompt for ${c.company} copied`);
     logUsage('/nudge', c.company);
@@ -408,7 +408,7 @@ function markNudgeDone(i, company) {
     chrome.storage.local.set({ [OUTREACH_KEY]: { ...data[OUTREACH_KEY], contacts } }, () => {
       const el = document.getElementById(`nudge-${i}`);
       if (el) el.style.opacity = '0.4';
-      toast(`${company} — logged for ${today}`);
+      toast(`${company} - logged for ${today}`);
       logUsage('/nudge-done', company);
       loadNudges();
     });
@@ -425,23 +425,23 @@ function updateNudgeBadge(count) {
 // ── SHORTCUTS ─────────────────────────────────────────
 const SHORTCUT_PROMPTS = {
   referral: () => {
-    const role = jobData ? `${jobData.company} — ${jobData.title}` : '[paste role here]';
+    const role = jobData ? `${jobData.company} - ${jobData.title}` : '[paste role here]';
     return `Run /referral for this role using the rules in WORKFLOW_GUIDE.md.\n\n<role>${role}</role>\n<context>No extra context provided.</context>`;
   },
   prep: () => {
-    const role = jobData ? `${jobData.company} — ${jobData.title}` : '[role here]';
+    const role = jobData ? `${jobData.company} - ${jobData.title}` : '[role here]';
     return `Run /prep for this interview using the rules in WORKFLOW_GUIDE.md.\n\n<role>${role}</role>\n<round>unknown</round>\n<interviewer>unknown</interviewer>\n<concerns>No specific concerns flagged.</concerns>`;
   },
   mock: () => {
-    const role = jobData ? `${jobData.company} — ${jobData.title}` : '[role]';
+    const role = jobData ? `${jobData.company} - ${jobData.title}` : '[role]';
     return `Run /mock for this role using the rules in WORKFLOW_GUIDE.md.\n\n<role>${role}</role>\n<mode>hardest</mode>`;
   },
-  debrief: () => `Run /debrief using the rules in WORKFLOW_GUIDE.md.\n\n<interview_info>[company — role — interviewer]</interview_info>\n<questions_asked>\n1. [question]\n2. [question]\n3. [question]\n</questions_asked>\n<key_moments>\n[No specific notes.]\n</key_moments>\n<gut_read>Positive — felt good</gut_read>`,
-  negotiate: () => `Run /negotiate using the rules in WORKFLOW_GUIDE.md.\n\n<role>[company — role]</role>\n<offer>\nBase: $[X]\nBonus: [%]\nEquity: [details]\nSigning: $[X]\n</offer>\n<competing_offers>none</competing_offers>\n<desire_level>8/10</desire_level>`,
+  debrief: () => `Run /debrief using the rules in WORKFLOW_GUIDE.md.\n\n<interview_info>[company - role - interviewer]</interview_info>\n<questions_asked>\n1. [question]\n2. [question]\n3. [question]\n</questions_asked>\n<key_moments>\n[No specific notes.]\n</key_moments>\n<gut_read>Positive - felt good</gut_read>`,
+  negotiate: () => `Run /negotiate using the rules in WORKFLOW_GUIDE.md.\n\n<role>[company - role]</role>\n<offer>\nBase: $[X]\nBonus: [%]\nEquity: [details]\nSigning: $[X]\n</offer>\n<competing_offers>none</competing_offers>\n<desire_level>8/10</desire_level>`,
   pattern: () => `Run /pattern using the rules in WORKFLOW_GUIDE.md.\n\n<debrief_history>\n[Paste debrief history here]\n</debrief_history>`,
-  'hiring-manager': () => `You are a VP of Partnerships who has hired 20+ BD professionals. Review this material as a hiring manager — 6-second scan, skeptical lens.\n\n[Paste resume, cover note, or answer here]\n\nGive me: (1) first impression, (2) what's working — top 3, (3) what's not working — top 3 with fixes, (4) one bullet to rewrite, (5) verdict: HIRE / STRONG MAYBE / MAYBE / NOT YET.`,
+  'hiring-manager': () => `You are a VP of Partnerships who has hired 20+ BD professionals. Review this material as a hiring manager - 6-second scan, skeptical lens.\n\n[Paste resume, cover note, or answer here]\n\nGive me: (1) first impression, (2) what's working - top 3, (3) what's not working - top 3 with fixes, (4) one bullet to rewrite, (5) verdict: HIRE / STRONG MAYBE / MAYBE / NOT YET.`,
   skeptic: () => {
-    const role = jobData ? `${jobData.company} — ${jobData.title}` : '[this role]';
+    const role = jobData ? `${jobData.company} - ${jobData.title}` : '[this role]';
     return `Make the strongest possible case against hiring me for: ${role}\n\nMy career history (Huawei, Qualia, Pandora) is in CLAUDE.md. Use that context for this prompt.\n\nFor each concern: what triggers it, how serious (1-5), and the exact bridge narrative. Then: the hardest question a skeptical interviewer would ask.`
   }
 };
@@ -461,7 +461,7 @@ function openClaude(type) {
   if (!prompt) { toast('Generate a prompt first'); return; }
   navigator.clipboard.writeText(prompt).then(() => {
     chrome.tabs.create({ url: 'https://claude.ai/new' });
-    toast('Prompt copied — paste it in Claude');
+    toast('Prompt copied - paste it in Claude');
   });
 }
 

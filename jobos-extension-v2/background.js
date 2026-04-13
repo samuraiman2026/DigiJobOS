@@ -1,4 +1,4 @@
-// Job Search OS — Background Service Worker v2
+// Job Search OS - Background Service Worker v2
 
 const STORAGE_KEY = 'jobos_ext_v1';
 const OUTREACH_SYNC_KEY = 'jobos_outreach_sync'; // shared with popup for OS export
@@ -29,7 +29,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === 'jobos-score') chrome.action.openPopup();
 });
 
-// ── ALARM — hourly nudge check ────────────────────────
+// ── ALARM - hourly nudge check ────────────────────────
 chrome.alarms.onAlarm.addListener(alarm => {
   if (alarm.name === 'nudge-check') checkNudges();
 });
@@ -121,7 +121,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     return true;
   }
   if (msg.action === 'syncOutreach') {
-    // Called from popup when user scores a role — save to shared key
+    // Called from popup when user scores a role - save to shared key
     chrome.storage.local.get(OUTREACH_SYNC_KEY, data => {
       const existing = data[OUTREACH_SYNC_KEY] || { contacts: [], lastUpdated: null };
       const contacts = existing.contacts || [];

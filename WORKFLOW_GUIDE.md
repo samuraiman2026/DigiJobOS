@@ -1,7 +1,11 @@
-# Job Search OS — Workflow Guide (v4.2)
+# Job Search OS - Workflow Guide (v4.2)
 # Reference this file for all slash command instructions.
 
-## /brief — Morning Briefing
+## Global Constraints (Non-Negotiable)
+- **NO EM-DASHES:** Never use em-dashes (-) in any generated text, especially resume bullets, cover notes, or scripts. Use standard hyphens (-) or colons (:) instead.
+- **Data Integrity:** Preserve all metrics ($20M, 120%, etc.) exactly as found in CLAUDE.md.
+
+## /brief - Morning Briefing
 **Purpose:** Generate a high-impact daily game plan.
 **Instructions:**
 1. Search Google Calendar for today's events.
@@ -15,7 +19,7 @@
 - One-line status on each active pipeline role.
 **Constraint:** 90-second read. Game plan, not a report.
 
-## /score — JD Fit Analysis
+## /score - JD Fit Analysis
 **Purpose:** Analyze JD fit against profile dimensions.
 **Instructions:**
 1. Score 1-10 on each (show visual bars):
@@ -29,7 +33,7 @@
 - Weighted score + Verdict.
 - 2 strongest angles + biggest gap for this specific role.
 
-## /apply — Application Workflow
+## /apply - Application Workflow
 **Purpose:** Create a complete application package.
 **Instructions:**
 1. Use `<bullet_guidance>` and `<contact_context>` to tailor the output.
@@ -41,7 +45,7 @@
 - **Referral Strategy:** Who to reach and what angle to use.
 - **Cover Note:** One specific hook, not a resume summary.
 
-## /referral — Referral Strategy
+## /referral - Referral Strategy
 **Purpose:** Build a referral-first approach for a role.
 **Deliver:**
 - **Who to reach:** Ideal (BD/Partnerships/GTM), second (HM's chain), third (2nd-degree).
@@ -50,7 +54,7 @@
 - **Timing:** Apply first or wait?
 - **Follow-up Plan:** If no reply in 5 days.
 
-## /prep — Interview Preparation
+## /prep - Interview Preparation
 **Purpose:** Full research and question bank for an interview.
 **Instructions:**
 1. Search the web for: (a) recent news about the company, (b) interviewer background (if provided).
@@ -62,7 +66,7 @@
 - 3 gap questions with exact bridge narratives.
 - "Tell me about yourself" (90 seconds, tailored).
 
-## /mock — Mock Interview
+## /mock - Mock Interview
 **Purpose:** Interactive practice with live scoring.
 **Instructions:**
 1. Ask questions based on `<mode>` (Hardest, Weak, Full, Specific).
@@ -73,7 +77,7 @@
 - Suggested story to use instead.
 - One rewrite of the answer.
 
-## /debrief — Post-Interview Analysis
+## /debrief - Post-Interview Analysis
 **Purpose:** Analyze performance and generate follow-ups.
 **Deliver:**
 - **Scoring:** Relevance (1-5), Specificity (1-5), Impact Clarity (1-5).
@@ -82,7 +86,7 @@
 - **Follow-up:** Personalized thank-you email (under 150 words).
 - **Next Steps:** What to prepare differently for the next round.
 
-## /negotiate — Offer Strategy
+## /negotiate - Offer Strategy
 **Purpose:** Market benchmarking and counter-offer script.
 **Instructions:**
 1. Search the web for current compensation benchmarks for the role/market.
@@ -94,7 +98,7 @@
 - Exact script for the negotiation call (word for word).
 - "Best offer" pushback response.
 
-## /pattern — Pattern Analysis
+## /pattern - Pattern Analysis
 **Purpose:** Cross-interview weakness identification.
 **Deliver:**
 - Question types I score low on (visual bars).
@@ -104,7 +108,7 @@
 - **Drill Plan:** 3 question types to practice.
 - "Stop doing" / "Do more" items.
 
-## /post — LinkedIn Post Generation
+## /post - LinkedIn Post Generation
 **Purpose:** Practitioner-grade thought leadership.
 **Constraints:**
 - 150–250 words.

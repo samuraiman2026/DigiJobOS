@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Job Search OS — BD/Partnerships Edition</title>
+<title>Job Search OS - BD/Partnerships Edition</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -397,7 +397,7 @@ select { appearance: none; cursor: pointer; }
     <!-- DASHBOARD -->
     <div class="panel active" id="panel-dashboard">
       <div class="panel-header">
-        <div class="panel-eyebrow" id="dash-eyebrow">—</div>
+        <div class="panel-eyebrow" id="dash-eyebrow">-</div>
         <div class="panel-title">Pranjal's command center</div>
         <div class="panel-sub">Your full job search at a glance. Pick a workflow to start.</div>
       </div>
@@ -475,7 +475,7 @@ select { appearance: none; cursor: pointer; }
           </div>
 
           <div class="card" style="margin-top:12px;">
-            <div class="card-title" style="margin-bottom:10px;">Activity — last 26 weeks</div>
+            <div class="card-title" style="margin-bottom:10px;">Activity - last 26 weeks</div>
             <div class="activity-grid" id="activity-grid"></div>
             <div style="display:flex;justify-content:space-between;margin-top:6px;">
               <span style="font-family:var(--mono);font-size:9px;color:var(--text3);">less</span>
@@ -523,7 +523,7 @@ select { appearance: none; cursor: pointer; }
 
       <div style="margin-top:20px;">
         <div class="card card-accent">
-          <div class="card-title" style="margin-bottom:10px;">/pipeline prompt — builds from your live pipeline</div>
+          <div class="card-title" style="margin-bottom:10px;">/pipeline prompt - builds from your live pipeline</div>
           <div class="prompt-block" id="prompt-pipeline"><span class="output-placeholder">Loading pipeline data...</span><button class="prompt-copy-btn" onclick="copyPrompt('prompt-pipeline')">copy</button></div>
         </div>
       </div>
@@ -605,7 +605,7 @@ select { appearance: none; cursor: pointer; }
       <div class="two" style="gap:14px;">
         <div class="card">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-            <div class="card-title">Outreach velocity — last 14 days</div>
+            <div class="card-title">Outreach velocity - last 14 days</div>
             <span style="font-family:var(--mono);font-size:9px;color:var(--text3);" id="ot-avg-label">avg 0/day</span>
           </div>
           <div id="ot-velocity-chart" style="display:flex;align-items:flex-end;gap:3px;height:56px;"></div>
@@ -638,14 +638,14 @@ select { appearance: none; cursor: pointer; }
       <div class="panel-header">
         <div class="panel-eyebrow">Tracking · All sessions</div>
         <div class="panel-title">Usage history</div>
-        <div class="panel-sub">Every command run, scored role, and debrief logged — searchable and exportable.</div>
+        <div class="panel-sub">Every command run, scored role, and debrief logged - searchable and exportable.</div>
       </div>
 
       <div class="metrics-grid">
         <div class="metric-card"><div class="metric-val" id="h-total">0</div><div class="metric-label">Total commands</div></div>
         <div class="metric-card"><div class="metric-val" id="h-today">0</div><div class="metric-label">Today</div></div>
         <div class="metric-card"><div class="metric-val" id="h-week">0</div><div class="metric-label">This week</div></div>
-        <div class="metric-card"><div class="metric-val" id="h-topCmd">—</div><div class="metric-label">Most used</div></div>
+        <div class="metric-card"><div class="metric-val" id="h-topCmd">-</div><div class="metric-label">Most used</div></div>
       </div>
 
       <div class="tab-row">
@@ -693,7 +693,7 @@ select { appearance: none; cursor: pointer; }
           When you paste the generated prompt into your <strong style="color:var(--text);">Job Search OS Claude Project</strong>, Claude will:<br>
           · Read today's Google Calendar via MCP<br>
           · Search your Gmail for new LinkedIn alerts + recruiter replies<br>
-          · Pull your live pipeline (auto-included below — no need to type it)<br>
+          · Pull your live pipeline (auto-included below - no need to type it)<br>
           · Flag overdue follow-ups from your outreach tracker<br>
           · Give you your top 3 actions for the day
         </div>
@@ -703,7 +703,7 @@ select { appearance: none; cursor: pointer; }
 
       <div class="input-row">
         <label class="input-label">Any extra context for today? (optional)</label>
-        <textarea id="brief-followups" rows="2" placeholder="e.g. Following up with Microsoft contact — no reply since Tuesday. Interview with Tenstorrent at 3pm."></textarea>
+        <textarea id="brief-followups" rows="2" placeholder="e.g. Following up with Microsoft contact - no reply since Tuesday. Interview with Tenstorrent at 3pm."></textarea>
       </div>
 
       <div class="btn-row">
@@ -711,7 +711,7 @@ select { appearance: none; cursor: pointer; }
       </div>
 
       <div style="margin-top:16px;" id="brief-output-wrap" style="display:none;">
-        <div class="card-title" style="margin-bottom:8px;">Generated prompt — paste into Claude</div>
+        <div class="card-title" style="margin-bottom:8px;">Generated prompt - paste into Claude</div>
         <div class="prompt-block" id="brief-output"><span class="output-placeholder">Your briefing prompt will appear here...</span>
 <button class="prompt-copy-btn" onclick="copyPrompt('brief-output')">copy</button></div>
       </div>
@@ -722,14 +722,14 @@ select { appearance: none; cursor: pointer; }
       <div class="panel-header">
         <div class="panel-eyebrow">Workflow 02b · /score</div>
         <div class="panel-title">Role scorer</div>
-        <div class="panel-sub">Score any JD across 5 weighted dimensions before investing time applying. Under 6/10 — skip it.</div>
+        <div class="panel-sub">Score any JD across 5 weighted dimensions before investing time applying. Under 6/10 - skip it.</div>
       </div>
 
       <div class="two-col">
         <div>
           <div class="input-row">
             <label class="input-label">Company & role title</label>
-            <input type="text" id="score-company" placeholder="e.g. Nothing.tech — Director BD">
+            <input type="text" id="score-company" placeholder="e.g. Nothing.tech - Director BD">
           </div>
           <div class="input-row">
             <label class="input-label">Job description</label>
@@ -749,34 +749,34 @@ select { appearance: none; cursor: pointer; }
                 <span class="score-label">Ecosystem / partner motion</span>
                 <span class="score-weight">25%</span>
                 <div class="score-track"><div class="score-fill" id="sf1" style="width:0%"></div></div>
-                <span class="score-pct" id="sp1">—</span>
+                <span class="score-pct" id="sp1">-</span>
               </div>
               <div class="score-row">
                 <span class="score-label">0-to-1 builder requirement</span>
                 <span class="score-weight">25%</span>
                 <div class="score-track"><div class="score-fill" id="sf2" style="width:0%"></div></div>
-                <span class="score-pct" id="sp2">—</span>
+                <span class="score-pct" id="sp2">-</span>
               </div>
               <div class="score-row">
                 <span class="score-label">Technical BD depth</span>
                 <span class="score-weight">20%</span>
                 <div class="score-track"><div class="score-fill" id="sf3" style="width:0%"></div></div>
-                <span class="score-pct" id="sp3">—</span>
+                <span class="score-pct" id="sp3">-</span>
               </div>
               <div class="score-row">
                 <span class="score-label">AI-native / Edge AI angle</span>
                 <span class="score-weight">20%</span>
                 <div class="score-track"><div class="score-fill" id="sf4" style="width:0%"></div></div>
-                <span class="score-pct" id="sp4">—</span>
+                <span class="score-pct" id="sp4">-</span>
               </div>
               <div class="score-row">
                 <span class="score-label">Seniority / scope match</span>
                 <span class="score-weight">10%</span>
                 <div class="score-track"><div class="score-fill" id="sf5" style="width:0%"></div></div>
-                <span class="score-pct" id="sp5">—</span>
+                <span class="score-pct" id="sp5">-</span>
               </div>
               <div class="score-total-row">
-                <div class="score-total-num" id="score-total">—</div>
+                <div class="score-total-num" id="score-total">-</div>
                 <div id="score-verdict"></div>
               </div>
             </div>
@@ -819,7 +819,7 @@ select { appearance: none; cursor: pointer; }
 
       <div class="input-row">
         <label class="input-label">Company & role</label>
-        <input type="text" id="apply-role" placeholder="e.g. Nothing.tech — Director BD">
+        <input type="text" id="apply-role" placeholder="e.g. Nothing.tech - Director BD">
       </div>
       <div class="input-row">
         <label class="input-label">Job description</label>
@@ -869,7 +869,7 @@ select { appearance: none; cursor: pointer; }
         <div>
           <div class="input-row">
             <label class="input-label">Target company & role</label>
-            <input type="text" id="ref-role" placeholder="e.g. Nothing.tech — Director BD">
+            <input type="text" id="ref-role" placeholder="e.g. Nothing.tech - Director BD">
           </div>
           <div class="input-row">
             <label class="input-label">What do you know about the team?</label>
@@ -882,7 +882,7 @@ select { appearance: none; cursor: pointer; }
 
         <div>
           <div class="card">
-            <div class="card-title" style="margin-bottom:10px;">Your network angles — pre-mapped</div>
+            <div class="card-title" style="margin-bottom:10px;">Your network angles - pre-mapped</div>
             <ul class="step-list">
               <li class="step-item">
                 <div class="step-num" style="background:rgba(184,224,74,0.12);color:var(--accent);border-color:rgba(184,224,74,0.2);">NT</div>
@@ -923,11 +923,11 @@ select { appearance: none; cursor: pointer; }
         <div>
           <div class="input-row">
             <label class="input-label">Company, role, and round</label>
-            <input type="text" id="prep-role" placeholder="e.g. Nothing.tech — Director BD — HM round">
+            <input type="text" id="prep-role" placeholder="e.g. Nothing.tech - Director BD - HM round">
           </div>
           <div class="input-row">
             <label class="input-label">Interviewer (name + title if known)</label>
-            <input type="text" id="prep-interviewer" placeholder="e.g. Sarah Chen, VP Growth — or 'unknown'">
+            <input type="text" id="prep-interviewer" placeholder="e.g. Sarah Chen, VP Growth - or 'unknown'">
           </div>
           <div class="input-row">
             <label class="input-label">Round type</label>
@@ -978,7 +978,7 @@ select { appearance: none; cursor: pointer; }
       </div>
       <div class="input-row">
         <label class="input-label">Role and focus</label>
-        <input type="text" id="mock-role" placeholder="e.g. Nothing.tech Director BD — hardest questions">
+        <input type="text" id="mock-role" placeholder="e.g. Nothing.tech Director BD - hardest questions">
       </div>
       <div class="input-row">
         <label class="input-label">Mode</label>
@@ -1010,7 +1010,7 @@ select { appearance: none; cursor: pointer; }
         <div>
           <div class="input-row">
             <label class="input-label">Company, role, interviewer</label>
-            <input type="text" id="debrief-info" placeholder="e.g. Nothing.tech — Director BD — Sarah Chen, VP Growth">
+            <input type="text" id="debrief-info" placeholder="e.g. Nothing.tech - Director BD - Sarah Chen, VP Growth">
           </div>
           <div class="input-row">
             <label class="input-label">Questions they asked (in order)</label>
@@ -1023,9 +1023,9 @@ select { appearance: none; cursor: pointer; }
           <div class="input-row">
             <label class="input-label">Gut read</label>
             <select id="debrief-gut">
-              <option>Positive — felt good</option>
-              <option>Mixed — hard to tell</option>
-              <option>Concerned — something was off</option>
+              <option>Positive - felt good</option>
+              <option>Mixed - hard to tell</option>
+              <option>Concerned - something was off</option>
             </select>
           </div>
           <div class="btn-row">
@@ -1038,9 +1038,9 @@ select { appearance: none; cursor: pointer; }
             <div class="card-title" style="margin-bottom:10px;">Scoring rubric</div>
             <div style="font-size:12px;color:var(--text2);line-height:1.7;">
               Each answer scored on 3 dimensions:<br><br>
-              <strong style="color:var(--text);">Relevance</strong> — Did it answer what was actually asked?<br>
-              <strong style="color:var(--text);">Specificity</strong> — Was it concrete or vague?<br>
-              <strong style="color:var(--text);">Impact clarity</strong> — Did a metric or outcome land?<br><br>
+              <strong style="color:var(--text);">Relevance</strong> - Did it answer what was actually asked?<br>
+              <strong style="color:var(--text);">Specificity</strong> - Was it concrete or vague?<br>
+              <strong style="color:var(--text);">Impact clarity</strong> - Did a metric or outcome land?<br><br>
               Target average: <span style="color:var(--accent);font-family:var(--mono);">4.0+/5</span> per answer.<br>
               Below <span style="color:var(--amber);font-family:var(--mono);">3.5</span> = drill this question type.
             </div>
@@ -1072,7 +1072,7 @@ select { appearance: none; cursor: pointer; }
         <div>
           <div class="input-row">
             <label class="input-label">Company & role</label>
-            <input type="text" id="neg-role" placeholder="e.g. Nothing.tech — Director BD">
+            <input type="text" id="neg-role" placeholder="e.g. Nothing.tech - Director BD">
           </div>
           <div class="two-col" style="gap:10px;">
             <div class="input-row">
@@ -1113,7 +1113,7 @@ select { appearance: none; cursor: pointer; }
 
         <div>
           <div class="card card-accent">
-            <div class="card-title" style="margin-bottom:10px;">Market benchmarks — Director BD at AI companies</div>
+            <div class="card-title" style="margin-bottom:10px;">Market benchmarks - Director BD at AI companies</div>
             <div style="font-size:12px;color:var(--text2);line-height:1.8;">
               <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);">
                 <span>Base range</span><span style="font-family:var(--mono);color:var(--text);">$180K – $240K</span>
@@ -1132,11 +1132,11 @@ select { appearance: none; cursor: pointer; }
           <div class="card" style="margin-top:10px;">
             <div class="card-title" style="margin-bottom:8px;">Your leverage</div>
             <ul style="font-size:12px;color:var(--text2);line-height:1.8;padding-left:16px;">
-              <li>$1M→$100M ecosystem revenue — rare proof of build + scale</li>
-              <li>$9M at 120% as first BD hire — 0-to-1 credibility</li>
-              <li>2× President's Award at Huawei — external validation</li>
-              <li>PMSV advisory active — not unemployed, consulting</li>
-              <li>BTech + Bell Labs — technical depth most BD lacks</li>
+              <li>$1M→$100M ecosystem revenue - rare proof of build + scale</li>
+              <li>$9M at 120% as first BD hire - 0-to-1 credibility</li>
+              <li>2× President's Award at Huawei - external validation</li>
+              <li>PMSV advisory active - not unemployed, consulting</li>
+              <li>BTech + Bell Labs - technical depth most BD lacks</li>
             </ul>
           </div>
         </div>
@@ -1177,13 +1177,13 @@ select { appearance: none; cursor: pointer; }
               <li class="step-item"><div class="step-num" style="color:var(--amber);border-color:rgba(224,168,74,0.3);">!</div><div><div class="step-title">Impact quantification under pressure</div><div class="step-desc">End every story with a metric. "$X% of pipeline / cut cycle time by Y%."</div></div></li>
               <li class="step-item"><div class="step-num" style="color:var(--accent);border-color:rgba(184,224,74,0.3);">✓</div><div><div class="step-title">0-to-1 program design stories</div><div class="step-desc">Huawei + Qualia both play naturally. Keep using as anchors.</div></div></li>
               <li class="step-item"><div class="step-num" style="color:var(--red);border-color:rgba(224,90,74,0.3);">↓</div><div><div class="step-title">Channel conflict / co-sell dynamics</div><div class="step-desc">No prepped story yet. Build from Huawei ISV vs direct tension.</div></div></li>
-              <li class="step-item"><div class="step-num" style="color:var(--blue);border-color:rgba(74,168,224,0.3);">↑</div><div><div class="step-title">Underused: Pandora OEM story</div><div class="step-desc">Sony, Samsung, Honda. Strong analog for Nothing.tech — surface it more.</div></div></li>
+              <li class="step-item"><div class="step-num" style="color:var(--blue);border-color:rgba(74,168,224,0.3);">↑</div><div><div class="step-title">Underused: Pandora OEM story</div><div class="step-desc">Sony, Samsung, Honda. Strong analog for Nothing.tech - surface it more.</div></div></li>
             </ul>
           </div>
 
           <div class="card" style="margin-top:10px;">
             <div class="card-title" style="margin-bottom:8px;">Log debrief history</div>
-            <textarea id="pattern-log" rows="4" placeholder="Paste debrief summaries here — company, questions asked, scores..."></textarea>
+            <textarea id="pattern-log" rows="4" placeholder="Paste debrief summaries here - company, questions asked, scores..."></textarea>
             <div class="btn-row">
               <button class="btn btn-primary" onclick="runPattern()">Analyze patterns →</button>
             </div>
@@ -1259,14 +1259,14 @@ select { appearance: none; cursor: pointer; }
         <div class="rv-stab"        id="rvst5" onclick="rvJump(5)"><span style="font-family:var(--mono);font-size:10px;color:var(--text3);display:block;margin-bottom:3px;" id="rvst5n">05</span><span style="font-size:11px;color:var(--text2);">Download</span></div>
       </div>
 
-      <!-- STEP 1 — ROLE -->
+      <!-- STEP 1 - ROLE -->
       <div id="rvp1">
         <div class="card card-accent">
-          <div class="card-title" style="margin-bottom:12px;">Enter role — or quick-load from your active list</div>
+          <div class="card-title" style="margin-bottom:12px;">Enter role - or quick-load from your active list</div>
           <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;">
             <button class="btn" style="font-size:11px;font-family:var(--mono);" onclick="rvQL('Tenstorrent','Head of ISV Partnerships, Experience GTM','edgeai','hardware')">Tenstorrent</button>
             <button class="btn" style="font-size:11px;font-family:var(--mono);" onclick="rvQL('Placer.ai','Strategic Partnerships, Account Director','enterprise','alliances')">Placer.ai</button>
-            <button class="btn" style="font-size:11px;font-family:var(--mono);" onclick="rvQL('Typeface','Director, Strategic Alliances — GSIs & Agencies','enterprise','alliances')">Typeface</button>
+            <button class="btn" style="font-size:11px;font-family:var(--mono);" onclick="rvQL('Typeface','Director, Strategic Alliances - GSIs & Agencies','enterprise','alliances')">Typeface</button>
             <button class="btn" style="font-size:11px;font-family:var(--mono);" onclick="rvQL('Nothing.tech','Director, Business Development','edgeai','hardware')">Nothing.tech</button>
             <button class="btn" style="font-size:11px;font-family:var(--mono);" onclick="rvQL('Microsoft','Sr. Manager, Global Partnerships','enterprise','enterprise')">Microsoft</button>
             <button class="btn" style="font-size:11px;font-family:var(--mono);" onclick="rvQL('Emissary','Founding GTM Lead','enterprise','startup')">Emissary</button>
@@ -1278,7 +1278,7 @@ select { appearance: none; cursor: pointer; }
             <div class="input-row"><label class="input-label">Role title</label><input type="text" id="rv-role" placeholder="e.g. Head of ISV Partnerships" oninput="rvLiveScore()"></div>
           </div>
           <div class="input-row">
-            <label class="input-label">Job description — paste full text for best results</label>
+            <label class="input-label">Job description - paste full text for best results</label>
             <textarea id="rv-jd" rows="6" placeholder="Paste the full JD here. The system analyzes it to pick the right template and bullets..." oninput="rvLiveScore()"></textarea>
           </div>
           <!-- LIVE SCORE -->
@@ -1286,21 +1286,21 @@ select { appearance: none; cursor: pointer; }
             <hr style="border:none;border-top:1px solid var(--border);margin:14px 0;">
             <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
               <span class="input-label" style="margin:0;">JD fit</span>
-              <span style="font-family:var(--mono);font-size:22px;font-weight:500;" id="rv-sc-total">—</span>
+              <span style="font-family:var(--mono);font-size:22px;font-weight:500;" id="rv-sc-total">-</span>
               <span id="rv-sc-verdict"></span>
               <span style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-left:4px;" id="rv-sc-suggest"></span>
             </div>
-            <div class="score-row"><span class="score-label">Ecosystem / partner motion</span><span class="score-weight">25%</span><div class="score-track"><div class="score-fill" id="rvf1" style="width:0"></div></div><span class="score-pct" id="rvp1s">—</span></div>
-            <div class="score-row"><span class="score-label">0-to-1 builder signal</span><span class="score-weight">25%</span><div class="score-track"><div class="score-fill" id="rvf2" style="width:0"></div></div><span class="score-pct" id="rvp2s">—</span></div>
-            <div class="score-row"><span class="score-label">Technical BD depth</span><span class="score-weight">20%</span><div class="score-track"><div class="score-fill" id="rvf3" style="width:0"></div></div><span class="score-pct" id="rvp3s">—</span></div>
-            <div class="score-row"><span class="score-label">AI-native / Edge AI</span><span class="score-weight">20%</span><div class="score-track"><div class="score-fill" id="rvf4" style="width:0"></div></div><span class="score-pct" id="rvp4s">—</span></div>
-            <div class="score-row"><span class="score-label">Seniority / scope</span><span class="score-weight">10%</span><div class="score-track"><div class="score-fill" id="rvf5" style="width:0"></div></div><span class="score-pct" id="rvp5s">—</span></div>
+            <div class="score-row"><span class="score-label">Ecosystem / partner motion</span><span class="score-weight">25%</span><div class="score-track"><div class="score-fill" id="rvf1" style="width:0"></div></div><span class="score-pct" id="rvp1s">-</span></div>
+            <div class="score-row"><span class="score-label">0-to-1 builder signal</span><span class="score-weight">25%</span><div class="score-track"><div class="score-fill" id="rvf2" style="width:0"></div></div><span class="score-pct" id="rvp2s">-</span></div>
+            <div class="score-row"><span class="score-label">Technical BD depth</span><span class="score-weight">20%</span><div class="score-track"><div class="score-fill" id="rvf3" style="width:0"></div></div><span class="score-pct" id="rvp3s">-</span></div>
+            <div class="score-row"><span class="score-label">AI-native / Edge AI</span><span class="score-weight">20%</span><div class="score-track"><div class="score-fill" id="rvf4" style="width:0"></div></div><span class="score-pct" id="rvp4s">-</span></div>
+            <div class="score-row"><span class="score-label">Seniority / scope</span><span class="score-weight">10%</span><div class="score-track"><div class="score-fill" id="rvf5" style="width:0"></div></div><span class="score-pct" id="rvp5s">-</span></div>
           </div>
         </div>
         <div class="btn-row"><button class="btn btn-primary" onclick="rvGoStep(2)">Continue → choose template</button></div>
       </div>
 
-      <!-- STEP 2 — TEMPLATE -->
+      <!-- STEP 2 - TEMPLATE -->
       <div id="rvp2" style="display:none;">
         <div class="card">
           <div class="card-title" style="margin-bottom:14px;">Choose template style</div>
@@ -1321,7 +1321,7 @@ select { appearance: none; cursor: pointer; }
               <span style="font-family:var(--mono);font-size:9px;padding:2px 7px;border-radius:10px;background:var(--bg4);color:var(--text3);">Emissary · MAVI · Typeface</span>
             </div>
           </div>
-          <div class="card-title" style="margin-bottom:8px;">Role type — controls bullet selection</div>
+          <div class="card-title" style="margin-bottom:8px;">Role type - controls bullet selection</div>
           <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
             <div class="rv-pill" id="rvrt-enterprise" onclick="rvSelRT('enterprise')">Enterprise alliances</div>
             <div class="rv-pill" id="rvrt-edgeai"     onclick="rvSelRT('edgeai')">Edge AI / hardware</div>
@@ -1338,11 +1338,11 @@ select { appearance: none; cursor: pointer; }
         </div>
       </div>
 
-      <!-- STEP 3 — BULLETS -->
+      <!-- STEP 3 - BULLETS -->
       <div id="rvp3" style="display:none;">
         <div class="card">
           <div class="card-title">Review & edit bullets</div>
-          <div class="card-body" style="margin-bottom:14px;">Auto-selected based on role type. Click ✕ to toggle a bullet off — it'll appear crossed out. Click ↩ to restore.</div>
+          <div class="card-body" style="margin-bottom:14px;">Auto-selected based on role type. Click ✕ to toggle a bullet off - it'll appear crossed out. Click ↩ to restore.</div>
           <div id="rv-bullet-area"></div>
         </div>
         <div class="btn-row">
@@ -1351,25 +1351,25 @@ select { appearance: none; cursor: pointer; }
         </div>
       </div>
 
-      <!-- STEP 4 — CLAUDE -->
+      <!-- STEP 4 - CLAUDE -->
       <div id="rvp4" style="display:none;">
         <div class="card card-accent">
           <div class="card-title" style="margin-bottom:4px;">Claude rewrites your bullets for this role</div>
-          <div class="card-body" style="margin-bottom:14px;">Claude reads your selected bullets + the JD and rewrites each one to match this role's language — keeping every metric exactly.</div>
+          <div class="card-body" style="margin-bottom:14px;">Claude reads your selected bullets + the JD and rewrites each one to match this role's language - keeping every metric exactly.</div>
           <div class="input-row">
             <label class="input-label">Extra context for Claude (optional)</label>
             <input type="text" id="rv-ctx" placeholder="e.g. 'Emphasize on-device AI angle' or 'They care most about ISV ecosystem scale'">
           </div>
           <div class="btn-row">
             <button class="btn btn-primary" id="rv-claude-btn" onclick="rvRunClaude()">Rewrite with Claude →</button>
-            <button class="btn" onclick="rvGoStep(5)">Skip — use bullets as-is</button>
+            <button class="btn" onclick="rvGoStep(5)">Skip - use bullets as-is</button>
           </div>
           <div id="rv-claude-wrap" style="display:none;margin-top:16px;">
             <div class="input-label" style="margin-bottom:6px;">Claude output</div>
             <div id="rv-claude-out" style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;font-family:var(--mono);font-size:11px;line-height:1.8;color:var(--text2);white-space:pre-wrap;min-height:80px;max-height:280px;overflow-y:auto;"></div>
             <div class="btn-row" id="rv-claude-accept" style="display:none;">
               <button class="btn btn-primary" onclick="rvAcceptRewrites()">Accept rewrites → continue</button>
-              <button class="btn" onclick="rvRejectRewrites()">Discard — keep originals</button>
+              <button class="btn" onclick="rvRejectRewrites()">Discard - keep originals</button>
             </div>
           </div>
         </div>
@@ -1380,7 +1380,7 @@ select { appearance: none; cursor: pointer; }
         <div class="btn-row"><button class="btn" onclick="rvGoStep(3)">← Back</button></div>
       </div>
 
-      <!-- STEP 5 — DOWNLOAD -->
+      <!-- STEP 5 - DOWNLOAD -->
       <div id="rvp5" style="display:none;">
         <div class="card card-accent">
           <div class="card-title" style="margin-bottom:8px;">Your resume is ready</div>
@@ -1477,7 +1477,7 @@ At the start of any session where I ask about my job search, pipeline, or outrea
       <div class="panel-header">
         <div class="panel-eyebrow">Tools · Referral intelligence</div>
         <div class="panel-title">Network map</div>
-        <div class="panel-sub">Every warm path to your target companies — mapped by connection strength and angle. Select a company to generate a referral strategy.</div>
+        <div class="panel-sub">Every warm path to your target companies - mapped by connection strength and angle. Select a company to generate a referral strategy.</div>
       </div>
 
       <div class="metrics-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px;">
@@ -1514,11 +1514,11 @@ At the start of any session where I ask about my job search, pipeline, or outrea
           <div class="card" style="margin-top:12px;">
             <div class="card-title" style="margin-bottom:8px;">Your network assets</div>
             <div style="font-size:12px;color:var(--text2);line-height:1.8;">
-              <div style="margin-bottom:6px;"><span style="color:var(--accent);font-family:var(--mono);font-size:10px;">Huawei ISVs</span> — Pinterest, Porsche, Shazam, Vivino, Airbnb, Adobe, Meta, Match Group</div>
-              <div style="margin-bottom:6px;"><span style="color:var(--blue);font-family:var(--mono);font-size:10px;">Pandora OEM</span> — Sony, Samsung, Microsoft, Honda</div>
-              <div style="margin-bottom:6px;"><span style="color:var(--amber);font-family:var(--mono);font-size:10px;">Fintech network</span> — Qualia FI partners, bank ecosystem contacts</div>
-              <div style="margin-bottom:6px;"><span style="color:var(--teal);font-family:var(--mono);font-size:10px;">Community</span> — AI Collective alumni, Pavilion GTM, Hatched</div>
-              <div><span style="color:var(--text3);font-family:var(--mono);font-size:10px;">PMSV clients</span> — Adyogi, Wove, MobiOffice, Zingerman's</div>
+              <div style="margin-bottom:6px;"><span style="color:var(--accent);font-family:var(--mono);font-size:10px;">Huawei ISVs</span> - Pinterest, Porsche, Shazam, Vivino, Airbnb, Adobe, Meta, Match Group</div>
+              <div style="margin-bottom:6px;"><span style="color:var(--blue);font-family:var(--mono);font-size:10px;">Pandora OEM</span> - Sony, Samsung, Microsoft, Honda</div>
+              <div style="margin-bottom:6px;"><span style="color:var(--amber);font-family:var(--mono);font-size:10px;">Fintech network</span> - Qualia FI partners, bank ecosystem contacts</div>
+              <div style="margin-bottom:6px;"><span style="color:var(--teal);font-family:var(--mono);font-size:10px;">Community</span> - AI Collective alumni, Pavilion GTM, Hatched</div>
+              <div><span style="color:var(--text3);font-family:var(--mono);font-size:10px;">PMSV clients</span> - Adyogi, Wove, MobiOffice, Zingerman's</div>
             </div>
           </div>
         </div>
@@ -1535,7 +1535,7 @@ At the start of any session where I ask about my job search, pipeline, or outrea
       <div class="panel-header">
         <div class="panel-eyebrow">Tools · Morning intelligence</div>
         <div class="panel-title">Email digest</div>
-        <div class="panel-sub">Parse your LinkedIn alerts and recruiter emails into a scored, prioritized digest. Run every morning — takes 90 seconds to read, replaces 20 minutes of manual inbox scanning.</div>
+        <div class="panel-sub">Parse your LinkedIn alerts and recruiter emails into a scored, prioritized digest. Run every morning - takes 90 seconds to read, replaces 20 minutes of manual inbox scanning.</div>
       </div>
 
       <div class="card card-accent" style="margin-bottom:16px;">
@@ -1589,7 +1589,7 @@ At the start of any session where I ask about my job search, pipeline, or outrea
         </div>
 
         <div class="card" style="margin-top:12px;">
-          <div class="card-title" style="margin-bottom:8px;">Claude prompt — copy and run in your Job Search OS Project</div>
+          <div class="card-title" style="margin-bottom:8px;">Claude prompt - copy and run in your Job Search OS Project</div>
           <div class="prompt-block" id="digest-prompt-out" style="font-size:11px;max-height:300px;overflow-y:auto;"><span class="output-placeholder">Configure and generate above.</span><button class="prompt-copy-btn" onclick="copyPrompt('digest-prompt-out')">copy</button></div>
         </div>
       </div>
@@ -1641,7 +1641,7 @@ At the start of any session where I ask about my job search, pipeline, or outrea
       <div class="panel-header">
         <div class="panel-eyebrow">Tools · Thought leadership</div>
         <div class="panel-title">LinkedIn post generator</div>
-        <div class="panel-sub">Write in your voice — practitioner-grade, specific, no AI slop. Five content pillars built from your actual work and frameworks.</div>
+        <div class="panel-sub">Write in your voice - practitioner-grade, specific, no AI slop. Five content pillars built from your actual work and frameworks.</div>
       </div>
 
       <div class="two-col">
@@ -1652,7 +1652,7 @@ At the start of any session where I ask about my job search, pipeline, or outrea
 
               <div class="post-pillar" id="pp-stack" onclick="selectPillar('stack')" style="background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);padding:12px;cursor:pointer;transition:all .12s;">
                 <div style="font-size:12px;font-weight:500;color:var(--text);margin-bottom:2px;">AI Partnership Stack</div>
-                <div style="font-size:11px;color:var(--text2);">The 6-layer framework — Intelligence → Capability → Developer → Vertical → Motion → Distribution</div>
+                <div style="font-size:11px;color:var(--text2);">The 6-layer framework - Intelligence → Capability → Developer → Vertical → Motion → Distribution</div>
               </div>
 
               <div class="post-pillar" id="pp-lesson" onclick="selectPillar('lesson')" style="background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);padding:12px;cursor:pointer;transition:all .12s;">
@@ -1662,7 +1662,7 @@ At the start of any session where I ask about my job search, pipeline, or outrea
 
               <div class="post-pillar" id="pp-observation" onclick="selectPillar('observation')" style="background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);padding:12px;cursor:pointer;transition:all .12s;">
                 <div style="font-size:12px;font-weight:500;color:var(--text);margin-bottom:2px;">AI ecosystem observation</div>
-                <div style="font-size:11px;color:var(--text2);">What you're seeing in AI partnerships right now — MCP, agent-to-agent, co-sell motions, what's changing</div>
+                <div style="font-size:11px;color:var(--text2);">What you're seeing in AI partnerships right now - MCP, agent-to-agent, co-sell motions, what's changing</div>
               </div>
 
               <div class="post-pillar" id="pp-myth" onclick="selectPillar('myth')" style="background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);padding:12px;cursor:pointer;transition:all .12s;">
@@ -1672,7 +1672,7 @@ At the start of any session where I ask about my job search, pipeline, or outrea
 
               <div class="post-pillar" id="pp-build" onclick="selectPillar('build')" style="background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);padding:12px;cursor:pointer;transition:all .12s;">
                 <div style="font-size:12px;font-weight:500;color:var(--text);margin-bottom:2px;">Builder's take</div>
-                <div style="font-size:11px;color:var(--text2);">What 0-to-1 program design actually looks like — the intake, the playbook, the first 90 days</div>
+                <div style="font-size:11px;color:var(--text2);">What 0-to-1 program design actually looks like - the intake, the playbook, the first 90 days</div>
               </div>
 
             </div>
@@ -1732,7 +1732,7 @@ At the start of any session where I ask about my job search, pipeline, or outrea
         <div>
           <!-- EXPORT BUTTONS -->
           <div class="card card-accent" style="margin-bottom:12px;">
-            <div class="card-title" style="margin-bottom:4px;">Export data — click to download CSV</div>
+            <div class="card-title" style="margin-bottom:4px;">Export data - click to download CSV</div>
             <div class="card-body" style="margin-bottom:14px;">Each button downloads a separate CSV file. Open Google Sheets → File → Import to load any of them.</div>
             <div style="display:grid;gap:8px;">
               <button class="btn btn-primary" id="ex-btn-pipeline">↓ Pipeline tracker</button>
@@ -1746,7 +1746,7 @@ At the start of any session where I ask about my job search, pipeline, or outrea
           <!-- SHEET PASTE -->
           <div class="card">
             <div class="card-title" style="margin-bottom:8px;">Copy data as tab-separated (paste directly into Sheets)</div>
-            <div class="card-body" style="margin-bottom:10px;">Copies to clipboard — open any Google Sheet, click cell A1, and paste. Faster than CSV import for quick updates.</div>
+            <div class="card-body" style="margin-bottom:10px;">Copies to clipboard - open any Google Sheet, click cell A1, and paste. Faster than CSV import for quick updates.</div>
             <div style="display:grid;gap:8px;">
               <button class="btn" id="ex-paste-pipeline">Copy pipeline → paste into Sheets</button>
               <button class="btn" id="ex-paste-outreach">Copy outreach → paste into Sheets</button>
@@ -1757,7 +1757,7 @@ At the start of any session where I ask about my job search, pipeline, or outrea
         <div>
           <!-- APPS SCRIPT SETUP -->
           <div class="card">
-            <div class="card-title" style="margin-bottom:8px;">One-time setup — Google Apps Script</div>
+            <div class="card-title" style="margin-bottom:8px;">One-time setup - Google Apps Script</div>
             <div class="card-body" style="margin-bottom:12px;">Paste this script into script.google.com once. It creates a Google Sheet with 4 tabs (Pipeline, Outreach, Scores, Activity) and sets up a weekly Sunday trigger to email you a reminder to run the export.</div>
             <div class="btn-row" style="margin-bottom:10px;">
               <button class="btn btn-primary" id="ex-gen-script">Generate Apps Script →</button>
@@ -1772,7 +1772,7 @@ At the start of any session where I ask about my job search, pipeline, or outrea
               <li>Click "Generate Apps Script →" and copy it</li>
               <li>Go to <strong style="color:var(--text);">script.google.com</strong> → New project</li>
               <li>Paste the script, click Save</li>
-              <li>Run <code style="font-family:var(--mono);font-size:10px;background:var(--bg4);padding:1px 5px;border-radius:3px;">createJobSearchSheet</code> once — it builds the Sheet</li>
+              <li>Run <code style="font-family:var(--mono);font-size:10px;background:var(--bg4);padding:1px 5px;border-radius:3px;">createJobSearchSheet</code> once - it builds the Sheet</li>
               <li>Each Sunday: click "Copy outreach → paste into Sheets" here, then paste into your Sheet</li>
               <li>Or trigger the full JSON export and paste it into the script's import function</li>
             </ol>
@@ -1830,7 +1830,7 @@ At the start of any session where I ask about my job search, pipeline, or outrea
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
       <div class="input-row"><label class="input-label">Tier</label>
         <select id="ac-tier" style="width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-family:var(--sans);font-size:13px;padding:9px 12px;">
-          <option value="1">Tier 1</option><option value="2">Tier 2</option><option value="">—</option>
+          <option value="1">Tier 1</option><option value="2">Tier 2</option><option value="">-</option>
         </select>
       </div>
       <div class="input-row"><label class="input-label">Status</label>
@@ -1910,8 +1910,8 @@ async function loadCalendarForBrief() {
   if (!el) return;
   el.innerHTML = `
     <div style="background:var(--bg3);border:1px solid var(--border);border-left:2px solid var(--accent2);border-radius:var(--r);padding:10px 12px;margin-bottom:12px;">
-      <div style="font-family:var(--mono);font-size:9px;color:var(--accent);text-transform:uppercase;margin-bottom:4px;">Calendar — live via Claude Project</div>
-      <div style="font-size:12px;color:var(--text2);line-height:1.6;">This dashboard can't read Google Calendar directly. Copy the prompt below and paste it into your <strong style="color:var(--text);">Job Search OS Claude Project</strong> — Claude will read your live calendar via the Google Calendar MCP connector.</div>
+      <div style="font-family:var(--mono);font-size:9px;color:var(--accent);text-transform:uppercase;margin-bottom:4px;">Calendar - live via Claude Project</div>
+      <div style="font-size:12px;color:var(--text2);line-height:1.6;">This dashboard can't read Google Calendar directly. Copy the prompt below and paste it into your <strong style="color:var(--text);">Job Search OS Claude Project</strong> - Claude will read your live calendar via the Google Calendar MCP connector.</div>
     </div>`;
 }
 
@@ -1928,7 +1928,7 @@ function renderDashboardCalendar() {
           To see today's calendar, open your <strong style="color:var(--text);">Job Search OS Claude Project</strong> and run:<br>
           <span style="font-family:var(--mono);font-size:10px;color:var(--accent);background:var(--bg4);padding:3px 8px;border-radius:3px;display:inline-block;margin-top:4px;">What's on my calendar today?</span>
         </div>
-        <div style="font-family:var(--mono);font-size:9px;color:var(--text3);margin-top:8px;">Google Calendar reads live via MCP in the Claude Project — not available in this local HTML file.</div>
+        <div style="font-family:var(--mono);font-size:9px;color:var(--text3);margin-top:8px;">Google Calendar reads live via MCP in the Claude Project - not available in this local HTML file.</div>
       </div>
     </div>`;
 }
@@ -1990,12 +1990,12 @@ function buildPipelinePrompt() {
   const active = STATE.pipeline.filter(r => !['Withdrawn','Rejected','Closed'].includes(r.stage));
   const closed = STATE.pipeline.filter(r => ['Withdrawn','Rejected','Closed'].includes(r.stage));
   const pipelineLines = active.map(r =>
-    `  ${r.company} — ${r.role} — ${r.stage} [${r.health}] — Last action: ${r.lastAction} — Next: ${r.nextStep}`
+    `  ${r.company} - ${r.role} - ${r.stage} [${r.health}] - Last action: ${r.lastAction} - Next: ${r.nextStep}`
   ).join('\n');
   const prompt = `Review my job search pipeline and tell me what to prioritize this week.
 
 Current pipeline (${active.length} active):
-${pipelineLines || '  (No active roles — add roles via the pipeline tracker)'}
+${pipelineLines || '  (No active roles - add roles via the pipeline tracker)'}
 ${closed.length ? `\nClosed/withdrawn: ${closed.map(r=>r.company).join(', ')}` : ''}
 Tell me: (1) What is at risk of going cold? (2) What has momentum?
 (3) My top 3 priority actions this week. (4) Any obvious gaps or roles to add?`;
@@ -2149,7 +2149,7 @@ function updateHistoryMetrics() {
   const weekCount = STATE.history.filter(h => h.ts >= weekAgo).length;
   const cmdCounts = {};
   STATE.history.forEach(h => { cmdCounts[h.cmd] = (cmdCounts[h.cmd]||0)+1; });
-  const topCmd = Object.keys(cmdCounts).sort((a,b)=>cmdCounts[b]-cmdCounts[a])[0] || '—';
+  const topCmd = Object.keys(cmdCounts).sort((a,b)=>cmdCounts[b]-cmdCounts[a])[0] || '-';
   document.getElementById('h-total').textContent = total;
   document.getElementById('h-today').textContent = todayCount;
   document.getElementById('h-week').textContent = weekCount;
@@ -2279,11 +2279,11 @@ function runScore() {
     totalEl.textContent = total + '%';
     totalEl.className = 'score-total-num ' + (total >= 75 ? 'strong' : total >= 50 ? 'mid' : 'weak');
     if (total >= 75) {
-      verdictEl.innerHTML = '<span class="verdict-pill verdict-apply">✓ Strong fit — apply now</span>';
+      verdictEl.innerHTML = '<span class="verdict-pill verdict-apply">✓ Strong fit - apply now</span>';
     } else if (total >= 50) {
-      verdictEl.innerHTML = '<span class="verdict-pill verdict-consider">○ Consider carefully — bridge needed</span>';
+      verdictEl.innerHTML = '<span class="verdict-pill verdict-consider">○ Consider carefully - bridge needed</span>';
     } else {
-      verdictEl.innerHTML = '<span class="verdict-pill verdict-skip">✗ Skip — better opportunities exist</span>';
+      verdictEl.innerHTML = '<span class="verdict-pill verdict-skip">✗ Skip - better opportunities exist</span>';
     }
     document.getElementById('score-angles').innerHTML = buildScoreAngles(jdLower, total);
     buildScorePrompt(company, jd);
@@ -2310,12 +2310,12 @@ function animateScore(fillId, pctId, val) {
 function buildScoreAngles(jd, total) {
   const angles = [];
   if (jd.includes('ecosystem') || jd.includes('isv') || jd.includes('platform')) angles.push('Partner ecosystem experience maps directly');
-  if (jd.includes('0 to 1') || jd.includes('build') || jd.includes('launch')) angles.push('0-to-1 builder requirement — Qualia + Huawei are the proof');
-  if (jd.includes('ai') || jd.includes('edge') || jd.includes('on-device')) angles.push('AI/Edge AI angle — Kirin 9000 on-device AI is the differentiator');
-  if (jd.includes('hardware') || jd.includes('device') || jd.includes('oem')) angles.push('Hardware/OEM angle — Pandora OEM (Sony, Honda) is underused here');
+  if (jd.includes('0 to 1') || jd.includes('build') || jd.includes('launch')) angles.push('0-to-1 builder requirement - Qualia + Huawei are the proof');
+  if (jd.includes('ai') || jd.includes('edge') || jd.includes('on-device')) angles.push('AI/Edge AI angle - Kirin 9000 on-device AI is the differentiator');
+  if (jd.includes('hardware') || jd.includes('device') || jd.includes('oem')) angles.push('Hardware/OEM angle - Pandora OEM (Sony, Honda) is underused here');
   const gaps = [];
-  if (!jd.includes('api') && !jd.includes('sdk')) gaps.push('No API/SDK integration language — technical BD depth less visible');
-  if (jd.includes('sales') && !jd.includes('partner')) gaps.push('Sales-forward JD — reframe as partner-assisted revenue, not direct sales');
+  if (!jd.includes('api') && !jd.includes('sdk')) gaps.push('No API/SDK integration language - technical BD depth less visible');
+  if (jd.includes('sales') && !jd.includes('partner')) gaps.push('Sales-forward JD - reframe as partner-assisted revenue, not direct sales');
   return `<strong style="color:var(--text);">Strongest angles:</strong><br>${(angles.length ? angles : ['Review JD for specific angle mapping']).map(a=>'+ '+a).join('<br>')}<br><br><strong style="color:var(--text);">Watch for:</strong><br>${(gaps.length ? gaps : ['No major gaps detected']).map(g=>'− '+g).join('<br>')}`;
 }
 
@@ -2355,8 +2355,8 @@ function renderScoreHistory() {
 
 function resetScore() {
   ['sf1','sf2','sf3','sf4','sf5'].forEach(id => document.getElementById(id).style.width = '0%');
-  ['sp1','sp2','sp3','sp4','sp5'].forEach(id => document.getElementById(id).textContent = '—');
-  document.getElementById('score-total').textContent = '—';
+  ['sp1','sp2','sp3','sp4','sp5'].forEach(id => document.getElementById(id).textContent = '-');
+  document.getElementById('score-total').textContent = '-';
   document.getElementById('score-verdict').innerHTML = '';
   document.getElementById('score-angles').innerHTML = '<div style="color:var(--text3);font-style:italic;font-size:11px;">Score a role to see analysis</div>';
   document.getElementById('score-jd').value = '';
@@ -2368,7 +2368,7 @@ function resetScore() {
 function scoreToResume() {
   const company = document.getElementById('score-company').value.trim();
   const jd = document.getElementById('score-jd').value.trim();
-  rvLoadFromScore(company, company.split('—')[1]?.trim() || '', jd);
+  rvLoadFromScore(company, company.split('-')[1]?.trim() || '', jd);
 }
 
 // ==================== WORKFLOW GENERATORS ====================
@@ -2376,7 +2376,7 @@ function runBrief() {
   const followups = document.getElementById('brief-followups').value.trim();
   const active = STATE.pipeline.filter(r => !['Withdrawn','Rejected','Closed'].includes(r.stage));
   const pipelineSummary = active.length
-    ? active.map(r => '  ' + r.company + ' — ' + r.role + ' — ' + r.stage + ' [' + r.health + '] — Next: ' + r.nextStep).join('\n')
+    ? active.map(r => '  ' + r.company + ' - ' + r.role + ' - ' + r.stage + ' [' + r.health + '] - Next: ' + r.nextStep).join('\n')
     : '  No active roles in pipeline';
   const todayMs = Date.now();
   const _months = {Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
@@ -2389,7 +2389,7 @@ function runBrief() {
     return Math.floor((todayMs - d.getTime()) / 86400000) >= 10;
   });
   const nudgeSummary = overdue.length
-    ? overdue.map(c => '  ' + c.company + (c.contact ? ' ('+c.contact+')' : '') + ' — last: ' + c.lastOutreach).join('\n')
+    ? overdue.map(c => '  ' + c.company + (c.contact ? ' ('+c.contact+')' : '') + ' - last: ' + c.lastOutreach).join('\n')
     : (followups || 'None flagged');
   const prompt = `Run /brief using the rules in WORKFLOW_GUIDE.md.
 
@@ -2407,7 +2407,7 @@ ${nudgeSummary}
   btn.onclick = () => copyPrompt('brief-output');
   el.appendChild(btn);
   logUsage('/brief', 'Morning briefing generated');
-  toast('Brief prompt ready — copy and paste into Claude');
+  toast('Brief prompt ready - copy and paste into Claude');
 }
 
 function runApply() {
@@ -2433,7 +2433,7 @@ function runApply() {
 ${jd || '[paste JD here]'}
 </jd>
 <bullet_guidance>${bulletGuidance}</bullet_guidance>
-<contact_context>${contact === 'none' ? 'No warm contact — cold referral strategy needed' : contact === 'weak' ? 'Weak 2nd-degree connection — warm outreach angle needed' : 'Strong 1st-degree contact — referral path available'}</contact_context>`;
+<contact_context>${contact === 'none' ? 'No warm contact - cold referral strategy needed' : contact === 'weak' ? 'Weak 2nd-degree connection - warm outreach angle needed' : 'Strong 1st-degree contact - referral path available'}</contact_context>`;
   document.getElementById('apply-prompt-out').textContent = prompt + '\n';
   const btn = document.createElement('button');
   btn.className = 'prompt-copy-btn'; btn.textContent = 'copy';
@@ -2579,26 +2579,26 @@ ${log || '[No history provided]'}
 
 // ==================== AGENTS ====================
 const AGENT_PROMPTS = {
-  'hiring-manager': `You are a VP of Partnerships or CRO who has hired 20+ BD professionals. Read the following material as a hiring manager would — quickly, skeptically, looking for proof not claims.
+  'hiring-manager': `You are a VP of Partnerships or CRO who has hired 20+ BD professionals. Read the following material as a hiring manager would - quickly, skeptically, looking for proof not claims.
 
 After reading, give me:
-1. First impression (6 seconds) — what does a real HM think on first scan?
-2. What's working — top 3 specific strengths
-3. What's not working — top 3 specific weaknesses with suggested fixes
+1. First impression (6 seconds) - what does a real HM think on first scan?
+2. What's working - top 3 specific strengths
+3. What's not working - top 3 specific weaknesses with suggested fixes
 4. One bullet or line to rewrite immediately
-5. Verdict: HIRE / STRONG MAYBE / MAYBE / NOT YET — with honest reasoning
+5. Verdict: HIRE / STRONG MAYBE / MAYBE / NOT YET - with honest reasoning
 
 Material to review:
 [paste your resume, cover note, or interview answer here]`,
   'recruiter': `You are an in-house tech recruiter screening BD/Partnerships candidates. You have 30-45 seconds per resume. You are looking for: title match, clear career story, numbers present, right seniority.
 
-Screen-in or screen-out — and tell me exactly why.
+Screen-in or screen-out - and tell me exactly why.
 
 Check:
 1. 30-second scan verdict: SCREEN IN / SCREEN OUT / BORDERLINE
 2. Keyword match vs the JD (list present and missing)
-3. Title and seniority read — clear match or mismatch?
-4. Career story clarity — easy to follow or confusing?
+3. Title and seniority read - clear match or mismatch?
+4. Career story clarity - easy to follow or confusing?
 5. Top concern you'd flag to the hiring manager
 6. One specific fix before submitting
 
@@ -2606,18 +2606,18 @@ Material to review:
 [paste resume or application here]`,
   'bd-peer': `You are a Director or VP of Partnerships who has built partner ecosystems, closed complex deals, and sat across the table from the kinds of partners I've worked with. You know the difference between someone who actually built something and someone who was adjacent to it.
 
-Stress test this material. Be direct — not polite.
+Stress test this material. Be direct - not polite.
 
 Tell me:
-1. What you heard — one sentence summary of the actual claim
-2. What's credible — what a practitioner would believe and find impressive
-3. What you'd push back on — specific skepticism with a follow-up question
-4. What's missing — the practitioner detail that would make this bulletproof
-5. A stronger version — one paragraph showing what a truly strong answer looks like
+1. What you heard - one sentence summary of the actual claim
+2. What's credible - what a practitioner would believe and find impressive
+3. What you'd push back on - specific skepticism with a follow-up question
+4. What's missing - the practitioner detail that would make this bulletproof
+5. A stronger version - one paragraph showing what a truly strong answer looks like
 
 Material to review:
 [paste interview answer, resume bullet, or story here]`,
-  'skeptic': `You are a hiring committee member who is skeptical of this candidate. Your job is to protect the company from a bad hire. You are not hostile — you are thorough.
+  'skeptic': `You are a hiring committee member who is skeptical of this candidate. Your job is to protect the company from a bad hire. You are not hostile - you are thorough.
 
 Make the strongest possible case against hiring me for this role. Then tell me how to pre-empt each concern before the interviewer raises it.
 
@@ -2630,7 +2630,7 @@ Then: the hardest question a skeptical interviewer would ask, and what I absolut
 
 Role and my background:
 [paste role + your background summary here]`,
-  'coach': `You are an executive interview coach who has prepped hundreds of senior candidates. You focus on mechanics — structure, pacing, opening hooks, closing lines.
+  'coach': `You are an executive interview coach who has prepped hundreds of senior candidates. You focus on mechanics - structure, pacing, opening hooks, closing lines.
 
 Review this answer on:
 1. Structure: STAR / PRIR / Other / Unclear?
@@ -2638,8 +2638,8 @@ Review this answer on:
 3. Opening hook: Strong / Weak / Missing
 4. Closing line with result: Strong / Weak / Missing
 5. Language flags: hedging ("kind of", "sort of"), passive voice, "we" vs "I" balance
-6. One rewrite of the opening line — stronger hook
-7. One rewrite of the closing line — clear result + optional tie-back to this role
+6. One rewrite of the opening line - stronger hook
+7. One rewrite of the closing line - clear result + optional tie-back to this role
 
 Answer to review:
 [paste your interview answer here]`
@@ -2669,7 +2669,7 @@ function toast(msg) {
 // ==================== INIT ====================
 // ==================== RESUME GENERATOR ====================
 
-const RV_LIB={pmsv:{label:'PMSV Tech and Strategy',te:'Advisor — Enterprise Services & Partnership Strategy',ta:'Consultant — AI & SaaS GTM',ts:'Advisor — AI & SaaS Startups',dates:'December 2022 – Present',bullets:[{id:'p1',t:'Designed 0-to-1 enterprise BD programs for early-stage companies, building partner intake frameworks, sales playbooks, and outreach strategies that secured first enterprise relationships.'},{id:'p2',t:'Drove U.S. expansion for Adyogi (AI commerce optimization) by securing strategic partnerships with Meta and Shopify, boosting product distribution by 16%.'},{id:'p3',t:"As first BD hire for Wove, secured the company's first 3 enterprise partners by creating and executing pitch and outreach for data-match integrations within a 90-day window."},{id:'p4',t:'Built API packaging, conversion tracking, and retention analytics for MobiOffice (200M+ downloads), directly lifting paid user conversions by 7%.'},{id:'p5',t:"Engineered an AI-driven GTM system for Zingerman's, automating content and outreach to drive national brand growth."}]},qualia:{label:'Qualia — Series D Fintech SaaS',title:'Director, Business Development',dates:'August 2021 – October 2022',bullets:[{id:'q1',t:'Architected a tiered ISV/SI partner program from scratch — designing intake criteria, certification tiers, legal templates, GTM playbooks, and partner enablement materials — delivering $20M in pipeline and $9M in closed revenue at 120% of target with a 60% win rate.'},{id:'q2',t:'Orchestrated complex SaaS integration deals with major financial institutions, leading cross-functional delivery across legal, risk, product, and engineering to align workflows and structure agreements.'},{id:'q3',t:'Drove 20% lift in key customer activation metrics by embedding as GM-equivalent across sales, product, and ops to define success benchmarks, segment use cases, and scale adoption.'},{id:'q4',t:'Developed an embedded partnership model with fintech platforms inside major banks, structuring go-to-sell and co-distribution agreements that unlocked financial institution channels.'},{id:'q5',t:"Partner Program Design: Identified key developer partners to steer the organization's move to high-ARR mid-sized customers — designed full partner program including intake criteria, enablement materials, legal templates, and playbooks."},{id:'q6',t:'Tiered SI program: Built a tiered partner program and directory resulting in rapid growth in SI partners and partner-influenced pipeline. Negotiated performance-driven contracts opening $20M in pipeline revenue.'},{id:'q7',t:'Deal Structuring: Negotiated complex SaaS and integration agreements with financial institutions, structuring deal terms, risk frameworks, and onboarding flows with input from engineering, product, and legal.'},{id:'q8',t:'Led post-deal governance and program management across 15+ active partnerships; prepared QBR materials, tracked execution plans, and reported performance to leadership.'}]},huawei:{label:'Huawei Technologies',te:'Director, Business Development — Partner Ecosystem & Platform Strategy',ta:'Director, Strategic Partnerships',dates:'February 2018 – July 2021',intro:"Directed global GTM strategy for the Edge AI ecosystem (Kirin 9000 SoC). Scaled SDK adoption by 300%, ecosystem revenue from $1M to $100M, and user reach from 2M to 30M. Led a team of 8. 2× President's Award winner.",bullets:[{id:'h1',t:'Designed and scaled a hybrid delivery model combining high-touch strategic partner engagement with embedded technical resources — onboarding 1,000+ ISVs and growing SDK integration 300% across Ads, Payments, and AI services.'},{id:'h2',t:'Drove product pitch, integration, and testing of AI-on-SoC (Kirin 9000) with key global partners, enabling on-device intelligence for Pinterest, Porsche, Shazam, and Vivino.'},{id:'h3',t:'Scaled platform revenue from $1M to $100M by negotiating and closing global joint-development, licensing, distribution, and co-marketing agreements with Meta, Adobe, Match Group, and Airbnb — growing user reach from 2M to 30M.'},{id:'h4',t:'Deployed partner incentive programs, deal frameworks, and IP alignment strategies in coordination with Product, Legal, and Engineering — cutting deal cycle time by 30% during 3× partnership growth.'},{id:'h5',t:'Presented global technology strategy and partner performance analysis to C-suite and regional executives across U.S., EMEA, and China, directly influencing build-vs-buy decisions and roadmap priorities.'},{id:'h6',t:"Earned the President's Award twice for leadership in GTM execution, revenue growth, and ecosystem development."},{id:'h7',t:'Designed and executed a developer ecosystem program onboarding 1,000+ ISVs globally — driving 300% SDK adoption across Ads, Payments, Identity, Video on Demand, and Cloud services.'},{id:'h8',t:'Led on-device AI (Kirin 9000) integration for Pinterest, Shazam, and Porsche, enabling low-latency edge intelligence and establishing a competitive moat against cloud-only incumbents.'},{id:'h9',t:'Negotiated licensing, distribution, co-development, and monetization deals with Meta, Adobe, Match Group, and Airbnb.'},{id:'h10',t:'Activated a full partner incentive program, ABM, joint pitch strategy, training toolkits, and quote-to-cash process — cutting deal cycle time by 30% during 3× partnership growth.'}]},pandora:{label:'Pandora Media',title:'Business Development, New Initiatives',dates:'October 2012 – March 2015',bullets:[{id:'pa1',t:'Developed alternate monetization channels (OEM integrations, value exchange ads, retargeting) from start to finish — creating sustainable revenue streams that drove over $200M in new revenue.'},{id:'pa2',t:'Launched Sponsored Listening Video Ads ($155M), Retargeting ($40M), TV Ads ($10M), and Customer Engagement Rewards from business case through partner activation and full scale.'},{id:'pa3',t:"Built platform partnerships with Sony, Microsoft, and Honda — managing monetization and distribution for Pandora's connected device ecosystem."},{id:'pa4',t:"Activated and managed ad inventory partnerships adding $35M YoY in incremental revenue and diversifying Pandora's growth model."},{id:'pa5',t:'Championed early-stage product ideas through full lifecycle: business case, stakeholder alignment, partner sourcing, pilot activation, and performance measurement.'}]},mobclix:{label:'Mobclix (NASDAQ: VELT)',title:'Senior Business Development Manager',dates:'July 2011 – August 2012',bullets:[{id:'m1',t:'Delivered 185% YoY revenue growth and 214% YoY volume growth, maintaining full accountability for $16M in annual revenues and 30B impressions/year.'}]},sony:{label:'Sony Mobile',title:'Business Development Manager',dates:'February 2008 – June 2011',bullets:[{id:'s1',t:"Architected the first-ever monetization strategy for Sony's Android devices — launching partnerships with SSPs and integrating with the PlayStation ecosystem to generate the first $10M in advertising revenue."},{id:'s2',t:'Managed end-to-end partnership lifecycle for Android device launches across 16 global markets, securing collaborations with Garmin, Adidas, Reuters, and Sony Music.'}]}};
+const RV_LIB={pmsv:{label:'PMSV Tech and Strategy',te:'Advisor - Enterprise Services & Partnership Strategy',ta:'Consultant - AI & SaaS GTM',ts:'Advisor - AI & SaaS Startups',dates:'December 2022 – Present',bullets:[{id:'p1',t:'Designed 0-to-1 enterprise BD programs for early-stage companies, building partner intake frameworks, sales playbooks, and outreach strategies that secured first enterprise relationships.'},{id:'p2',t:'Drove U.S. expansion for Adyogi (AI commerce optimization) by securing strategic partnerships with Meta and Shopify, boosting product distribution by 16%.'},{id:'p3',t:"As first BD hire for Wove, secured the company's first 3 enterprise partners by creating and executing pitch and outreach for data-match integrations within a 90-day window."},{id:'p4',t:'Built API packaging, conversion tracking, and retention analytics for MobiOffice (200M+ downloads), directly lifting paid user conversions by 7%.'},{id:'p5',t:"Engineered an AI-driven GTM system for Zingerman's, automating content and outreach to drive national brand growth."}]},qualia:{label:'Qualia - Series D Fintech SaaS',title:'Director, Business Development',dates:'August 2021 – October 2022',bullets:[{id:'q1',t:'Architected a tiered ISV/SI partner program from scratch - designing intake criteria, certification tiers, legal templates, GTM playbooks, and partner enablement materials - delivering $20M in pipeline and $9M in closed revenue at 120% of target with a 60% win rate.'},{id:'q2',t:'Orchestrated complex SaaS integration deals with major financial institutions, leading cross-functional delivery across legal, risk, product, and engineering to align workflows and structure agreements.'},{id:'q3',t:'Drove 20% lift in key customer activation metrics by embedding as GM-equivalent across sales, product, and ops to define success benchmarks, segment use cases, and scale adoption.'},{id:'q4',t:'Developed an embedded partnership model with fintech platforms inside major banks, structuring go-to-sell and co-distribution agreements that unlocked financial institution channels.'},{id:'q5',t:"Partner Program Design: Identified key developer partners to steer the organization's move to high-ARR mid-sized customers - designed full partner program including intake criteria, enablement materials, legal templates, and playbooks."},{id:'q6',t:'Tiered SI program: Built a tiered partner program and directory resulting in rapid growth in SI partners and partner-influenced pipeline. Negotiated performance-driven contracts opening $20M in pipeline revenue.'},{id:'q7',t:'Deal Structuring: Negotiated complex SaaS and integration agreements with financial institutions, structuring deal terms, risk frameworks, and onboarding flows with input from engineering, product, and legal.'},{id:'q8',t:'Led post-deal governance and program management across 15+ active partnerships; prepared QBR materials, tracked execution plans, and reported performance to leadership.'}]},huawei:{label:'Huawei Technologies',te:'Director, Business Development - Partner Ecosystem & Platform Strategy',ta:'Director, Strategic Partnerships',dates:'February 2018 – July 2021',intro:"Directed global GTM strategy for the Edge AI ecosystem (Kirin 9000 SoC). Scaled SDK adoption by 300%, ecosystem revenue from $1M to $100M, and user reach from 2M to 30M. Led a team of 8. 2× President's Award winner.",bullets:[{id:'h1',t:'Designed and scaled a hybrid delivery model combining high-touch strategic partner engagement with embedded technical resources - onboarding 1,000+ ISVs and growing SDK integration 300% across Ads, Payments, and AI services.'},{id:'h2',t:'Drove product pitch, integration, and testing of AI-on-SoC (Kirin 9000) with key global partners, enabling on-device intelligence for Pinterest, Porsche, Shazam, and Vivino.'},{id:'h3',t:'Scaled platform revenue from $1M to $100M by negotiating and closing global joint-development, licensing, distribution, and co-marketing agreements with Meta, Adobe, Match Group, and Airbnb - growing user reach from 2M to 30M.'},{id:'h4',t:'Deployed partner incentive programs, deal frameworks, and IP alignment strategies in coordination with Product, Legal, and Engineering - cutting deal cycle time by 30% during 3× partnership growth.'},{id:'h5',t:'Presented global technology strategy and partner performance analysis to C-suite and regional executives across U.S., EMEA, and China, directly influencing build-vs-buy decisions and roadmap priorities.'},{id:'h6',t:"Earned the President's Award twice for leadership in GTM execution, revenue growth, and ecosystem development."},{id:'h7',t:'Designed and executed a developer ecosystem program onboarding 1,000+ ISVs globally - driving 300% SDK adoption across Ads, Payments, Identity, Video on Demand, and Cloud services.'},{id:'h8',t:'Led on-device AI (Kirin 9000) integration for Pinterest, Shazam, and Porsche, enabling low-latency edge intelligence and establishing a competitive moat against cloud-only incumbents.'},{id:'h9',t:'Negotiated licensing, distribution, co-development, and monetization deals with Meta, Adobe, Match Group, and Airbnb.'},{id:'h10',t:'Activated a full partner incentive program, ABM, joint pitch strategy, training toolkits, and quote-to-cash process - cutting deal cycle time by 30% during 3× partnership growth.'}]},pandora:{label:'Pandora Media',title:'Business Development, New Initiatives',dates:'October 2012 – March 2015',bullets:[{id:'pa1',t:'Developed alternate monetization channels (OEM integrations, value exchange ads, retargeting) from start to finish - creating sustainable revenue streams that drove over $200M in new revenue.'},{id:'pa2',t:'Launched Sponsored Listening Video Ads ($155M), Retargeting ($40M), TV Ads ($10M), and Customer Engagement Rewards from business case through partner activation and full scale.'},{id:'pa3',t:"Built platform partnerships with Sony, Microsoft, and Honda - managing monetization and distribution for Pandora's connected device ecosystem."},{id:'pa4',t:"Activated and managed ad inventory partnerships adding $35M YoY in incremental revenue and diversifying Pandora's growth model."},{id:'pa5',t:'Championed early-stage product ideas through full lifecycle: business case, stakeholder alignment, partner sourcing, pilot activation, and performance measurement.'}]},mobclix:{label:'Mobclix (NASDAQ: VELT)',title:'Senior Business Development Manager',dates:'July 2011 – August 2012',bullets:[{id:'m1',t:'Delivered 185% YoY revenue growth and 214% YoY volume growth, maintaining full accountability for $16M in annual revenues and 30B impressions/year.'}]},sony:{label:'Sony Mobile',title:'Business Development Manager',dates:'February 2008 – June 2011',bullets:[{id:'s1',t:"Architected the first-ever monetization strategy for Sony's Android devices - launching partnerships with SSPs and integrating with the PlayStation ecosystem to generate the first $10M in advertising revenue."},{id:'s2',t:'Managed end-to-end partnership lifecycle for Android device launches across 16 global markets, securing collaborations with Garmin, Adidas, Reuters, and Sony Music.'}]}};
 
 const RV_SEL={enterprise:{pmsv:['p1','p2','p4','p3'],qualia:['q1','q2','q3','q4','q8'],huawei:['h1','h2','h3','h4','h5','h6'],pandora:['pa1','pa4','pa5'],mobclix:['m1'],sony:['s1','s2']},edgeai:{pmsv:['p2','p5','p3','p4'],qualia:['q5','q6','q7','q1'],huawei:['h7','h8','h9','h10','h4'],pandora:['pa2','pa3','pa4'],mobclix:['m1'],sony:['s1','s2']},hardware:{pmsv:['p2','p3','p4'],qualia:['q5','q6','q7','q1'],huawei:['h7','h8','h9','h10','h4'],pandora:['pa2','pa3'],mobclix:['m1'],sony:['s1','s2']},startup:{pmsv:['p3','p1','p2','p4'],qualia:['q1','q7','q3'],huawei:['h3','h4','h1','h2'],pandora:['pa1','pa5'],mobclix:['m1'],sony:['s1']},alliances:{pmsv:['p1','p2','p3'],qualia:['q1','q2','q4','q8'],huawei:['h1','h3','h5','h4','h9'],pandora:['pa1','pa5','pa3'],mobclix:['m1'],sony:['s1','s2']},supply:{pmsv:['p2','p4'],qualia:['q1','q2'],huawei:['h3','h4','h1'],pandora:['pa4','pa1','pa2'],mobclix:['m1'],sony:['s1']}};
 
@@ -2701,7 +2701,7 @@ function rvLoadFromScore(company, role, jd) {
   document.getElementById('rv-jd').value = jd;
   rvLiveScore();
   nav('resume');
-  toast('Loaded from /score — continue to step 2');
+  toast('Loaded from /score - continue to step 2');
 }
 
 function rvQL(co,ro,tm,rt) {
@@ -2821,7 +2821,7 @@ async function rvRunClaude() {
     RV.rewritten=full;
     document.getElementById('rv-claude-accept').style.display='flex';
     btn.disabled=false; btn.textContent='Rewrite with Claude →';
-    toast('Rewrites ready — review and accept');
+    toast('Rewrites ready - review and accept');
     logUsage('/resume', 'Claude rewrite: '+(RV.company||'role'));
   } catch(err) {
     out.textContent='Could not connect to Claude API. Use the prompt block below to rewrite manually.';
@@ -2834,7 +2834,7 @@ function rvRejectRewrites(){ RV.rewritten=null; document.getElementById('rv-clau
 function rvBuildStep5() {
   const bs=rvGetActive(); const co=RV.company||'Company'; const ro=RV.role||'Director, BD';
   const tmpl=RV.tmpl||'enterprise'; const rt=RV.rt||'enterprise';
-  document.getElementById('rv-gen-summary').innerHTML=`Role: ${ro} at ${co}\nTemplate: ${tmpl}  ·  Role type: ${rt}\nBullets selected: ${bs.length}\nClaude rewrite: ${RV.rewritten?'yes — AI-optimized':'no — original library bullets'}`;
+  document.getElementById('rv-gen-summary').innerHTML=`Role: ${ro} at ${co}\nTemplate: ${tmpl}  ·  Role type: ${rt}\nBullets selected: ${bs.length}\nClaude rewrite: ${RV.rewritten?'yes - AI-optimized':'no - original library bullets'}`;
   rvBuildPreview();
   const safe=co.replace(/[^a-zA-Z0-9]/g,'_'); const safeR=ro.replace(/[^a-zA-Z0-9]/g,'_').substring(0,20);
   const fn=`Pranjal_Mahna_${safe}_${safeR}.docx`;
@@ -2842,7 +2842,7 @@ function rvBuildStep5() {
   el.textContent=`node build_resume.js ${tmpl==='edgeai'?'edgeai':'enterprise'} "${co}" "${ro}" ${rt} ./${fn}\n`;
   const cbtn=document.createElement('button'); cbtn.className='prompt-copy-btn'; cbtn.textContent='copy';
   cbtn.onclick=()=>copyPrompt('rv-cli-cmd'); el.appendChild(cbtn);
-  logUsage('/resume', co+' — '+tmpl+' template');
+  logUsage('/resume', co+' - '+tmpl+' template');
 }
 
 function rvBuildPreview() {
@@ -2850,7 +2850,7 @@ function rvBuildPreview() {
   const TITLE=isEdge?'STRATEGIC BD & ECOSYSTEM PARTNERSHIPS  |  EDGE AI + PLATFORM GTM':'ENTERPRISE SERVICES & PARTNER ECOSYSTEM LEADER';
   let html=`<div class="rv-name">PRANJAL MAHNA</div><div class="rv-title">${TITLE}</div><div class="rv-contact">pranjal.mahna@gmail.com  |  424.298.7516  |  linkedin.com/in/pranjalmahna</div>`;
   if (isEdge) {
-    html+=`<div class="rv-sec">SUMMARY</div><div class="rv-b">Strategic GTM and partnerships executive with 15+ years commercializing complex technologies at the intersection of Edge AI, high-performance silicon, and SaaS.</div><div class="rv-b">Proven track record building 0-to-1 partner ecosystems and scaling them to $100M+ in revenue.</div><div class="rv-b">Hands-on experience driving AI-on-SoC (Kirin 9000) partnerships — enabling edge-native intelligence for Pinterest, Porsche, Shazam, and Vivino.</div>`;
+    html+=`<div class="rv-sec">SUMMARY</div><div class="rv-b">Strategic GTM and partnerships executive with 15+ years commercializing complex technologies at the intersection of Edge AI, high-performance silicon, and SaaS.</div><div class="rv-b">Proven track record building 0-to-1 partner ecosystems and scaling them to $100M+ in revenue.</div><div class="rv-b">Hands-on experience driving AI-on-SoC (Kirin 9000) partnerships - enabling edge-native intelligence for Pinterest, Porsche, Shazam, and Vivino.</div>`;
   }
   html+=`<div class="rv-sec">WORK EXPERIENCE</div>`;
   ['pmsv','qualia','huawei','pandora','mobclix','sony'].forEach(rk=>{
@@ -2864,7 +2864,7 @@ function rvBuildPreview() {
       html+=`<div class="rv-b">${txt.substring(0,175)}${txt.length>175?'…':''}</div>`;
     });
   });
-  html+=`<div class="rv-sec">EDUCATION</div><div class="rv-b">MBA, Marketing — University of Southern California</div><div class="rv-b">BTech, Computer Engineering — Kurukshetra University</div>`;
+  html+=`<div class="rv-sec">EDUCATION</div><div class="rv-b">MBA, Marketing - University of Southern California</div><div class="rv-b">BTech, Computer Engineering - Kurukshetra University</div>`;
   document.getElementById('rv-preview').innerHTML=html;
 }
 
@@ -2876,12 +2876,12 @@ function rvDownloadScript() {
   const bs=rvGetActive();
   const grouped={}; bs.forEach(b=>{ if(!grouped[b.role]) grouped[b.role]=[]; grouped[b.role].push(b.text); });
   const rw=RV.rewritten?`\n// CLAUDE REWRITES:\n${RV.rewritten.split('\n').map(l=>'// '+l).join('\n')}`:'';
-  const script=`// Job Search OS — Resume Generator\n// Role: ${ro} at ${co}\n// Run: npm install -g docx && node this_file.js\n${rw}\nconst{Document,Packer,Paragraph,TextRun,AlignmentType,BorderStyle,WidthType,LevelFormat,TabStopType}=require('docx');\nconst fs=require('fs');\nconst BULLETS=${JSON.stringify(grouped,null,2)};\nconst C={dark:'1A1A1A',mid:'3D3D3D',light:'666666'};\nconst sp=(b=100,a=0)=>new Paragraph({spacing:{before:b,after:a},children:[new TextRun('')]});\nconst sec=txt=>[sp(200,0),new Paragraph({spacing:{before:0,after:80},border:{bottom:{style:BorderStyle.SINGLE,size:6,color:C.dark}},children:[new TextRun({text:txt,font:'Arial',size:20,bold:true,color:C.dark,allCaps:true})]})];\nconst rHdr=(co,ti,dt)=>[new Paragraph({spacing:{before:160,after:20},tabStops:[{type:TabStopType.RIGHT,position:9360}],children:[new TextRun({text:co,font:'Arial',size:22,bold:true,color:C.dark}),new TextRun({text:'\\t'+dt,font:'Arial',size:17,italic:true,color:C.light})]}),new Paragraph({spacing:{before:0,after:60},children:[new TextRun({text:ti,font:'Arial',size:18,italic:true,color:C.mid})]})];\nconst bul=tx=>new Paragraph({numbering:{reference:'b',level:0},spacing:{before:30,after:30},children:[new TextRun({text:tx,font:'Arial',size:17,color:C.mid})]});\nconst body=[...sec('WORK EXPERIENCE'),...rHdr('PMSV TECH AND STRATEGY','${tmpl==='edgeai'?'Consultant — AI & SaaS GTM':'Advisor — Enterprise Services & Partnership Strategy'}','December 2022 – Present'),...(BULLETS['PMSV Tech and Strategy']||[]).map(bul),...rHdr('QUALIA (SERIES D FINTECH SAAS)','Director, Business Development','August 2021 – October 2022'),...(BULLETS['Qualia — Series D Fintech SaaS']||[]).map(bul),...rHdr('HUAWEI TECHNOLOGIES','${tmpl==='edgeai'?'Director, Strategic Partnerships':'Director, Business Development — Partner Ecosystem & Platform Strategy'}','February 2018 – July 2021'),...(BULLETS['Huawei Technologies']||[]).map(bul),...rHdr('PANDORA MEDIA','Business Development, New Initiatives','October 2012 – March 2015'),...(BULLETS['Pandora Media']||[]).map(bul),...rHdr('MOBCLIX (NASDAQ: VELT)','Senior Business Development Manager','July 2011 – August 2012'),...(BULLETS['Mobclix (NASDAQ: VELT)']||[]).map(bul),...rHdr('SONY MOBILE','Business Development Manager','February 2008 – June 2011'),...(BULLETS['Sony Mobile']||[]).map(bul),...sec('EDUCATION'),...[new Paragraph({spacing:{before:80,after:40},children:[new TextRun({text:'MBA, Marketing — University of Southern California',font:'Arial',size:17,color:C.mid})]}),new Paragraph({spacing:{before:0,after:40},children:[new TextRun({text:'BTech, Computer Engineering — Kurukshetra University',font:'Arial',size:17,color:C.mid})]})]];\nconst doc=new Document({numbering:{config:[{reference:'b',levels:[{level:0,format:LevelFormat.BULLET,text:'\\u2022',alignment:AlignmentType.LEFT,style:{paragraph:{indent:{left:540,hanging:300}}}}]}]},styles:{default:{document:{run:{font:'Arial',size:18}}}},sections:[{properties:{page:{size:{width:12240,height:15840},margin:{top:1080,right:1080,bottom:1080,left:1080}}},children:body}]});\nPacker.toBuffer(doc).then(buf=>{fs.writeFileSync('./${fn}',buf);console.log('Resume saved: ${fn}');}).catch(err=>{console.error(err.message);process.exit(1);});\n`;
+  const script=`// Job Search OS - Resume Generator\n// Role: ${ro} at ${co}\n// Run: npm install -g docx && node this_file.js\n${rw}\nconst{Document,Packer,Paragraph,TextRun,AlignmentType,BorderStyle,WidthType,LevelFormat,TabStopType}=require('docx');\nconst fs=require('fs');\nconst BULLETS=${JSON.stringify(grouped,null,2)};\nconst C={dark:'1A1A1A',mid:'3D3D3D',light:'666666'};\nconst sp=(b=100,a=0)=>new Paragraph({spacing:{before:b,after:a},children:[new TextRun('')]});\nconst sec=txt=>[sp(200,0),new Paragraph({spacing:{before:0,after:80},border:{bottom:{style:BorderStyle.SINGLE,size:6,color:C.dark}},children:[new TextRun({text:txt,font:'Arial',size:20,bold:true,color:C.dark,allCaps:true})]})];\nconst rHdr=(co,ti,dt)=>[new Paragraph({spacing:{before:160,after:20},tabStops:[{type:TabStopType.RIGHT,position:9360}],children:[new TextRun({text:co,font:'Arial',size:22,bold:true,color:C.dark}),new TextRun({text:'\\t'+dt,font:'Arial',size:17,italic:true,color:C.light})]}),new Paragraph({spacing:{before:0,after:60},children:[new TextRun({text:ti,font:'Arial',size:18,italic:true,color:C.mid})]})];\nconst bul=tx=>new Paragraph({numbering:{reference:'b',level:0},spacing:{before:30,after:30},children:[new TextRun({text:tx,font:'Arial',size:17,color:C.mid})]});\nconst body=[...sec('WORK EXPERIENCE'),...rHdr('PMSV TECH AND STRATEGY','${tmpl==='edgeai'?'Consultant - AI & SaaS GTM':'Advisor - Enterprise Services & Partnership Strategy'}','December 2022 – Present'),...(BULLETS['PMSV Tech and Strategy']||[]).map(bul),...rHdr('QUALIA (SERIES D FINTECH SAAS)','Director, Business Development','August 2021 – October 2022'),...(BULLETS['Qualia - Series D Fintech SaaS']||[]).map(bul),...rHdr('HUAWEI TECHNOLOGIES','${tmpl==='edgeai'?'Director, Strategic Partnerships':'Director, Business Development - Partner Ecosystem & Platform Strategy'}','February 2018 – July 2021'),...(BULLETS['Huawei Technologies']||[]).map(bul),...rHdr('PANDORA MEDIA','Business Development, New Initiatives','October 2012 – March 2015'),...(BULLETS['Pandora Media']||[]).map(bul),...rHdr('MOBCLIX (NASDAQ: VELT)','Senior Business Development Manager','July 2011 – August 2012'),...(BULLETS['Mobclix (NASDAQ: VELT)']||[]).map(bul),...rHdr('SONY MOBILE','Business Development Manager','February 2008 – June 2011'),...(BULLETS['Sony Mobile']||[]).map(bul),...sec('EDUCATION'),...[new Paragraph({spacing:{before:80,after:40},children:[new TextRun({text:'MBA, Marketing - University of Southern California',font:'Arial',size:17,color:C.mid})]}),new Paragraph({spacing:{before:0,after:40},children:[new TextRun({text:'BTech, Computer Engineering - Kurukshetra University',font:'Arial',size:17,color:C.mid})]})]];\nconst doc=new Document({numbering:{config:[{reference:'b',levels:[{level:0,format:LevelFormat.BULLET,text:'\\u2022',alignment:AlignmentType.LEFT,style:{paragraph:{indent:{left:540,hanging:300}}}}]}]},styles:{default:{document:{run:{font:'Arial',size:18}}}},sections:[{properties:{page:{size:{width:12240,height:15840},margin:{top:1080,right:1080,bottom:1080,left:1080}}},children:body}]});\nPacker.toBuffer(doc).then(buf=>{fs.writeFileSync('./${fn}',buf);console.log('Resume saved: ${fn}');}).catch(err=>{console.error(err.message);process.exit(1);});\n`;
   const blob=new Blob([script],{type:'text/javascript'});
   const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
   a.download=`generate_${safe}_resume.js`; a.click();
   document.getElementById('rv-dl-status').innerHTML=`<span style="color:var(--accent)">✓ Script downloaded.</span> Run: <code style="background:var(--bg4);padding:2px 6px;border-radius:3px;font-family:var(--mono);font-size:10px;">npm install -g docx && node generate_${safe}_resume.js</code>`;
-  toast('Script downloaded — run with Node to get your .docx');
+  toast('Script downloaded - run with Node to get your .docx');
 }
 
 function rvCopyDocxPrompt() {
@@ -2926,7 +2926,7 @@ function saveSyncUrl() {
   const url = document.getElementById('sync-url').value.trim();
   localStorage.setItem(SYNC_URL_KEY, url);
   const st = document.getElementById('sync-url-status');
-  if (st) st.textContent = url ? `✓ Saved — ${url}` : 'URL cleared';
+  if (st) st.textContent = url ? `✓ Saved - ${url}` : 'URL cleared';
 }
 
 function exportOutreachJSON() {
@@ -2986,13 +2986,13 @@ function importFromExtension() {
 
 // ==================== NETWORK MAP ====================
 
-// Network assets — warm connection paths per company/domain
+// Network assets - warm connection paths per company/domain
 const NETWORK = {
   // Direct ISV partners from Huawei program
-  pinterest:   { type:'huawei-isv',    strength:3, angle:'Kirin 9000 on-device AI integration — you enabled their edge features', contacts:['Pinterest Partnership/BD team'] },
+  pinterest:   { type:'huawei-isv',    strength:3, angle:'Kirin 9000 on-device AI integration - you enabled their edge features', contacts:['Pinterest Partnership/BD team'] },
   shazam:      { type:'huawei-isv',    strength:3, angle:'On-device AI and audio recognition ISV integration', contacts:['Apple/Shazam BD team'] },
-  adobe:       { type:'huawei-isv',    strength:3, angle:'Co-development deal — creative AI on-device tools', contacts:['Adobe Partnerships'] },
-  meta:        { type:'huawei-isv',    strength:3, angle:'Platform monetization deal — scale proof point', contacts:['Meta Partnerships / BD'] },
+  adobe:       { type:'huawei-isv',    strength:3, angle:'Co-development deal - creative AI on-device tools', contacts:['Adobe Partnerships'] },
+  meta:        { type:'huawei-isv',    strength:3, angle:'Platform monetization deal - scale proof point', contacts:['Meta Partnerships / BD'] },
   airbnb:      { type:'huawei-isv',    strength:2, angle:'Global distribution and monetization partnership', contacts:['Airbnb BD'] },
   'match group':{ type:'huawei-isv',   strength:2, angle:'Consumer app ecosystem distribution deal', contacts:['Match Group Partnerships'] },
   // Pandora OEM network
@@ -3001,33 +3001,33 @@ const NETWORK = {
   honda:       { type:'pandora-oem',   strength:2, angle:'In-car Pandora OEM integration', contacts:['Honda connected services'] },
   samsung:     { type:'pandora-oem',   strength:2, angle:'Samsung device partnership from Pandora OEM ecosystem', contacts:['Samsung Partnerships'] },
   // Community
-  ai_collective:{ type:'community',    strength:2, angle:'AI Collective hackathon — FutureProof AI winner, shared network', contacts:['AI Collective alumni'] },
+  ai_collective:{ type:'community',    strength:2, angle:'AI Collective hackathon - FutureProof AI winner, shared network', contacts:['AI Collective alumni'] },
   pavilion:    { type:'community',     strength:2, angle:'Pavilion GTM Leadership Accelerator cohort', contacts:['Pavilion GTM community'] },
-  hatched:     { type:'community',     strength:3, angle:'Founding member — direct relationships with platform users', contacts:['Hatched founding cohort'] },
+  hatched:     { type:'community',     strength:3, angle:'Founding member - direct relationships with platform users', contacts:['Hatched founding cohort'] },
 };
 
 // Map target companies to their warmest network path
 const COMPANY_PATHS = {
-  'Meta':           { warmPath:'huawei-isv', strength:3, connection:'Direct — negotiated licensing and co-marketing deal during Huawei', angle:'Platform revenue scaling from $1M→$100M — they know what you built', nudge:'Reconnect on AI Partnership Stack MCP integration angle' },
-  'Adobe':          { warmPath:'huawei-isv', strength:3, connection:'Direct — co-development deal for on-device creative AI', angle:'Edge AI integration expertise maps to their Firefly on-device strategy', nudge:'Reference the Kirin 9000 creative AI work — direct analog to Firefly offline' },
-  'Microsoft':      { warmPath:'pandora-oem', strength:2, connection:'Pandora connected device OEM — and Microsoft ISV ecosystem work', angle:'Partner ecosystem scale + cloud/AI platform BD credentials', nudge:'Sr. Manager Global Partnerships role — use OEM partnership + ISV scale as lead' },
-  'Airbnb':         { warmPath:'huawei-isv', strength:2, connection:'Huawei ISV program — distribution agreement', angle:'Global platform distribution and monetization motion', nudge:'Reach out to BD/Partnerships contacts from the Huawei engagement' },
-  'Salesforce':     { warmPath:'community',  strength:1, connection:'Pavilion GTM community — Salesforce ecosystem professionals', angle:'Enterprise BD and partner program design at scale', nudge:'Find a Pavilion connection at Salesforce' },
-  'Tenstorrent':    { warmPath:'huawei-isv', strength:3, connection:'Strong analog — your Huawei ISV work (Kirin 9000) is a direct reference case for their ISV program', angle:'Head of ISV Partnerships — you literally built this program at Huawei', nudge:'Lead with "I built the ISV program for an AI chip at scale — same motion you need"' },
-  'Nothing.tech':   { warmPath:'pandora-oem', strength:2, connection:'Pandora OEM (Sony, Samsung, Honda) — direct hardware ecosystem BD experience', angle:'On-device experience partnerships and developer ecosystem for consumer hardware', nudge:'Carl Pei\'s network overlaps with ex-OnePlus and ex-Huawei device teams' },
+  'Meta':           { warmPath:'huawei-isv', strength:3, connection:'Direct - negotiated licensing and co-marketing deal during Huawei', angle:'Platform revenue scaling from $1M→$100M - they know what you built', nudge:'Reconnect on AI Partnership Stack MCP integration angle' },
+  'Adobe':          { warmPath:'huawei-isv', strength:3, connection:'Direct - co-development deal for on-device creative AI', angle:'Edge AI integration expertise maps to their Firefly on-device strategy', nudge:'Reference the Kirin 9000 creative AI work - direct analog to Firefly offline' },
+  'Microsoft':      { warmPath:'pandora-oem', strength:2, connection:'Pandora connected device OEM - and Microsoft ISV ecosystem work', angle:'Partner ecosystem scale + cloud/AI platform BD credentials', nudge:'Sr. Manager Global Partnerships role - use OEM partnership + ISV scale as lead' },
+  'Airbnb':         { warmPath:'huawei-isv', strength:2, connection:'Huawei ISV program - distribution agreement', angle:'Global platform distribution and monetization motion', nudge:'Reach out to BD/Partnerships contacts from the Huawei engagement' },
+  'Salesforce':     { warmPath:'community',  strength:1, connection:'Pavilion GTM community - Salesforce ecosystem professionals', angle:'Enterprise BD and partner program design at scale', nudge:'Find a Pavilion connection at Salesforce' },
+  'Tenstorrent':    { warmPath:'huawei-isv', strength:3, connection:'Strong analog - your Huawei ISV work (Kirin 9000) is a direct reference case for their ISV program', angle:'Head of ISV Partnerships - you literally built this program at Huawei', nudge:'Lead with "I built the ISV program for an AI chip at scale - same motion you need"' },
+  'Nothing.tech':   { warmPath:'pandora-oem', strength:2, connection:'Pandora OEM (Sony, Samsung, Honda) - direct hardware ecosystem BD experience', angle:'On-device experience partnerships and developer ecosystem for consumer hardware', nudge:'Carl Pei\'s network overlaps with ex-OnePlus and ex-Huawei device teams' },
   'Apple':          { warmPath:'huawei-isv', strength:2, connection:'Careey Hardcastle (your contact) + Sony Mobile relationship (Sony = Apple partner)', angle:'Huawei ISV scale + Edge AI + Sony Mobile enterprise BD', nudge:'Reference Huawei on-device AI as the analogous program to Apple Intelligence' },
-  'Google':         { warmPath:'community',  strength:1, connection:'AI Collective + Pavilion GTM community', angle:'GTM Alliances — partner co-sell motion expertise', nudge:'Search LinkedIn for Huawei ISV partners who moved to Google' },
-  'Amazon':         { warmPath:'community',  strength:1, connection:'Pavilion GTM + PMSV advisory client network', angle:'GTM Alliances — ISV and SI co-sell motion', nudge:'Look for Qualia FI connections who work with Amazon Payments or AWS' },
-  'Anthropic':      { warmPath:'community',  strength:2, connection:'AI Collective hackathon — FutureProof AI winner', angle:'Cloud Partnerships — partner-led monetization, developer ecosystem design', nudge:'AI Collective → Anthropic partnership team is a reachable path' },
-  'Notion':         { warmPath:'community',  strength:1, connection:'Pavilion GTM community, AI Collective', angle:'Agentic AI partnership program design — 0-to-1 credentials are the fit', nudge:'Find a Pavilion contact at Notion' },
-  'OpenAI':         { warmPath:'community',  strength:1, connection:'AI Collective, Pavilion GTM community', angle:'Strategic Partnerships — platform ecosystem and enterprise distribution', nudge:'AI Collective alumni → OpenAI partnerships is a credible path' },
-  'Figma':          { warmPath:'huawei-isv', strength:2, connection:'Adobe ISV partnership → Figma/Adobe ecosystem overlap', angle:'Strategic Alliances — middleware and AI partner integration', nudge:'Adobe relationship is a warm path into Figma partnerships' },
-  'Typeface':       { warmPath:'huawei-isv', strength:2, connection:'Adobe + enterprise AI ecosystem connections', angle:'Director, Strategic Alliances GSIs & Agencies — enterprise AI content platform', nudge:'Adobe co-development work maps directly to Typeface\'s GSI motion' },
-  'NVIDIA':         { warmPath:'huawei-isv', strength:2, connection:'Huawei ISV program overlap — many shared ISV partners (Pinterest, Porsche)', angle:'Edge AI chip ISV ecosystem — direct Huawei Kirin 9000 analog', nudge:'ISV partners from the Huawei program who also work with NVIDIA' },
-  'Databricks':     { warmPath:'fintech',    strength:1, connection:'Qualia fintech FI partnerships → data infrastructure overlap', angle:'Ecosystem partnerships — enterprise data + AI platform BD', nudge:'Qualia FI contacts who use Databricks' },
-  'Snowflake':      { warmPath:'fintech',    strength:1, connection:'Qualia fintech ecosystem — FI data infrastructure contacts', angle:'Technology alliances — FI + enterprise data platform BD', nudge:'Fintech FI network → Snowflake enterprise sales contacts' },
-  'Zoom':           { warmPath:'community',  strength:2, connection:'Lauren Schlanser (direct contact, reached out Mar 2)', angle:'Strategic Partnerships — platform integrations and ISV ecosystem', nudge:'Already in contact — follow up on Lauren Schlanser thread' },
-  'Emissary':       { warmPath:'community',  strength:2, connection:'AI Collective, Hatched founding community', angle:'Founding GTM Lead — 0-to-1 credentials strongest here', nudge:'Active — follow up on existing conversation' },
+  'Google':         { warmPath:'community',  strength:1, connection:'AI Collective + Pavilion GTM community', angle:'GTM Alliances - partner co-sell motion expertise', nudge:'Search LinkedIn for Huawei ISV partners who moved to Google' },
+  'Amazon':         { warmPath:'community',  strength:1, connection:'Pavilion GTM + PMSV advisory client network', angle:'GTM Alliances - ISV and SI co-sell motion', nudge:'Look for Qualia FI connections who work with Amazon Payments or AWS' },
+  'Anthropic':      { warmPath:'community',  strength:2, connection:'AI Collective hackathon - FutureProof AI winner', angle:'Cloud Partnerships - partner-led monetization, developer ecosystem design', nudge:'AI Collective → Anthropic partnership team is a reachable path' },
+  'Notion':         { warmPath:'community',  strength:1, connection:'Pavilion GTM community, AI Collective', angle:'Agentic AI partnership program design - 0-to-1 credentials are the fit', nudge:'Find a Pavilion contact at Notion' },
+  'OpenAI':         { warmPath:'community',  strength:1, connection:'AI Collective, Pavilion GTM community', angle:'Strategic Partnerships - platform ecosystem and enterprise distribution', nudge:'AI Collective alumni → OpenAI partnerships is a credible path' },
+  'Figma':          { warmPath:'huawei-isv', strength:2, connection:'Adobe ISV partnership → Figma/Adobe ecosystem overlap', angle:'Strategic Alliances - middleware and AI partner integration', nudge:'Adobe relationship is a warm path into Figma partnerships' },
+  'Typeface':       { warmPath:'huawei-isv', strength:2, connection:'Adobe + enterprise AI ecosystem connections', angle:'Director, Strategic Alliances GSIs & Agencies - enterprise AI content platform', nudge:'Adobe co-development work maps directly to Typeface\'s GSI motion' },
+  'NVIDIA':         { warmPath:'huawei-isv', strength:2, connection:'Huawei ISV program overlap - many shared ISV partners (Pinterest, Porsche)', angle:'Edge AI chip ISV ecosystem - direct Huawei Kirin 9000 analog', nudge:'ISV partners from the Huawei program who also work with NVIDIA' },
+  'Databricks':     { warmPath:'fintech',    strength:1, connection:'Qualia fintech FI partnerships → data infrastructure overlap', angle:'Ecosystem partnerships - enterprise data + AI platform BD', nudge:'Qualia FI contacts who use Databricks' },
+  'Snowflake':      { warmPath:'fintech',    strength:1, connection:'Qualia fintech ecosystem - FI data infrastructure contacts', angle:'Technology alliances - FI + enterprise data platform BD', nudge:'Fintech FI network → Snowflake enterprise sales contacts' },
+  'Zoom':           { warmPath:'community',  strength:2, connection:'Lauren Schlanser (direct contact, reached out Mar 2)', angle:'Strategic Partnerships - platform integrations and ISV ecosystem', nudge:'Already in contact - follow up on Lauren Schlanser thread' },
+  'Emissary':       { warmPath:'community',  strength:2, connection:'AI Collective, Hatched founding community', angle:'Founding GTM Lead - 0-to-1 credentials strongest here', nudge:'Active - follow up on existing conversation' },
 };
 
 let selectedNetworkCompany = null;
@@ -3060,7 +3060,7 @@ function renderNetworkMap() {
     const path = COMPANY_PATHS[c.company];
     const strength = path?.strength || 0;
     const dot = strength >= 3 ? '#b8e04a' : strength >= 2 ? '#e0a84a' : strength >= 1 ? '#4aa8e0' : '#5a5952';
-    const dotTitle = strength >= 3 ? 'Strong warm path' : strength >= 2 ? 'Warm path' : strength >= 1 ? 'Indirect path' : 'Cold — no known path';
+    const dotTitle = strength >= 3 ? 'Strong warm path' : strength >= 2 ? 'Warm path' : strength >= 1 ? 'Indirect path' : 'Cold - no known path';
     const isSelected = selectedNetworkCompany === c.company;
 
     return `<div onclick="selectNetworkCompany('${c.company.replace(/'/g,"\\'")}', this)"
@@ -3087,7 +3087,7 @@ function selectNetworkCompany(company, el) {
   const detail = document.getElementById('nm-detail-card');
   if (!detail) return;
 
-  const strengthLabel = !path ? 'Cold — no mapped path' : path.strength >= 3 ? '🟢 Strong warm path' : path.strength >= 2 ? '🟡 Warm path (2nd degree)' : '🔵 Indirect path (community)';
+  const strengthLabel = !path ? 'Cold - no mapped path' : path.strength >= 3 ? '🟢 Strong warm path' : path.strength >= 2 ? '🟡 Warm path (2nd degree)' : '🔵 Indirect path (community)';
 
   detail.innerHTML = `
     <div class="card-title" style="margin-bottom:8px;">${company}</div>
@@ -3118,11 +3118,11 @@ function selectNetworkCompany(company, el) {
 function generateNetworkPrompt(company) {
   const contact = OT_STATE.contacts.find(c => c.company === company);
   const path = COMPANY_PATHS[company];
-  const prompt = `Build a referral-first outreach strategy for: ${company}${contact?.role ? ' — ' + contact.role : ''}
+  const prompt = `Build a referral-first outreach strategy for: ${company}${contact?.role ? ' - ' + contact.role : ''}
 
 ${path ? `My warm path: ${path.connection}
 My angle: ${path.angle}
-Nudge strategy: ${path.nudge}` : 'No warm path mapped — need cold outreach strategy.'}
+Nudge strategy: ${path.nudge}` : 'No warm path mapped - need cold outreach strategy.'}
 ${contact?.contact ? `\nNamed contact: ${contact.contact}` : ''}
 ${contact?.pov ? `\nMy POV / value add: ${contact.pov}` : ''}
 
@@ -3131,9 +3131,9 @@ My background metrics (Huawei, Qualia, Pandora) are available in CLAUDE.md. Use 
 My network assets: Ex-Huawei ISV partners (Pinterest, Shazam, Adobe, Meta, Airbnb), Pandora OEM contacts (Sony, Samsung, Honda, Microsoft), Qualia fintech network, AI Collective alumni, Pavilion GTM community.
 
 Generate:
-1. Exactly who to reach out to at ${company} — name/title if possible, or the right function to target
-2. The precise angle that earns a response (not "I'm applying" — what do I offer them?)
-3. LinkedIn DM draft — under 80 words, specific to ${company}'s current priorities
+1. Exactly who to reach out to at ${company} - name/title if possible, or the right function to target
+2. The precise angle that earns a response (not "I'm applying" - what do I offer them?)
+3. LinkedIn DM draft - under 80 words, specific to ${company}'s current priorities
 4. Whether to reach out before or after applying
 5. Follow-up plan if no reply in 7 days`;
 
@@ -3206,7 +3206,7 @@ function generateDigestPrompt() {
 
 My full background and metrics (Huawei, Qualia, Pandora) are in CLAUDE.md. Use that context for this prompt.
 ${inclJobs ? `
-SECTION 1 — NEW JOB ALERTS:
+SECTION 1 - NEW JOB ALERTS:
 Search my Gmail for emails from jobalerts-noreply@linkedin.com and similar job alert senders from ${rangeLabel}.
 For each role found, score it on these 5 dimensions (25%/25%/20%/20%/10%):
   1. Ecosystem/partner motion (25%)
@@ -3215,19 +3215,19 @@ For each role found, score it on these 5 dimensions (25%/25%/20%/20%/10%):
   4. AI-native/Edge AI angle (20%)
   5. Seniority/scope match (10%)
 Only surface roles scoring ≥${cfg.minScore}% OR from these companies regardless of score: ${cfg.alwaysInclude}.
-Format: Company — Role — Score% — Verdict (Apply now / Consider / Skip) — One-line why.` : ''}
+Format: Company - Role - Score% - Verdict (Apply now / Consider / Skip) - One-line why.` : ''}
 ${inclReplies ? `
-SECTION 2 — RECRUITER REPLIES:
-Search my Gmail for direct replies from recruiters or hiring managers at any company. Not automated emails — actual human responses. Flag any new conversations started in ${rangeLabel}.` : ''}
+SECTION 2 - RECRUITER REPLIES:
+Search my Gmail for direct replies from recruiters or hiring managers at any company. Not automated emails - actual human responses. Flag any new conversations started in ${rangeLabel}.` : ''}
 ${inclNudges ? `
-SECTION 3 — FOLLOW-UP NUDGES:
+SECTION 3 - FOLLOW-UP NUDGES:
 These contacts have not heard from me in ${cfg.nudgeDays}+ days and need a follow-up:
-${overdue || '  (None overdue — all contacts are within the threshold)'}
+${overdue || '  (None overdue - all contacts are within the threshold)'}
 For any that are genuinely overdue, suggest a specific value-add message angle (not "just checking in").` : ''}
 ${inclActions ? `
-SECTION 4 — TOP 3 ACTIONS TODAY:
+SECTION 4 - TOP 3 ACTIONS TODAY:
 Based on the above, what are my 3 highest-leverage actions today? Rank by impact.
-Format: [Action] — [Why this, why now] — [Estimated time]` : ''}
+Format: [Action] - [Why this, why now] - [Estimated time]` : ''}
 
 Keep the full digest to a 2-minute read. Be direct. No filler.`;
 
@@ -3239,12 +3239,12 @@ Keep the full digest to a 2-minute read. Be direct. No filler.`;
     el.appendChild(btn);
   }
   logUsage('/digest', 'Morning digest generated');
-  toast('Digest prompt ready — paste into your Claude Project');
+  toast('Digest prompt ready - paste into your Claude Project');
 }
 
 function generateAppsScript() {
   const cfg = loadDigestConfig();
-  const script = `// Job Search OS — Morning Digest Automation
+  const script = `// Job Search OS - Morning Digest Automation
 // Paste this into script.google.com and set a daily trigger at 7am
 
 function sendMorningDigest() {
@@ -3265,7 +3265,7 @@ function sendMorningDigest() {
     'to:pranjal.mahna@gmail.com (partnerships OR "business development" OR recruiter) -from:linkedin.com -from:noreply newer_than:1d'
   );
   let replySection = replyThreads.length > 0
-    ? replyThreads.map(t => t.getMessages()[0].getSubject() + " — from: " + t.getMessages()[0].getFrom()).join("\\n")
+    ? replyThreads.map(t => t.getMessages()[0].getSubject() + " - from: " + t.getMessages()[0].getFrom()).join("\\n")
     : "No direct recruiter replies today.";
 
   const emailBody = \`Morning digest for \${TODAY}
@@ -3285,7 +3285,7 @@ Surface top 3 actions for today.\`;
 
   MailApp.sendEmail({
     to: RECIPIENT,
-    subject: \`Job Search OS Digest — \${TODAY}\`,
+    subject: \`Job Search OS Digest - \${TODAY}\`,
     body: emailBody
   });
 }`;
@@ -3322,17 +3322,17 @@ const PILLAR_CONFIGS = {
         <select id="post-stack-layer" style="background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-family:var(--sans);font-size:13px;padding:9px 12px;">
           <option value="full">Full 6-layer overview</option>
           <option value="mcp">Capability extension / MCP as partnership primitive</option>
-          <option value="motion">Motion design — co-sell vs embedded vs distribution</option>
-          <option value="isv">Developer ecosystem / ISV — what most companies get wrong</option>
-          <option value="intel">Intelligence core — why the model layer changes BD</option>
+          <option value="motion">Motion design - co-sell vs embedded vs distribution</option>
+          <option value="isv">Developer ecosystem / ISV - what most companies get wrong</option>
+          <option value="intel">Intelligence core - why the model layer changes BD</option>
         </select>
       </div>
       <div class="input-row">
         <label class="input-label">Hook angle</label>
         <select id="post-stack-hook" style="background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-family:var(--sans);font-size:13px;padding:9px 12px;">
-          <option value="contrarian">Contrarian take — what everyone gets wrong</option>
-          <option value="framework">Framework reveal — here's how to think about it</option>
-          <option value="story">Story-first — what I learned building at scale</option>
+          <option value="contrarian">Contrarian take - what everyone gets wrong</option>
+          <option value="framework">Framework reveal - here's how to think about it</option>
+          <option value="story">Story-first - what I learned building at scale</option>
         </select>
       </div>`,
     buildPrompt: () => {
@@ -3355,8 +3355,8 @@ const PILLAR_CONFIGS = {
         <label class="input-label">Where you learned it</label>
         <select id="post-lesson-source" style="background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-family:var(--sans);font-size:13px;padding:9px 12px;">
           <option value="huawei">Huawei ISV ecosystem ($1M→$100M)</option>
-          <option value="qualia">Qualia — first BD hire, fintech</option>
-          <option value="pandora">Pandora — new channel incubation</option>
+          <option value="qualia">Qualia - first BD hire, fintech</option>
+          <option value="pandora">Pandora - new channel incubation</option>
           <option value="general">General BD/partnerships experience</option>
         </select>
       </div>`,
@@ -3375,7 +3375,7 @@ const PILLAR_CONFIGS = {
     fields: `
       <div class="input-row">
         <label class="input-label">What are you observing?</label>
-        <input type="text" id="post-obs-topic" placeholder="e.g. MCP is becoming the de facto API layer for AI partnerships — most BD teams haven't noticed">
+        <input type="text" id="post-obs-topic" placeholder="e.g. MCP is becoming the de facto API layer for AI partnerships - most BD teams haven't noticed">
       </div>
       <div class="input-row">
         <label class="input-label">What does it mean for BD/partnerships?</label>
@@ -3399,7 +3399,7 @@ const PILLAR_CONFIGS = {
       </div>
       <div class="input-row">
         <label class="input-label">The reality</label>
-        <input type="text" id="post-myth-reality" placeholder="e.g. 20% of your ISVs will drive 80% of adoption — the rest are vanity metrics">
+        <input type="text" id="post-myth-reality" placeholder="e.g. 20% of your ISVs will drive 80% of adoption - the rest are vanity metrics">
       </div>`,
     buildPrompt: () => {
       const myth = document.getElementById('post-myth-myth').value || 'More partners = more revenue';
@@ -3416,11 +3416,11 @@ const PILLAR_CONFIGS = {
       <div class="input-row">
         <label class="input-label">What aspect of 0-to-1 program design?</label>
         <select id="post-build-aspect" style="background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-family:var(--sans);font-size:13px;padding:9px 12px;">
-          <option value="intake">Partner intake criteria — how to decide who gets in</option>
-          <option value="90days">The first 90 days — what to build before you recruit</option>
-          <option value="playbook">The co-sell playbook — making partners actually sell</option>
-          <option value="metrics">What to measure — partner-sourced vs partner-influenced</option>
-          <option value="failure">Why most programs fail — the 3 structural mistakes</option>
+          <option value="intake">Partner intake criteria - how to decide who gets in</option>
+          <option value="90days">The first 90 days - what to build before you recruit</option>
+          <option value="playbook">The co-sell playbook - making partners actually sell</option>
+          <option value="metrics">What to measure - partner-sourced vs partner-influenced</option>
+          <option value="failure">Why most programs fail - the 3 structural mistakes</option>
         </select>
       </div>`,
     buildPrompt: () => {
@@ -3497,7 +3497,7 @@ async function generatePost() {
   } catch(err) {
     outEl.textContent = 'Could not connect to Claude API. Copy the prompt below and paste into Claude manually.';
     navigator.clipboard.writeText(lastPostPrompt);
-    toast('Prompt copied — paste into Claude');
+    toast('Prompt copied - paste into Claude');
   }
 }
 
@@ -3545,11 +3545,11 @@ function openPostInClaude() {
 
 ${text}
 
-Make it tighter, more specific, and ensure the opening line is strong enough to stop scrolling. Keep my voice — direct, practitioner-grade, no fluff. The post should be 150–250 words.`;
+Make it tighter, more specific, and ensure the opening line is strong enough to stop scrolling. Keep my voice - direct, practitioner-grade, no fluff. The post should be 150–250 words.`;
   navigator.clipboard.writeText(refinePrompt).then(() => {
     chrome.tabs?.create?.({ url: 'https://claude.ai/new' });
     window.open('https://claude.ai/new', '_blank');
-    toast('Refine prompt copied — paste into Claude');
+    toast('Refine prompt copied - paste into Claude');
   });
 }
 
@@ -3710,7 +3710,7 @@ function exportAllJSON() {
 
 function pasteToSheets(tsv, label) {
   navigator.clipboard.writeText(tsv).then(() => {
-    toast(`${label} copied — open Sheets, click A1, paste`);
+    toast(`${label} copied - open Sheets, click A1, paste`);
     logUsage('/export', label + ' copied for Sheets');
   });
 }
@@ -3760,13 +3760,13 @@ function copyWeeklySummary() {
     return (Date.now() - d.getTime()) < 7*86400000;
   });
 
-  const summary = `Job Search Weekly Review — ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}
+  const summary = `Job Search Weekly Review - ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}
 
 PIPELINE (${active.length} active):
-${active.map(r => `  ${r.company} — ${r.role} — ${r.stage} [${r.health}] — Next: ${r.nextStep}`).join('\n')}
+${active.map(r => `  ${r.company} - ${r.role} - ${r.stage} [${r.health}] - Next: ${r.nextStep}`).join('\n')}
 
 OUTREACH THIS WEEK (${reached.length} companies):
-${reached.slice(0,10).map(c => `  ${c.company}${c.contact?' — '+c.contact:''} — ${c.status}`).join('\n')}${reached.length > 10 ? `\n  ...and ${reached.length-10} more` : ''}
+${reached.slice(0,10).map(c => `  ${c.company}${c.contact?' - '+c.contact:''} - ${c.status}`).join('\n')}${reached.length > 10 ? `\n  ...and ${reached.length-10} more` : ''}
 
 ACTIVITY THIS WEEK:
   Commands run: ${weekCmds.length}
@@ -3776,21 +3776,21 @@ ACTIVITY THIS WEEK:
   Debriefs: ${weekCmds.filter(h=>h.cmd==='/debrief').length}
 
 INTERVIEWS IN PROGRESS:
-${interviews.length ? interviews.map(r => `  ${r.company} — ${r.stage}`).join('\n') : '  None currently'}
+${interviews.length ? interviews.map(r => `  ${r.company} - ${r.stage}`).join('\n') : '  None currently'}
 
 Please review this week and tell me:
 1. What moved forward vs stalled?
 2. What should my top 3 priorities be next week?
 3. Any companies I should follow up with or drop?`;
 
-  navigator.clipboard.writeText(summary).then(() => toast('Weekly summary copied — paste into Claude'));
+  navigator.clipboard.writeText(summary).then(() => toast('Weekly summary copied - paste into Claude'));
   logUsage('/export', 'weekly summary');
 }
 
 // ── APPS SCRIPT GENERATOR ─────────────────────────────
 
 function generateSheetsScript() {
-  const script = `// Job Search OS — Google Sheets Sync Script
+  const script = `// Job Search OS - Google Sheets Sync Script
 // Setup: paste into script.google.com → run createJobSearchSheet once
 // Then paste CSV/TSV data from the OS dashboard each Sunday
 
@@ -3880,7 +3880,7 @@ function sendWeeklyReminder() {
   const email = Session.getActiveUser().getEmail();
   const ss = SpreadsheetApp.openByName(SHEET_NAME);
   const url = ss ? ss.getUrl() : 'https://script.google.com';
-  const subject = 'Job Search OS — Weekly export reminder';
+  const subject = 'Job Search OS - Weekly export reminder';
   const body = \`Your weekly Job Search OS export is due.
 
 1. Open your Job Search OS dashboard
@@ -3891,16 +3891,16 @@ function sendWeeklyReminder() {
 Your Google Sheet: \${url}
 
 Quick links:
-— Download Pipeline CSV → import to Pipeline tab
-— Download Outreach CSV → import to Outreach tab
-— Copy weekly summary → paste into Claude for weekly review
+- Download Pipeline CSV → import to Pipeline tab
+- Download Outreach CSV → import to Outreach tab
+- Copy weekly summary → paste into Claude for weekly review
 
 Have a strong week.\`;
 
   GmailApp.sendEmail(email, subject, body);
 }
 
-// IMPORT FUNCTION — paste your JSON export here
+// IMPORT FUNCTION - paste your JSON export here
 function importFullExport(jsonString) {
   const data = JSON.parse(jsonString);
   const ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -3966,14 +3966,14 @@ function importFullExport(jsonString) {
     btn.addEventListener('click', () => copyPrompt('ex-script-out'));
     el.appendChild(btn);
   }
-  toast('Apps Script generated — copy and paste into script.google.com');
+  toast('Apps Script generated - copy and paste into script.google.com');
   logUsage('/export', 'Apps Script generated');
 }
 
 // ==================== END WEEKLY EXPORT ====================
 
 function init() {
-  // Live date — updates every time the file is opened
+  // Live date - updates every time the file is opened
   const now = new Date();
   const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -3983,7 +3983,7 @@ function init() {
   const eyebrow = document.getElementById('dash-eyebrow');
   if (eyebrow) eyebrow.textContent = `${dateStr} · ${greeting}`;
   const digestDate = document.getElementById('digest-date-heading');
-  if (digestDate) digestDate.textContent = `Today's digest — ${months[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
+  if (digestDate) digestDate.textContent = `Today's digest - ${months[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
   renderDashboardCalendar();
   renderPipelineMini();
   renderActivityGrid();
@@ -4122,9 +4122,9 @@ function renderOutreachTable() {
         <input type="checkbox" ${c.selected?'checked':''} onchange="toggleOTSelect(${c.id})" style="width:13px;height:13px;accent-color:var(--accent);">
       </td>
       <td style="padding:9px 8px;font-weight:500;font-size:13px;${_done?'color:var(--text3);text-decoration:line-through;text-decoration-color:var(--text3);':'color:var(--text);'}">${c.company}</td>
-      <td style="padding:9px 8px;font-family:var(--mono);font-size:10px;color:var(--text3);">${c.tier ? 'T'+c.tier : '—'}</td>
-      <td style="padding:9px 8px;font-size:12px;color:var(--text2);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${c.role||'—'}</td>
-      <td style="padding:9px 8px;font-size:12px;color:var(--text2);">${c.contact||'—'}</td>
+      <td style="padding:9px 8px;font-family:var(--mono);font-size:10px;color:var(--text3);">${c.tier ? 'T'+c.tier : '-'}</td>
+      <td style="padding:9px 8px;font-size:12px;color:var(--text2);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${c.role||'-'}</td>
+      <td style="padding:9px 8px;font-size:12px;color:var(--text2);">${c.contact||'-'}</td>
       <td style="padding:9px 8px;">
         <select onchange="updateOTStatus(${c.id},this.value)" style="background:transparent;border:none;font-family:var(--mono);font-size:10px;padding:3px 6px;border-radius:10px;cursor:pointer;${sc}">
           ${['Not Started','Reached Out','Follow-up Sent','Replied','Interviewing','Researching','Not Interested'].map(s=>`<option value="${s}" ${c.status===s?'selected':''}>${s}</option>`).join('')}
@@ -4135,7 +4135,7 @@ function renderOutreachTable() {
         ${c.followups}
         <button onclick="incrementFollowup(${c.id})" style="background:none;border:none;color:var(--accent);cursor:pointer;padding:0 3px;">+</button>
       </td>
-      <td style="padding:9px 8px;font-family:var(--mono);font-size:10px;color:var(--text3);">${c.lastOutreach||'—'}</td>
+      <td style="padding:9px 8px;font-family:var(--mono);font-size:10px;color:var(--text3);">${c.lastOutreach||'-'}</td>
       <td style="padding:9px 14px 9px 8px;text-align:right;">
         <button onclick="logOutreachToday(${c.id})" style="font-family:var(--mono);font-size:9px;padding:3px 8px;border-radius:4px;border:1px solid rgba(184,224,74,0.2);background:var(--accent-dim);color:var(--accent);cursor:pointer;" title="Log outreach today">↑ Today</button>
       </td>
@@ -4181,7 +4181,7 @@ function logOutreachToday(id) {
   updateOutreachMetrics();
   updateGoalBar();
   renderVelocityChart();
-  toast(c.company + ' — outreach logged');
+  toast(c.company + ' - outreach logged');
   logUsage('/outreach', c.company + ' reached out today');
 }
 
@@ -4328,14 +4328,14 @@ function generateOutreachPrompt() {
 
   const prompts = selected.map(c => {
     const povLine = c.pov ? `\nMy angle / value add: ${c.pov}` : '';
-    const contactLine = c.contact ? `\nWarm contact: ${c.contact}` : '\nNo warm contact — cold outreach needed';
+    const contactLine = c.contact ? `\nWarm contact: ${c.contact}` : '\nNo warm contact - cold outreach needed';
     const roleLine = c.role ? `\nTarget role: ${c.role}` : '';
     return `--- ${c.company.toUpperCase()} ---${roleLine}${contactLine}${povLine}
 
 Draft a LinkedIn outreach message under 80 words for ${c.company}.
 - Reference something specific about their ecosystem or current AI strategy
 - Lead with my most relevant angle: Huawei ISV ecosystem ($1M→$100M, 1,000+ partners) or Qualia 0-to-1 API BD ($9M at 120%), depending on what fits
-- Do NOT mention I am applying — earn a conversation first
+- Do NOT mention I am applying - earn a conversation first
 - Specific, not a template`;
   }).join('\n\n');
 
@@ -4352,7 +4352,7 @@ Draft a LinkedIn outreach message under 80 words for ${c.company}.
     outWrap.style.display = 'block';
   }
   logUsage('/outreach', `Outreach prompts for: ${selected.map(c=>c.company).join(', ')}`);
-  toast('Outreach prompts generated — copy and paste into Claude');
+  toast('Outreach prompts generated - copy and paste into Claude');
 }
 
 function openAddContact() {

@@ -1,4 +1,4 @@
-// Job Search OS — Content Script v2
+// Job Search OS - Content Script v2
 // Improved extraction: waits for DOM, multiple selector strategies, retry on short text
 
 (function() {
@@ -61,7 +61,7 @@
   }
 
   function extractLinkedIn(data) {
-    // Title — multiple strategies for different LinkedIn page types
+    // Title - multiple strategies for different LinkedIn page types
     data.title = getText([
       '.job-details-jobs-unified-top-card__job-title h1',
       '.jobs-unified-top-card__job-title h1',
@@ -88,7 +88,7 @@
       '.topcard__flavor--bullet'
     ]);
 
-    // Job description — LinkedIn loads lazily, try multiple
+    // Job description - LinkedIn loads lazily, try multiple
     data.jobText = getText([
       '.jobs-description__content .jobs-description-content__text',
       '.jobs-description__content',
@@ -125,9 +125,9 @@
     if (author?.content) return author.content;
     // Extract from page title: "Job Title at Company | ..."
     const title = document.title;
-    const atMatch = title.match(/(?:at|@)\s+([^|·—]+)/i);
+    const atMatch = title.match(/(?:at|@)\s+([^|·-]+)/i);
     if (atMatch) return atMatch[1].trim();
-    const parts = title.split(/[|·—]/);
+    const parts = title.split(/[|·-]/);
     return parts.length > 1 ? parts[parts.length - 1].trim() : '';
   }
 
@@ -153,7 +153,7 @@
       if (data.jobText.length > 300) {
         sendResponse(data);
       } else {
-        // Short text — wait for lazy-loaded content then retry
+        // Short text - wait for lazy-loaded content then retry
         setTimeout(() => sendResponse(extractJobData()), 800);
       }
       return true; // keep channel open for async

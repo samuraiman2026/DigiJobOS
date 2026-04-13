@@ -1,4 +1,4 @@
-# Job Search OS — Developer & LLM Context File
+# Job Search OS - Developer & LLM Context File
 **Version 4.2 · April 2026 · BD/Partnerships Edition**
 
 This file is the authoritative reference for any LLM or developer working on the Job Search OS. Read this before touching any file in the system.
@@ -53,16 +53,16 @@ A personal job search operating system built on Claude for a senior BD/Partnersh
 
 ### Four surfaces, one brain
 
-**Surface 1 — Claude.ai Project (primary)**
+**Surface 1 - Claude.ai Project (primary)**
 CLAUDE.md is uploaded to Project knowledge and loads automatically on every conversation. Google Calendar, Gmail, and web search are live via MCP connectors.
 
-**Surface 2 — HTML Dashboard (`index.html`)**
+**Surface 2 - HTML Dashboard (`index.html`)**
 Single-file web app, ~4,500 lines. Opens in any browser with no server. Renamed to `index.html` to support direct deployment to GitHub Pages. Contains all workflows, resume generator, and Tools panels. Version badge: v4.
 
-**Surface 3 — Chrome Extension v2**
+**Surface 3 - Chrome Extension v2**
 Activates on job board pages. All buttons wired via addEventListener (MV3 compliant). Auto-extracts JD, scores instantly, syncs scored roles to outreach tracker, shows numeric amber badge for overdue follow-ups.
 
-**Surface 4 — Claude Code CLI (Optional)**
+**Surface 4 - Claude Code CLI (Optional)**
 For terminal users. Full slash command set can be mirrored in `.claude/commands/`.
 
 ---
@@ -113,12 +113,12 @@ Agents
 
 ---
 
-## CLAUDE.md — the brain
+## CLAUDE.md - the brain
 
 `CLAUDE.md` is the single most important file. It contains:
 
 - **Identity & positioning**: Job search status, PMSV consulting entity, target roles
-- **Key metrics**: Every career metric across all roles (real — never modify)
+- **Key metrics**: Every career metric across all roles (real - never modify)
 - **Bullet library**: Every resume bullet across 8 resume versions, tagged by theme
 - **Bullet relevance mapping**: Which bullets for which role types (6 types)
 - **5 core interview stories (A–E)**: Full STAR format
@@ -150,7 +150,7 @@ Agents
 
 ---
 
-## New in v4.2 — GitHub Pages Optimization
+## New in v4.2 - GitHub Pages Optimization
 
 ### `index.html` Renaming
 The dashboard file has been renamed from `job-search-os-v5.html` to `index.html`. This allows for zero-config deployment to GitHub Pages. Once pushed to a repo, the dashboard is live at `https://username.github.io/repo-name`.
@@ -160,7 +160,7 @@ The Sync panel now encourages deployment to GitHub Pages to provide a stable URL
 
 ---
 
-## Chrome Extension v2 — MV3 fix
+## Chrome Extension v2 - MV3 fix
 
 ### Root cause
 Manifest V3 enforces a strict Content Security Policy that blocks all inline `onclick="..."` attribute handlers.
@@ -200,7 +200,7 @@ Manifest V3 enforces a strict Content Security Policy that blocks all inline `on
 
 ---
 
-## Pranjal's background — quick reference for LLMs
+## Pranjal's background - quick reference for LLMs
 
 **Huawei** (Feb 2018–Jul 2021): Director BD / Director Strategic Partnerships. 1,000+ ISVs. SDK 300%. Revenue $1M→$100M. Users 2M→30M. Team 8. Kirin 9000: Pinterest, Porsche, Shazam, Vivino. Partners: Meta, Adobe, Match Group, Airbnb. 2× President's Award.
 

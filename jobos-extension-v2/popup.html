@@ -126,8 +126,8 @@ select{width:100%;background:var(--bg3);border:1px solid var(--border2);border-r
 </div>
 <div class="job-bar" id="job-bar">
   <span class="job-src" id="job-src"></span>
-  <div class="job-title-d" id="job-title-d">—</div>
-  <div class="job-co-d" id="job-co-d">—</div>
+  <div class="job-title-d" id="job-title-d">-</div>
+  <div class="job-co-d" id="job-co-d">-</div>
 </div>
 <div class="nudge-banner" id="nudge-banner">
   <div class="nudge-text" id="nudge-banner-text">⚠ 0 follow-ups overdue</div>
@@ -153,17 +153,17 @@ select{width:100%;background:var(--bg3);border:1px solid var(--border2);border-r
       <div class="no-job-sub">Navigate to LinkedIn or a job board, or paste a JD below.</div>
     </div>
     <div class="irow"><textarea id="manual-jd" rows="4" placeholder="Paste JD here..."></textarea></div>
-    <div class="irow"><input type="text" id="manual-company" placeholder="Company — Role title"></div>
+    <div class="irow"><input type="text" id="manual-company" placeholder="Company - Role title"></div>
     <button class="btn btn-p" id="btn-score-manual">Score manually →</button>
   </div>
   <div id="score-content" style="display:none;">
     <div class="section-label" style="margin-bottom:10px;">Fit analysis</div>
-    <div class="score-row"><span class="sc-lbl">Ecosystem / partner motion</span><span class="sc-wt">25%</span><div class="sc-track"><div class="sc-fill" id="p-sf1" style="width:0%"></div></div><span class="sc-pct" id="p-sp1">—</span></div>
-    <div class="score-row"><span class="sc-lbl">0-to-1 builder requirement</span><span class="sc-wt">25%</span><div class="sc-track"><div class="sc-fill" id="p-sf2" style="width:0%"></div></div><span class="sc-pct" id="p-sp2">—</span></div>
-    <div class="score-row"><span class="sc-lbl">Technical BD depth</span><span class="sc-wt">20%</span><div class="sc-track"><div class="sc-fill" id="p-sf3" style="width:0%"></div></div><span class="sc-pct" id="p-sp3">—</span></div>
-    <div class="score-row"><span class="sc-lbl">AI-native / Edge AI</span><span class="sc-wt">20%</span><div class="sc-track"><div class="sc-fill" id="p-sf4" style="width:0%"></div></div><span class="sc-pct" id="p-sp4">—</span></div>
-    <div class="score-row"><span class="sc-lbl">Seniority / scope</span><span class="sc-wt">10%</span><div class="sc-track"><div class="sc-fill" id="p-sf5" style="width:0%"></div></div><span class="sc-pct" id="p-sp5">—</span></div>
-    <div class="score-total"><span class="score-num" id="p-total">—</span><span id="p-verdict"></span></div>
+    <div class="score-row"><span class="sc-lbl">Ecosystem / partner motion</span><span class="sc-wt">25%</span><div class="sc-track"><div class="sc-fill" id="p-sf1" style="width:0%"></div></div><span class="sc-pct" id="p-sp1">-</span></div>
+    <div class="score-row"><span class="sc-lbl">0-to-1 builder requirement</span><span class="sc-wt">25%</span><div class="sc-track"><div class="sc-fill" id="p-sf2" style="width:0%"></div></div><span class="sc-pct" id="p-sp2">-</span></div>
+    <div class="score-row"><span class="sc-lbl">Technical BD depth</span><span class="sc-wt">20%</span><div class="sc-track"><div class="sc-fill" id="p-sf3" style="width:0%"></div></div><span class="sc-pct" id="p-sp3">-</span></div>
+    <div class="score-row"><span class="sc-lbl">AI-native / Edge AI</span><span class="sc-wt">20%</span><div class="sc-track"><div class="sc-fill" id="p-sf4" style="width:0%"></div></div><span class="sc-pct" id="p-sp4">-</span></div>
+    <div class="score-row"><span class="sc-lbl">Seniority / scope</span><span class="sc-wt">10%</span><div class="sc-track"><div class="sc-fill" id="p-sf5" style="width:0%"></div></div><span class="sc-pct" id="p-sp5">-</span></div>
+    <div class="score-total"><span class="score-num" id="p-total">-</span><span id="p-verdict"></span></div>
     <div class="angles" id="p-angles"></div>
     <div id="sync-row" style="display:none;margin-top:10px;">
       <button class="btn btn-s" id="btn-sync-tracker" style="font-size:9px;font-family:var(--mono);">+ Add to outreach tracker</button>
@@ -210,11 +210,11 @@ select{width:100%;background:var(--bg3);border:1px solid var(--border2);border-r
   <div class="section-label">Morning briefing</div>
   <div class="irow">
     <label class="ilbl">Pipeline</label>
-    <textarea id="p-brief-pipeline" rows="4" placeholder="Nothing.tech — Recruiter screen&#10;Microsoft — Applied&#10;Emissary — Active"></textarea>
+    <textarea id="p-brief-pipeline" rows="4" placeholder="Nothing.tech - Recruiter screen&#10;Microsoft - Applied&#10;Emissary - Active"></textarea>
   </div>
   <div class="irow">
     <label class="ilbl">Pending follow-ups</label>
-    <textarea id="p-brief-followups" rows="2" placeholder="LinkedIn DM to contact — no reply 3 days..."></textarea>
+    <textarea id="p-brief-followups" rows="2" placeholder="LinkedIn DM to contact - no reply 3 days..."></textarea>
   </div>
   <button class="btn btn-p" id="btn-gen-brief">Generate morning briefing →</button>
   <div id="brief-out" class="prompt-out" style="display:none;"></div>

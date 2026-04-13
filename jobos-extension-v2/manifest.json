@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Job Search OS — BD/Partnerships",
+  "name": "Job Search OS - BD/Partnerships",
   "version": "2.0.0",
   "description": "Score any job instantly. Follow-up nudge alerts. Sync scored roles to your outreach tracker. Built for Pranjal's BD/Partnerships job search.",
   "permissions": ["activeTab","scripting","storage","contextMenus","alarms"],
