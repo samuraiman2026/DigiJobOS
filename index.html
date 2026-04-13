@@ -2320,22 +2320,12 @@ function buildScoreAngles(jd, total) {
 }
 
 function buildScorePrompt(company, jd) {
-  const prompt = `Score this JD against my BD/Partnerships profile.
+  const prompt = `Run /score for this role using the rules in WORKFLOW_GUIDE.md.
 
-My background (metrics, career history, and interview stories) is available in CLAUDE.md. Use that context for this prompt.
-
-${company ? 'Role: ' + company : ''}
-JD: ${jd || '[paste JD here]'}
-
-Score 1-10 on each (show visual bars):
-1. Ecosystem/partner motion match (25%)
-2. 0-to-1 builder requirement (25%)
-3. Technical BD depth needed (20%)
-4. AI-native / Edge AI angle (20%)
-5. Seniority and scope match (10%)
-
-Overall weighted score + verdict: apply now / apply with bridge / pass.
-My 2 strongest angles + biggest gap for this specific role.`;
+<role>${company || '[company name]'}</role>
+<jd>
+${jd || '[paste JD here]'}
+</jd>`;
   document.getElementById('score-prompt-out').textContent = prompt + '\n';
   const btn = document.createElement('button');
   btn.className = 'prompt-copy-btn';
@@ -2401,7 +2391,15 @@ function runBrief() {
   const nudgeSummary = overdue.length
     ? overdue.map(c => '  ' + c.company + (c.contact ? ' ('+c.contact+')' : '') + ' — last: ' + c.lastOutreach).join('\n')
     : (followups || 'None flagged');
-  const prompt = 'Good morning. Run my daily BD/Partnerships job search briefing.\n\nPlease search my Google Calendar for today\'s events and include them.\nPlease search my Gmail for: (1) new LinkedIn job alert emails today, (2) any recruiter replies in the last 3 days.\n\nMy pipeline (' + active.length + ' active):\n' + pipelineSummary + '\n\nOverdue follow-ups (10+ days):\n' + nudgeSummary + '\n\nGenerate:\n1. Top 3 actions for today, ranked by impact\n2. Any pipeline roles going cold\n3. New LinkedIn alerts worth scoring\n4. Referral outreach to send today\n5. One-line status on each active pipeline role\n\nKeep it to a 90-second read. Game plan, not a report.';
+  const prompt = `Run /brief using the rules in WORKFLOW_GUIDE.md.
+
+<pipeline>
+${pipelineSummary}
+</pipeline>
+
+<overdue_followups>
+${nudgeSummary}
+</overdue_followups>`;
   const el = document.getElementById('brief-output');
   el.textContent = prompt + '\n';
   const btn = document.createElement('button');
@@ -2428,24 +2426,14 @@ function runApply() {
     privacy: 'Lead with: Huawei on-device AI (local inference vs cloud moat), Qualia compliance/legal complexity. Avoid: AdTech bullets.'
   }[type];
 
-  const prompt = `Run my full BD/Partnerships application workflow for this role.
+  const prompt = `Run /apply for this role using the rules in WORKFLOW_GUIDE.md.
 
-Role: ${role || '[role name]'}
-${jd ? 'JD:\n' + jd : ''}
-
-Bullet selection guidance for this role type (${type}):
-${bulletGuidance}
-
-My background (metrics, career history, and interview stories) is available in CLAUDE.md. Use that context for this prompt.
-
-Contact context: ${contact === 'none' ? 'No warm contact — cold referral strategy needed' : contact === 'weak' ? 'Weak 2nd-degree connection — warm outreach angle needed' : 'Strong 1st-degree contact — referral path available'}
-
-Deliver:
-1. JD analysis — what does this company actually care about?
-2. Resume restructure — 4-5 bullets per role, one best version each, impact-first
-3. Gap & bridge analysis — what am I missing and how do I frame it?
-4. Referral strategy — who to reach and what angle to use
-5. Cover note — one specific hook, not a resume summary`;
+<role>${role || '[role name]'}</role>
+<jd>
+${jd || '[paste JD here]'}
+</jd>
+<bullet_guidance>${bulletGuidance}</bullet_guidance>
+<contact_context>${contact === 'none' ? 'No warm contact — cold referral strategy needed' : contact === 'weak' ? 'Weak 2nd-degree connection — warm outreach angle needed' : 'Strong 1st-degree contact — referral path available'}</contact_context>`;
   document.getElementById('apply-prompt-out').textContent = prompt + '\n';
   const btn = document.createElement('button');
   btn.className = 'prompt-copy-btn'; btn.textContent = 'copy';
@@ -2458,17 +2446,12 @@ Deliver:
 function runReferral() {
   const role = document.getElementById('ref-role').value.trim() || 'my target role';
   const context = document.getElementById('ref-context').value.trim();
-  const prompt = `Build a referral-first strategy for: ${role}
-${context ? '\nContext: ' + context : ''}
+  const prompt = `Run /referral for this role using the rules in WORKFLOW_GUIDE.md.
 
-My network assets: Ex-Huawei ISV partners (Pinterest, Shazam, Porsche, Meta, Adobe, Airbnb, Vivino), Qualia fintech network, Pandora OEM contacts (Sony, Samsung, Microsoft, Honda), Mobclix publisher network, PMSV advisory clients, AI Collective hackathon alumni, Pavilion GTM community.
-
-Generate:
-1. Who to reach out to — ideal (BD/Partnerships/GTM), second (HM's chain), third (2nd-degree via my network)
-2. The right angle for each — what earns a response (NOT "I'm applying")
-3. LinkedIn DM under 80 words — specific to this company, not a template
-4. Timing: reach out first and wait, or apply simultaneously?
-5. Follow-up plan if no reply in 5 days`;
+<role>${role}</role>
+<context>
+${context || 'No extra context provided.'}
+</context>`;
   document.getElementById('ref-prompt-out').textContent = prompt + '\n';
   const btn = document.createElement('button');
   btn.className = 'prompt-copy-btn'; btn.textContent = 'copy';
@@ -2483,20 +2466,14 @@ function runPrep() {
   const interviewer = document.getElementById('prep-interviewer').value.trim() || 'unknown';
   const round = document.getElementById('prep-round').value;
   const worry = document.getElementById('prep-worry').value.trim();
-  const prompt = `Run my full BD/Partnerships interview prep for: ${role}
-Round: ${round} | Interviewer: ${interviewer}
-${worry ? 'Specific concern: ' + worry : ''}
+  const prompt = `Run /prep for this interview using the rules in WORKFLOW_GUIDE.md.
 
-My background (career metrics, Huawei/Qualia/Pandora history, and 5 STAR stories A-E) is in CLAUDE.md. Use that context for this prompt.
-
-Please search the web for: (a) recent news about ${role.split('—')[0].trim()}, (b) interviewer background if name provided.
-
-Generate:
-1. What this company actually cares about right now (from research)
-2. 10 BD-specific questions — partner motion, deal structure, ecosystem GTM, channel conflict, co-sell, metrics, stakeholder alignment
-3. For each question: best story to use (Huawei ISV / Qualia API / Pandora OEM / PMSV/Stack / Sony/Mobclix)
-4. 3 gap questions with exact bridge narratives
-5. "Tell me about yourself" — structured specifically for this company, 90 seconds`;
+<role>${role}</role>
+<round>${round}</round>
+<interviewer>${interviewer}</interviewer>
+<concerns>
+${worry || 'No specific concerns flagged.'}
+</concerns>`;
   document.getElementById('prep-prompt-out').textContent = prompt + '\n';
   const btn = document.createElement('button');
   btn.className = 'prompt-copy-btn'; btn.textContent = 'copy';
@@ -2515,28 +2492,10 @@ function runMockDirect() {
 function runMock() {
   const role = document.getElementById('mock-role').value.trim() || 'a senior BD/Partnerships role';
   const mode = document.getElementById('mock-mode').value;
-  const modeMap = {
-    hardest: 'Ask me the 3 hardest BD/partnerships questions for this role. One at a time, wait for my answer before asking the next.',
-    weak: 'Focus on question types I typically score weakest on: channel conflict, impact quantification, co-sell dynamics. One at a time.',
-    full: 'Run a full 20-minute simulated interview. 8-10 questions, realistic pacing. One at a time.',
-    specific: 'Drill the specific question type I ask you to focus on. One at a time, 3 rounds.'
-  }[mode];
-  const prompt = `Mock interview mode. Role: ${role}
+  const prompt = `Run /mock for this role using the rules in WORKFLOW_GUIDE.md.
 
-Instructions: ${modeMap}
-
-After each answer, score it:
-  Relevance:      [1-5] — did it answer what was asked?
-  Specificity:    [1-5] — was it concrete or vague?
-  Impact clarity: [1-5] — did a metric or outcome land?
-  Story fit:      [1-5] — right story for this question?
-
-Tell me: what landed, what to fix, which story to use instead, and one rewrite of my answer.
-Then ask: "Ready for the next question, or retry this one?"
-
-My stories: A=Huawei ISV ($1M→$100M, 1,000+ ISVs), B=Qualia API BD ($9M, 120%), C=Pandora new channels ($200M+, OEM), D=PMSV+AI Partnership Stack, E=Sony Mobile (first $10M, 16 markets) + Mobclix (185% YoY, $16M).
-
-Begin now.`;
+<role>${role}</role>
+<mode>${mode}</mode>`;
   document.getElementById('mock-prompt-out').textContent = prompt + '\n';
   const btn = document.createElement('button');
   btn.className = 'prompt-copy-btn'; btn.textContent = 'copy';
@@ -2552,21 +2511,16 @@ function runDebrief() {
   const notes = document.getElementById('debrief-notes').value.trim();
   const gut = document.getElementById('debrief-gut').value;
   if (!info && !qs) { toast('Enter interview details'); return; }
-  const prompt = `Post-interview debrief.
+  const prompt = `Run /debrief using the rules in WORKFLOW_GUIDE.md.
 
-${info ? 'Interview: ' + info : ''}
-${qs ? '\nQuestions asked:\n' + qs : ''}
-${notes ? '\nKey moments:\n' + notes : ''}
-Gut read: ${gut}
-
-My background for context (Huawei, Qualia, Pandora) is in CLAUDE.md. Use that context for this prompt.
-
-Generate:
-1. Score each answer: Relevance (1-5), Specificity (1-5), Impact clarity (1-5)
-2. 2-3 moments I left value on the table — with specific rewrites using my actual background
-3. What this interviewer seemed to care most about (inferred from their questions)
-4. Personalized thank-you email — references specific topics we discussed, under 150 words
-5. What to prepare differently for the next round`;
+<interview_info>${info || 'unknown'}</interview_info>
+<questions_asked>
+${qs || 'None recorded.'}
+</questions_asked>
+<key_moments>
+${notes || 'No specific notes.'}
+</key_moments>
+<gut_read>${gut}</gut_read>`;
   document.getElementById('debrief-prompt-out').textContent = prompt + '\n';
   const btn = document.createElement('button');
   btn.className = 'prompt-copy-btn'; btn.textContent = 'copy';
@@ -2587,29 +2541,17 @@ function runNegotiate() {
   const signing = document.getElementById('neg-signing').value.trim();
   const competing = document.getElementById('neg-competing').value;
   const want = document.getElementById('neg-want').value;
-  const prompt = `Build my negotiation strategy.
+  const prompt = `Run /negotiate using the rules in WORKFLOW_GUIDE.md.
 
-${role ? 'Role: ' + role : ''}
-Offer: Base ${base||'[amount]'} | Bonus ${bonus||'[%]'} | Equity ${equity||'[details]'} | Signing ${signing||'[amount]'}
-Competing offers: ${competing === 'none' ? 'None' : competing === 'soft' ? 'In late stages elsewhere (soft signal)' : 'Have a competing offer'}
-How much I want this: ${want||'8'}/10
-
-My leverage:
-- Huawei: $1M→$100M ecosystem revenue, 1,000+ ISVs, 2x President's Award — rare 0-to-1 + scale proof
-- Qualia: $9M closed at 120% as FIRST BD hire — founding GTM credibility
-- PMSV advisory currently active — not unemployed, consulting (changes power dynamic)
-- BTech + Bell Labs + Edge AI technical depth — most BD candidates lack this
-- Market rate for Director BD at AI companies: $180-240K base, 15-25% bonus
-
-Search the web for: current compensation benchmarks for ${role || 'Director BD at AI-native tech companies'}.
-
-Generate:
-1. Market benchmarks with sources
-2. My 3 strongest leverage points for this specific offer
-3. Counter offer recommendation — base, equity, signing
-4. Exact script for the negotiation call (word for word)
-5. Response if they say "this is our best offer"
-6. What to never say in a negotiation call`;
+<role>${role || '[role name]'}</role>
+<offer>
+Base: ${base||'[amount]'}
+Bonus: ${bonus||'[%]'}
+Equity: ${equity||'[details]'}
+Signing: ${signing||'[amount]'}
+</offer>
+<competing_offers>${competing}</competing_offers>
+<desire_level>${want}/10</desire_level>`;
   document.getElementById('neg-prompt-out').textContent = prompt + '\n';
   const btn = document.createElement('button');
   btn.className = 'prompt-copy-btn'; btn.textContent = 'copy';
@@ -2621,23 +2563,11 @@ Generate:
 
 function runPattern() {
   const log = document.getElementById('pattern-log').value.trim();
-  const prompt = `Analyze my BD/Partnerships interview patterns.
-${log ? '\nDebrief history:\n' + log : '\n[No debrief history yet — prime with known gaps for senior BD candidates]'}
+  const prompt = `Run /pattern using the rules in WORKFLOW_GUIDE.md.
 
-My 15+ years of BD metrics (Huawei, Qualia, Pandora, PMSV) are in CLAUDE.md. Use that context for this prompt.
-
-My 5 stories: A=Huawei ISV, B=Qualia API, C=Pandora channels/OEM, D=PMSV+AI Stack, E=Sony/Mobclix.
-
-Identify:
-1. Question types I score consistently low on (avg <3.5) — show as bars
-2. Question types I score consistently high on — my auto-pilot stories
-3. 3 specific weaknesses appearing repeatedly
-4. Which story I'm over-relying on (flag if A is >50% of answers)
-5. Underused story angles (Pandora OEM for hardware roles, Mobclix for supply roles)
-6. Drill plan: 3 question types to practice before next interview
-7. One thing to stop doing, one thing to do more
-
-Output: weakness summary + visual bar chart of question type performance + targeted drill plan`;
+<debrief_history>
+${log || '[No history provided]'}
+</debrief_history>`;
   document.getElementById('pattern-prompt-out').textContent = prompt + '\n';
   const btn = document.createElement('button');
   btn.className = 'prompt-copy-btn'; btn.textContent = 'copy';
@@ -3408,28 +3338,10 @@ const PILLAR_CONFIGS = {
     buildPrompt: () => {
       const layer = document.getElementById('post-stack-layer').value;
       const hook = document.getElementById('post-stack-hook').value;
-      return `Write a LinkedIn post about the AI Partnership Stack framework — specifically the "${layer}" layer.
+      return `Run /post for the "stack" pillar using the rules in WORKFLOW_GUIDE.md.
 
-Hook style: ${hook}
-
-My credentials and real-world metrics (Huawei, Qualia, Pandora) are in CLAUDE.md. Use that context for this post.
-
-The 6-layer framework:
-1. Intelligence core (model layer — sets constraints on partnership strategy)
-2. Capability extension (MCP/A2A — the new API for AI partnerships)
-3. Developer ecosystem (ISV/SDK — who builds ON the platform)
-4. Vertical solution (ISVs who go deep in specific industries)
-5. Motion design (co-sell, embedded, distribution — how revenue actually flows)
-6. Distribution (who carries it to market at scale)
-
-Post requirements:
-— 150–250 words
-— Opens with a strong first line (not "I've been thinking about...")
-— Practitioner-grade — real specifics, not AI buzzword soup
-— One concrete example from Huawei or Qualia experience
-— Ends with a question that invites practitioners to respond
-— My voice: direct, specific, occasionally wry — not corporate
-— NO emojis unless it's one bullet-point dot`;
+<layer>${layer}</layer>
+<hook>${hook}</hook>`;
     }
   },
   lesson: {
@@ -3452,19 +3364,10 @@ Post requirements:
       const lesson = document.getElementById('post-lesson-text').value || 'Partner programs fail for a predictable set of reasons';
       const source = document.getElementById('post-lesson-source').value;
       const sourceLabel = { huawei:'Huawei ISV program (1,000+ ISVs, $1M→$100M)', qualia:'Qualia as first BD hire ($9M at 120% of goal)', pandora:'Pandora new channel incubation ($200M+ in new revenue)', general:'15+ years of BD/partnerships experience' }[source];
-      return `Write a LinkedIn post about this lesson from my experience in BD/Partnerships:
+      return `Run /post for the "lesson" pillar using the rules in WORKFLOW_GUIDE.md.
 
-Lesson: "${lesson}"
-Learned from: ${sourceLabel}
-
-Post requirements:
-— 150–250 words
-— Opens with the counterintuitive version of the lesson (subvert expectations)
-— Tells the specific story of where I learned it — concrete details, real numbers if available
-— Draws the transferable principle at the end
-— My voice: practitioner-grade, direct, no filler, confident without being arrogant
-— Ends with a question to practitioners: "What's the version of this you've seen?"
-— No corporate speak, no "excited to share", no fluff opener`;
+<lesson>${lesson}</lesson>
+<learned_from>${sourceLabel}</learned_from>`;
     }
   },
   observation: {
@@ -3481,21 +3384,10 @@ Post requirements:
     buildPrompt: () => {
       const obs = document.getElementById('post-obs-topic').value || 'Something significant is shifting in how AI companies structure partnerships';
       const impl = document.getElementById('post-obs-implication').value || '';
-      return `Write a LinkedIn post sharing this observation about the AI ecosystem:
+      return `Run /post for the "observation" pillar using the rules in WORKFLOW_GUIDE.md.
 
-Observation: "${obs}"
-${impl ? 'What it means: "' + impl + '"' : ''}
-
-My vantage point: Built ISV ecosystem for Kirin 9000 (on-device AI) at Huawei — one of the first commercial Edge AI partner programs. Now advising AI startups on US BD strategy through PMSV. Following MCP/A2A protocol development closely.
-
-Post requirements:
-— 150–250 words
-— Opens with the specific observation, not a vague "something is changing"
-— One concrete example of what this looks like in practice
-— Stakes it clearly: why this matters for people building partnership programs
-— My voice: analytically sharp, practitioner perspective, not hype
-— Ends with a question that invites other BD/Partnerships people to share what they're seeing
-— No "as an AI practitioner" opener, no buzzword soup`;
+<observation>${obs}</observation>
+<implication>${impl}</implication>`;
     }
   },
   myth: {
@@ -3512,21 +3404,10 @@ Post requirements:
     buildPrompt: () => {
       const myth = document.getElementById('post-myth-myth').value || 'More partners = more revenue';
       const reality = document.getElementById('post-myth-reality').value || 'Partner quality beats partner quantity every time';
-      return `Write a LinkedIn post contrasting this myth vs reality in BD/Partnerships:
+      return `Run /post for the "myth" pillar using the rules in WORKFLOW_GUIDE.md.
 
-Myth: "${myth}"
-Reality: "${reality}"
-
-My credentials and metrics (Huawei, Qualia, Pandora) are available in CLAUDE.md. Use that context for this post.
-
-Post requirements:
-— 150–250 words
-— Opens with the myth stated directly — not "Everyone says X but..." — just: "X. Wrong."
-— Brief story from my actual experience that disproves the myth
-— Restates the reality as a principle that practitioners can apply
-— My voice: confident, a little blunt, no hedging
-— Ends with a question: invites others to share myths they've disproven
-— No passive voice, no corporate speak`;
+<myth>${myth}</myth>
+<reality>${reality}</reality>`;
     }
   },
   build: {
@@ -3544,25 +3425,9 @@ Post requirements:
       </div>`,
     buildPrompt: () => {
       const aspect = document.getElementById('post-build-aspect').value;
-      const aspectLabel = {
-        intake:'partner intake criteria and qualification',
-        '90days':'the first 90 days of building a partner program from scratch',
-        playbook:'designing a co-sell motion that makes partners actually sell',
-        metrics:'measuring partner program performance — what actually matters',
-        failure:'why most partner programs fail structurally'
-      }[aspect];
-      return `Write a LinkedIn post about ${aspectLabel} — from someone who's actually built this.
+      return `Run /post for the "builder" pillar using the rules in WORKFLOW_GUIDE.md.
 
-My proof: At Huawei, built the ISV intake framework for a 1,000+ partner ecosystem from scratch — 300% SDK adoption, $1M→$100M revenue. At Qualia as first BD hire, built the entire partner program and motion in 12 months — $9M at 120% of goal. At PMSV, designed 0-to-1 BD programs for early-stage AI companies.
-
-Post requirements:
-— 150–250 words
-— Opens with the practitioner reality — what it actually looks and feels like
-— 2–3 specific things I've learned that aren't in the textbooks
-— Real numbers and examples where they add credibility (they usually do)
-— My voice: from someone who did the work, not someone who managed it
-— Ends with an offer or question: "Ask me about [specific thing] if you're building this now"
-— No generic advice, no listicle format`;
+<aspect>${aspect}</aspect>`;
     }
   }
 };

@@ -402,18 +402,24 @@ function updateNudgeBadge(count) {
 const SHORTCUT_PROMPTS = {
   referral: () => {
     const role = jobData ? `${jobData.company} — ${jobData.title}` : '[paste role here]';
-    return `Build a referral-first strategy for: ${role}\n\nMy network: Ex-Huawei ISV partners (Pinterest, Shazam, Meta, Adobe, Airbnb), Qualia fintech network, Pandora OEM (Sony, Samsung, Honda), PMSV advisory clients, AI Collective alumni, Pavilion GTM community.\n\nGenerate: (1) who to reach out to, (2) the right angle, (3) LinkedIn DM under 80 words, (4) timing, (5) follow-up plan if no reply in 5 days.`;
+    return `Run /referral for this role using the rules in WORKFLOW_GUIDE.md.\n\n<role>${role}</role>\n<context>No extra context provided.</context>`;
   },
   prep: () => {
     const role = jobData ? `${jobData.company} — ${jobData.title}` : '[role here]';
-    return `Run my full BD/Partnerships interview prep for: ${role}\n\nSearch the web for recent news about this company.\n\nGenerate: (1) what this company actually cares about right now, (2) 10 BD-specific questions, (3) for each question: best story to use, (4) 3 gap bridge narratives, (5) "tell me about yourself" specifically for this company.`;
+    return `Run /prep for this interview using the rules in WORKFLOW_GUIDE.md.\n\n<role>${role}</role>\n<round>unknown</round>\n<interviewer>unknown</interviewer>\n<concerns>No specific concerns flagged.</concerns>`;
   },
-  mock: () => `Mock interview mode. Role: ${jobData ? jobData.company+' — '+jobData.title : '[role]'}\n\nAsk me the 3 hardest BD/partnerships questions for this role. One at a time. Wait for my answer. After each: score Relevance (1-5), Specificity (1-5), Impact clarity (1-5). Tell me what landed and what to fix.\n\nMy full metrics and STAR stories (Huawei, Qualia, Pandora) are in CLAUDE.md. Use that context for this prompt.`,
-  debrief: () => `Post-interview debrief.\n\nInterview: [company — role — interviewer]\nQuestions asked:\n1. [question]\n2. [question]\n3. [question]\nGut read: [positive / mixed / concerned]\n\nScore each answer: Relevance (1-5), Specificity (1-5), Impact clarity (1-5). Find the 2-3 moments I left value on the table with rewrites. Draft a personalized thank-you email.`,
-  negotiate: () => `Build my negotiation strategy.\n\nRole: [company — role]\nOffer: Base $[X] | Bonus [%] | Equity [details] | Signing $[X]\n\nMy 15+ years of metrics (Huawei, Qualia, Pandora) are in CLAUDE.md. Use that context for this prompt.\n\nSearch web for current comp benchmarks. Then: (1) market data, (2) my 3 leverage points, (3) counter offer, (4) exact call script.`,
-  pattern: () => `Analyze my BD/Partnerships interview patterns.\n\n[Paste debrief history here]\n\nIdentify: (1) question types I score low on, (2) question types I score high on, (3) which story I over-rely on, (4) drill plan for next interview.`,
+  mock: () => {
+    const role = jobData ? `${jobData.company} — ${jobData.title}` : '[role]';
+    return `Run /mock for this role using the rules in WORKFLOW_GUIDE.md.\n\n<role>${role}</role>\n<mode>hardest</mode>`;
+  },
+  debrief: () => `Run /debrief using the rules in WORKFLOW_GUIDE.md.\n\n<interview_info>[company — role — interviewer]</interview_info>\n<questions_asked>\n1. [question]\n2. [question]\n3. [question]\n</questions_asked>\n<key_moments>\n[No specific notes.]\n</key_moments>\n<gut_read>Positive — felt good</gut_read>`,
+  negotiate: () => `Run /negotiate using the rules in WORKFLOW_GUIDE.md.\n\n<role>[company — role]</role>\n<offer>\nBase: $[X]\nBonus: [%]\nEquity: [details]\nSigning: $[X]\n</offer>\n<competing_offers>none</competing_offers>\n<desire_level>8/10</desire_level>`,
+  pattern: () => `Run /pattern using the rules in WORKFLOW_GUIDE.md.\n\n<debrief_history>\n[Paste debrief history here]\n</debrief_history>`,
   'hiring-manager': () => `You are a VP of Partnerships who has hired 20+ BD professionals. Review this material as a hiring manager — 6-second scan, skeptical lens.\n\n[Paste resume, cover note, or answer here]\n\nGive me: (1) first impression, (2) what's working — top 3, (3) what's not working — top 3 with fixes, (4) one bullet to rewrite, (5) verdict: HIRE / STRONG MAYBE / MAYBE / NOT YET.`,
-  skeptic: () => `Make the strongest possible case against hiring me for: ${jobData ? jobData.company+' — '+jobData.title : '[this role]'}\n\nMy career history (Huawei, Qualia, Pandora) is in CLAUDE.md. Use that context for this prompt.\n\nFor each concern: what triggers it, how serious (1-5), and the exact bridge narrative. Then: the hardest question a skeptical interviewer would ask.`
+  skeptic: () => {
+    const role = jobData ? `${jobData.company} — ${jobData.title}` : '[this role]';
+    return `Make the strongest possible case against hiring me for: ${role}\n\nMy career history (Huawei, Qualia, Pandora) is in CLAUDE.md. Use that context for this prompt.\n\nFor each concern: what triggers it, how serious (1-5), and the exact bridge narrative. Then: the hardest question a skeptical interviewer would ask.`
+  }
 };
 
 function quickCmd(cmd) {
