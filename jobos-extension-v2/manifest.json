@@ -3,7 +3,7 @@
   "name": "Job Search OS - BD/Partnerships",
   "version": "2.0.0",
   "description": "Score any job instantly. Follow-up nudge alerts. Sync scored roles to your outreach tracker. Built for Pranjal's BD/Partnerships job search.",
-  "permissions": ["activeTab","scripting","storage","contextMenus","alarms"],
+  "permissions": ["activeTab","scripting","storage","contextMenus","alarms","tabs"],
   "host_permissions": [
     "https://*.linkedin.com/*","https://*.greenhouse.io/*","https://*.lever.co/*",
     "https://*.ashbyhq.com/*","https://jobs.ashbyhq.com/*","https://*.workday.com/*",

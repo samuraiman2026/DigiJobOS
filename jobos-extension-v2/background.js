@@ -127,7 +127,8 @@ async function tryLiveSyncToDashboard(type, item) {
 
       // Find an open tab whose URL starts with the configured dashboard URL
       chrome.tabs.query({}, tabs => {
-        const tab = tabs.find(t => t.url && t.url.startsWith(dashUrl));
+        const norm = url => url.replace(/\/$/, '');
+        const tab = tabs.find(t => t.url && norm(t.url).startsWith(norm(dashUrl)));
         if (!tab) { resolve(false); return; }
 
         chrome.scripting.executeScript({
@@ -280,6 +281,17 @@ chrome.runtime.onMessageExternal.addListener((msg, sender, sendResponse) => {
     chrome.storage.local.get(OUTREACH_SYNC_KEY, data => {
       const payload = data[OUTREACH_SYNC_KEY] || { contacts: [], pipeline: [] };
       sendResponse({ contacts: payload.contacts || [], pipeline: payload.pipeline || [] });
+    });
+    return true;
+  }
+  if (msg.action === 'acknowledgePendingSync') {
+    // Dashboard has imported all items — clear the queue so they don't re-sync on next load.
+    chrome.storage.local.get(OUTREACH_SYNC_KEY, data => {
+      const existing = data[OUTREACH_SYNC_KEY] || {};
+      existing.contacts = [];
+      existing.pipeline = [];
+      existing.lastUpdated = new Date().toISOString();
+      chrome.storage.local.set({ [OUTREACH_SYNC_KEY]: existing }, () => sendResponse({ cleared: true }));
     });
     return true;
   }

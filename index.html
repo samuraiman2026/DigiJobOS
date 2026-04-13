@@ -4491,6 +4491,10 @@ function checkExtensionSync() {
 
       if (contactsAdded > 0) saveOutreach();
       if (pipelineAdded > 0) saveState();
+
+      // Clear the extension queue so items don't re-sync on next load
+      chrome.runtime.sendMessage(extId, { action: 'acknowledgePendingSync' }, () => {});
+
       const total = contactsAdded + pipelineAdded;
       if (total > 0) {
         renderPipelineMini();

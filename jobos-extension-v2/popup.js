@@ -155,15 +155,20 @@ function loadDashboardConfig() {
 }
 
 function saveDashboardUrl() {
-  const url = document.getElementById('dash-url').value.trim().replace(/\/$/, '') + '/';
+  const raw = document.getElementById('dash-url').value.trim();
   const st = document.getElementById('dash-status');
+  if (!raw) {
+    chrome.storage.local.remove(DASHBOARD_KEY);
+    if (st) st.innerHTML = '<span class="g-loading">○ Not configured - roles queue locally only</span>';
+    toast('Dashboard URL cleared');
+    return;
+  }
+  if (!raw.startsWith('https://')) {
+    if (st) st.innerHTML = '<span class="g-err">✗ URL must start with https://</span>';
+    return;
+  }
+  const url = raw.replace(/\/$/, '') + '/';
   chrome.storage.local.set({ [DASHBOARD_KEY]: url }, () => {
-    if (!url || url === '/') {
-      chrome.storage.local.remove(DASHBOARD_KEY);
-      if (st) st.innerHTML = '<span class="g-loading">○ Not configured - roles queue locally only</span>';
-      toast('Dashboard URL cleared');
-      return;
-    }
     if (st) st.innerHTML = `<span class="g-ok">● Live sync enabled - ${url}</span>`;
     toast('Dashboard URL saved ✓');
   });
@@ -341,6 +346,7 @@ function syncToTracker() {
   const total = parseInt(document.getElementById('p-total').textContent) || 0;
   const pov = `Scored ${total}% via extension on ${new Date().toLocaleDateString()}`;
   chrome.runtime.sendMessage({ action: 'syncOutreach', data: { company, role, score: total, pov } }, resp => {
+    if (chrome.runtime.lastError) { toast('Sync error - try again'); return; }
     const btn = document.getElementById('btn-sync-tracker');
     if (resp?.added) {
       toast(resp.liveSynced ? `${company} added to tracker - live ✓` : `${company} queued - open dashboard to sync`);
@@ -360,6 +366,7 @@ function syncToPipeline() {
   const role = jobData.title || '';
   const total = parseInt(document.getElementById('p-total').textContent) || 0;
   chrome.runtime.sendMessage({ action: 'syncPipeline', data: { company, role, score: total } }, resp => {
+    if (chrome.runtime.lastError) { toast('Sync error - try again'); return; }
     const btn = document.getElementById('btn-sync-pipeline');
     if (resp?.added) {
       toast(resp.liveSynced ? `${company} added to pipeline - live ✓` : `${company} queued - open dashboard to sync`);
