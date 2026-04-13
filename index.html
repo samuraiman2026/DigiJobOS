@@ -259,6 +259,42 @@ select { appearance: none; cursor: pointer; }
 </head>
 <body>
 
+<div id="password-gate" style="position:fixed;inset:0;background:#0e0f0e;z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;font-family:'DM Mono',monospace;color:#b8e04a;">
+  <div style="margin-bottom:24px;font-style:italic;font-size:13px;letter-spacing:0.1em;color:#5a5952;">JOB SEARCH OS · RESTRICTED ACCESS</div>
+  <div style="background:#161714;border:1px solid #2a2b27;padding:32px;border-radius:12px;width:320px;text-align:center;">
+    <div style="font-family:'Instrument Serif',serif;font-size:24px;font-style:italic;color:#e8e6de;margin-bottom:20px;">Enter access key</div>
+    <input type="password" id="pw-input" autofocus style="width:100%;background:#1e1f1c;border:1px solid #363730;border-radius:8px;color:#e8e6de;padding:12px;text-align:center;font-size:16px;outline:none;border-color:#b8e04a;">
+    <div id="pw-error" style="color:#e05a4a;font-size:11px;margin-top:12px;display:none;font-family:'DM Mono',monospace;">INVALID ACCESS KEY</div>
+  </div>
+  <div style="margin-top:24px;font-size:10px;color:#5a5952;">v4.2 · Secure Instance</div>
+</div>
+
+<script>
+(function() {
+  const KEY = 'Satchitanand';
+  const gate = document.getElementById('password-gate');
+  const input = document.getElementById('pw-input');
+  const error = document.getElementById('pw-error');
+  
+  function check() {
+    if (input.value === KEY) {
+      gate.style.display = 'none';
+      localStorage.setItem('jobos_auth', 'true');
+    } else {
+      error.style.display = 'block';
+      input.value = '';
+      input.focus();
+    }
+  }
+
+  input.addEventListener('keypress', (e) => { if (e.key === 'Enter') check(); });
+  
+  if (localStorage.getItem('jobos_auth') === 'true') {
+    gate.style.display = 'none';
+  }
+})();
+</script>
+
 <div class="app">
 
   <!-- SIDEBAR -->
