@@ -1,5 +1,5 @@
 # Job Search OS - BD/Partnerships Edition
-**Version 4.3 · April 2026**
+**Version 4.4 · April 2026**
 
 A personal job search operating system built on Claude. Not a prompt library. Not a chatbot. A persistent, connected workspace that knows who you are, reads your calendar and email, tracks your outreach, generates tailored resumes, maps your referral network, and runs structured interactive workflows on command.
 
@@ -32,6 +32,7 @@ A personal job search operating system built on Claude. Not a prompt library. No
 3. Chrome → `chrome://extensions` → Developer mode on.
 4. Load unpacked → select the `jobos-extension-v2` folder.
 5. Pin it to your toolbar.
+6. Open the extension → **Nudges tab** → paste your dashboard URL (e.g. `https://samuraiman2026.github.io/DigiJobOS/`) → **Save dashboard URL**.
 
 ### 3. Set up your Claude Project
 1. Go to [claude.ai/projects](https://claude.ai/projects) → create a Project called **Job Search OS**.
@@ -61,7 +62,7 @@ The system is engineered for **extreme token efficiency** through architectural 
 
 1. **Check Nudges**: Open the Chrome extension. If the badge is amber, copy the nudge prompt for overdue follow-ups.
 2. **Run Briefing**: Dashboard sidebar → `/brief`. Copy the XML-tagged prompt and paste into Claude. Claude reads your calendar and email live.
-3. **Score Alerts**: Open new job postings in Chrome. The extension auto-scores them. If 75%+, add to your outreach tracker **or directly to your active pipeline**.
+3. **Score Alerts**: Open new job postings in Chrome. The extension auto-scores them. If 75%+, click **Add to pipeline** or **Add to outreach tracker**. Items sync to the dashboard automatically the next time you open it - no copy/paste required.
 
 ### Before you apply
 
@@ -76,6 +77,7 @@ The system is engineered for **extreme token efficiency** through architectural 
 
 | Version | Date | What changed |
 |---|---|---|
+| v4.4 | April 13, 2026 | **Auto-sync**: extension items now appear in the dashboard automatically on every page load - no JSON export/paste required. Uses `externally_connectable` + `dashboard_bridge.js` content script so the dashboard can pull queued items from the extension on open. |
 | v4.3 | April 13, 2026 | **Sync bug fix**: imported contacts and pipeline roles now appear immediately in the dashboard without re-navigating. **Extension fix**: pipeline sync button now displays correctly (flex layout). **Token optimization**: CLAUDE.md reduced 38% - Resume Relevance Mapping moved to BULLET_LIBRARY.md, redundant Slash Commands section removed. |
 | v4.2 | April 13, 2026 | **Renamed dashboard to `index.html`** for GitHub Pages. Added **password gate**. **Full Token Optimization**: Split knowledge base into 3 files. Implemented **XML structural prompting**. Removed all JD/email truncation limits. Standardized punctuation (no em-dashes). **Direct pipeline sync from extension.** |
 | v4.1 | April 12, 2026 | MV3 Extension fix. Pipeline strike-through. Outreach "Not Interested" logic. `/export` weekly Sheets panel. |
