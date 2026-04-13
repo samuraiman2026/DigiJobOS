@@ -1944,7 +1944,24 @@ function renderPipeline() {
     tbody.innerHTML = `<tr><td colspan="9" style="padding:24px;text-align:center;font-family:var(--mono);font-size:11px;color:var(--text3);">No roles in pipeline. Click + Add role to get started.</td></tr>`;
     return;
   }
-  tbody.innerHTML = STATE.pipeline.map(r => {
+  const oneWeekAgo = Date.now() - 7 * 86400000;
+  const visible = STATE.pipeline
+    .filter(r => {
+      if (!CLOSED_STAGES.includes(r.stage)) return true;
+      if (!r.closedAt) return true; // legacy: no closedAt, show it
+      return new Date(r.closedAt).getTime() > oneWeekAgo;
+    })
+    .sort((a, b) => {
+      const aClosed = CLOSED_STAGES.includes(a.stage);
+      const bClosed = CLOSED_STAGES.includes(b.stage);
+      if (aClosed !== bClosed) return aClosed ? 1 : -1;
+      return 0;
+    });
+  if (!visible.length) {
+    tbody.innerHTML = `<tr><td colspan="9" style="padding:24px;text-align:center;font-family:var(--mono);font-size:11px;color:var(--text3);">No roles in pipeline. Click + Add role to get started.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = visible.map(r => {
     const stageCls = { 'Monitoring':'stage-applied','Applied':'stage-applied','Recruiter screen':'stage-screen','HM round':'stage-screen','Panel':'stage-screen','Offer':'stage-offer','Withdrawn':'stage-applied','Closed':'stage-applied','Rejected':'stage-applied' }[r.stage] || 'stage-applied';
     const _pDone = r.stage === 'Withdrawn' || r.stage === 'Closed' || r.stage === 'Rejected';
     const healthCls = { green:'health-green', amber:'health-amber', red:'health-red' }[r.health] || 'health-amber';
@@ -2049,11 +2066,14 @@ function removeRole(id) {
   buildPipelinePrompt();
 }
 
+const CLOSED_STAGES = ['Withdrawn','Rejected','Closed'];
 function updatePipelineStage(id, stage) {
   const r = STATE.pipeline.find(x => x.id === id);
   if (!r) return;
   r.stage = stage;
   r.lastAction = new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  if (CLOSED_STAGES.includes(stage)) { r.closedAt = r.closedAt || new Date().toISOString(); }
+  else { delete r.closedAt; }
   saveState();
   renderPipeline();
   renderPipelineMini();
