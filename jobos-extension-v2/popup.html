@@ -231,9 +231,17 @@ select{width:100%;background:var(--bg3);border:1px solid var(--border2);border-r
   <div id="nudge-list"><div class="loading"><span class="spinner"></span>Checking follow-ups...</div></div>
   <div class="divider"></div>
   <div class="export-box">
-    <div class="export-title">Sync with dashboard</div>
+    <div class="export-title">Dashboard live sync</div>
+    <div class="gist-row">
+      <div class="gist-status" id="dash-status"><span class="g-loading">○ Not configured - roles queue locally only</span></div>
+      <input type="text" id="dash-url" placeholder="https://samuraiman2026.github.io/DigiJobOS/" style="margin-bottom:6px;">
+      <button class="btn btn-s" id="btn-save-dash" style="font-size:9px;font-family:var(--mono);">Save dashboard URL</button>
+    </div>
+    <div style="font-size:11px;color:var(--text3);line-height:1.5;margin-bottom:10px;">When the dashboard is open in a tab, roles sync live. Otherwise they queue for manual export.</div>
+    <div class="divider"></div>
+    <div class="export-title">Manual export (fallback)</div>
     <div class="export-count" id="export-count">0</div>
-    <div class="export-sub" id="export-sub">Roles scored via extension.</div>
+    <div class="export-sub" id="export-sub">Roles queued for export.</div>
     <button class="btn btn-s" id="btn-export-os" style="font-size:9px;font-family:var(--mono);">Export scored roles as JSON</button>
     <div class="divider"></div>
     <div class="export-title">GitHub Gist profile sync</div>

@@ -2,10 +2,11 @@
 // MV3 compliant: zero inline handlers - all wired via addEventListener in init()
 'use strict';
 
-const STORAGE_KEY  = 'jobos_ext_v1';
-const OUTREACH_KEY = 'jobos_outreach_sync';
-const GIST_KEY     = 'jobos_gist_url';
-const NUDGE_DAYS   = 10;
+const STORAGE_KEY    = 'jobos_ext_v1';
+const OUTREACH_KEY   = 'jobos_outreach_sync';
+const GIST_KEY       = 'jobos_gist_url';
+const DASHBOARD_KEY  = 'jobos_dashboard_url';
+const NUDGE_DAYS     = 10;
 
 let jobData = null;
 let prompts = {};
@@ -32,6 +33,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   await detectJobPage();
   await loadNudges();
   loadGistConfig();
+  loadDashboardConfig();
   loadExportCount();
 });
 
@@ -68,6 +70,7 @@ function wireButtons() {
 
   // Nudges tab
   on('btn-export-os',  exportToOS);
+  on('btn-save-dash',  saveDashboardUrl);
   on('btn-save-gist',  saveGistUrl);
 
   // Shortcuts tab
@@ -135,6 +138,34 @@ async function saveGistUrl() {
     } catch(e) {
       st.innerHTML = '<span class="g-err">✗ Could not fetch - check URL is raw Gist link</span>';
     }
+  });
+}
+
+// ── DASHBOARD URL CONFIG ──────────────────────────────
+function loadDashboardConfig() {
+  chrome.storage.local.get(DASHBOARD_KEY, data => {
+    const url = data[DASHBOARD_KEY] || '';
+    const el = document.getElementById('dash-url');
+    const st = document.getElementById('dash-status');
+    if (el) el.value = url;
+    if (st) st.innerHTML = url
+      ? `<span class="g-ok">● Live sync enabled - ${url}</span>`
+      : '<span class="g-loading">○ Not configured - roles queue locally only</span>';
+  });
+}
+
+function saveDashboardUrl() {
+  const url = document.getElementById('dash-url').value.trim().replace(/\/$/, '') + '/';
+  const st = document.getElementById('dash-status');
+  chrome.storage.local.set({ [DASHBOARD_KEY]: url }, () => {
+    if (!url || url === '/') {
+      chrome.storage.local.remove(DASHBOARD_KEY);
+      if (st) st.innerHTML = '<span class="g-loading">○ Not configured - roles queue locally only</span>';
+      toast('Dashboard URL cleared');
+      return;
+    }
+    if (st) st.innerHTML = `<span class="g-ok">● Live sync enabled - ${url}</span>`;
+    toast('Dashboard URL saved ✓');
   });
 }
 
@@ -312,8 +343,8 @@ function syncToTracker() {
   chrome.runtime.sendMessage({ action: 'syncOutreach', data: { company, role, score: total, pov } }, resp => {
     const btn = document.getElementById('btn-sync-tracker');
     if (resp?.added) {
-      toast(`${company} added to tracker ✓`);
-      if (btn) { btn.textContent = '✓ Added'; btn.disabled = true; }
+      toast(resp.liveSynced ? `${company} added to tracker - live ✓` : `${company} queued - open dashboard to sync`);
+      if (btn) { btn.textContent = resp.liveSynced ? '✓ Live synced' : '✓ Queued'; btn.disabled = true; }
       loadExportCount();
       logUsage('/outreach-sync', company);
     } else {
@@ -331,8 +362,8 @@ function syncToPipeline() {
   chrome.runtime.sendMessage({ action: 'syncPipeline', data: { company, role, score: total } }, resp => {
     const btn = document.getElementById('btn-sync-pipeline');
     if (resp?.added) {
-      toast(`${company} added to pipeline ✓`);
-      if (btn) { btn.textContent = '✓ In pipeline'; btn.disabled = true; }
+      toast(resp.liveSynced ? `${company} added to pipeline - live ✓` : `${company} queued - open dashboard to sync`);
+      if (btn) { btn.textContent = resp.liveSynced ? '✓ Live synced' : '✓ Queued'; btn.disabled = true; }
       loadExportCount();
       logUsage('/pipeline-sync', company);
     } else {
@@ -559,7 +590,7 @@ function switchTab(id) {
   if (tab) tab.classList.add('active');
   if (panel) panel.classList.add('active');
   if (id === 'history') loadHistory();
-  if (id === 'nudges') { loadNudges(); loadExportCount(); loadGistConfig(); }
+  if (id === 'nudges') { loadNudges(); loadExportCount(); loadGistConfig(); loadDashboardConfig(); }
 }
 
 // ── TOAST ─────────────────────────────────────────────

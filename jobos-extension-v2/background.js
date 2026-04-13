@@ -114,6 +114,69 @@ async function checkNudges() {
   });
 }
 
+// ── LIVE DASHBOARD SYNC ───────────────────────────────
+// Injects directly into the open dashboard tab's localStorage so items
+// appear immediately without the manual JSON export/paste step.
+const DASHBOARD_KEY = 'jobos_dashboard_url';
+
+async function tryLiveSyncToDashboard(type, item) {
+  return new Promise(resolve => {
+    chrome.storage.local.get(DASHBOARD_KEY, data => {
+      const dashUrl = data[DASHBOARD_KEY];
+      if (!dashUrl) { resolve(false); return; }
+
+      // Find an open tab whose URL starts with the configured dashboard URL
+      chrome.tabs.query({}, tabs => {
+        const tab = tabs.find(t => t.url && t.url.startsWith(dashUrl));
+        if (!tab) { resolve(false); return; }
+
+        chrome.scripting.executeScript({
+          target: { tabId: tab.id },
+          world: 'MAIN',   // access the dashboard's own globals (render functions)
+          func: (type, item) => {
+            try {
+              if (type === 'pipeline') {
+                const raw = localStorage.getItem('jobos_v3');
+                const state = raw ? JSON.parse(raw) : { pipeline: [], history: [], scores: [], stats: {} };
+                state.pipeline = state.pipeline || [];
+                const exists = state.pipeline.some(r =>
+                  r.company?.toLowerCase() === item.company?.toLowerCase() &&
+                  r.role?.toLowerCase() === item.role?.toLowerCase()
+                );
+                if (exists) return false;
+                state.pipeline.push(item);
+                localStorage.setItem('jobos_v3', JSON.stringify(state));
+                if (typeof renderPipelineMini === 'function') renderPipelineMini();
+                if (typeof buildPipelinePrompt === 'function') buildPipelinePrompt();
+                return true;
+              }
+              if (type === 'outreach') {
+                const raw = localStorage.getItem('jobos_outreach_v1');
+                const state = raw ? JSON.parse(raw) : { contacts: [], dailyLog: {} };
+                state.contacts = state.contacts || [];
+                const exists = state.contacts.some(c =>
+                  c.company?.toLowerCase() === item.company?.toLowerCase()
+                );
+                if (exists) return false;
+                state.contacts.push(item);
+                localStorage.setItem('jobos_outreach_v1', JSON.stringify(state));
+                if (typeof renderOutreachTable === 'function') renderOutreachTable();
+                if (typeof updateOutreachMetrics === 'function') updateOutreachMetrics();
+                return true;
+              }
+              return false;
+            } catch(e) { return false; }
+          },
+          args: [type, item]
+        }, results => {
+          if (chrome.runtime.lastError) { resolve(false); return; }
+          resolve(results?.[0]?.result === true);
+        });
+      });
+    });
+  });
+}
+
 // ── MESSAGE HANDLER ───────────────────────────────────
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg.action === 'getNudgeCount') {
@@ -121,8 +184,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     return true;
   }
   if (msg.action === 'syncOutreach') {
-    // Called from popup when user scores a role - save to shared key
-    chrome.storage.local.get(OUTREACH_SYNC_KEY, data => {
+    chrome.storage.local.get(OUTREACH_SYNC_KEY, async data => {
       const existing = data[OUTREACH_SYNC_KEY] || { contacts: [], lastUpdated: null };
       const contacts = existing.contacts || [];
       const { company, role, score, pov } = msg.data;
@@ -131,7 +193,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         c.company?.toLowerCase() === company?.toLowerCase()
       );
       if (!alreadyExists) {
-        contacts.push({
+        const item = {
           id: Date.now(),
           company,
           role: role || '',
@@ -143,11 +205,13 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
           status: 'Not Started',
           selected: false,
           scoreFromExt: score
-        });
+        };
+        contacts.push(item);
         existing.contacts = contacts;
         existing.lastUpdated = new Date().toISOString();
-        chrome.storage.local.set({ [OUTREACH_SYNC_KEY]: existing }, () => {
-          sendResponse({ added: true });
+        chrome.storage.local.set({ [OUTREACH_SYNC_KEY]: existing }, async () => {
+          const liveSynced = await tryLiveSyncToDashboard('outreach', item);
+          sendResponse({ added: true, liveSynced });
         });
       } else {
         sendResponse({ added: false, reason: 'already exists' });
@@ -156,7 +220,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     return true;
   }
   if (msg.action === 'syncPipeline') {
-    chrome.storage.local.get(OUTREACH_SYNC_KEY, data => {
+    chrome.storage.local.get(OUTREACH_SYNC_KEY, async data => {
       const existing = data[OUTREACH_SYNC_KEY] || { contacts: [], pipeline: [], lastUpdated: null };
       const pipeline = existing.pipeline || [];
       const { company, role, score } = msg.data;
@@ -165,7 +229,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         r.company?.toLowerCase() === company?.toLowerCase() && r.role?.toLowerCase() === role?.toLowerCase()
       );
       if (!alreadyExists) {
-        pipeline.push({
+        const item = {
           id: Date.now(),
           company,
           role: role || '',
@@ -175,11 +239,13 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
           nextStep: 'Awaiting response',
           addedAt: new Date().toISOString(),
           scoreFromExt: score
-        });
+        };
+        pipeline.push(item);
         existing.pipeline = pipeline;
         existing.lastUpdated = new Date().toISOString();
-        chrome.storage.local.set({ [OUTREACH_SYNC_KEY]: existing }, () => {
-          sendResponse({ added: true });
+        chrome.storage.local.set({ [OUTREACH_SYNC_KEY]: existing }, async () => {
+          const liveSynced = await tryLiveSyncToDashboard('pipeline', item);
+          sendResponse({ added: true, liveSynced });
         });
       } else {
         sendResponse({ added: false, reason: 'already exists' });

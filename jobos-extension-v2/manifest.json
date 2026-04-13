@@ -8,7 +8,8 @@
     "https://*.linkedin.com/*","https://*.greenhouse.io/*","https://*.lever.co/*",
     "https://*.ashbyhq.com/*","https://jobs.ashbyhq.com/*","https://*.workday.com/*",
     "https://*.indeed.com/*","https://*.glassdoor.com/*","https://*.builtin.com/*",
-    "https://*.wellfound.com/*","https://raw.githubusercontent.com/*"
+    "https://*.wellfound.com/*","https://raw.githubusercontent.com/*",
+    "https://samuraiman2026.github.io/*"
   ],
   "action": {
     "default_popup": "popup.html",
