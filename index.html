@@ -400,6 +400,7 @@ select { appearance: none; cursor: pointer; }
         <div class="panel-eyebrow" id="dash-eyebrow">-</div>
         <div class="panel-title">Pranjal's command center</div>
         <div class="panel-sub">Your full job search at a glance. Pick a workflow to start.</div>
+        <div id="ext-sync-status" style="margin-top:8px;font-family:var(--mono);font-size:10px;color:var(--text3);"></div>
       </div>
 
       <div class="metrics-grid">
@@ -4018,6 +4019,7 @@ function init() {
   document.getElementById('m-active').textContent = STATE.pipeline.length;
   initOutreach();
   renderPostHistory();
+  renderExtSyncStatus();
   // Pre-load digest config into fields
   const dcfg = loadDigestConfig();
   const setV = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
@@ -4413,6 +4415,29 @@ function addContact() {
 init();
 checkExtensionSync();
 
+// ── EXTENSION SYNC STATUS ────────────────────────────
+const EXT_SYNC_KEY = 'jobos_ext_sync_ts';
+
+function setExtSyncStatus(label, isLive) {
+  const ts = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  const date = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  const text = `${isLive ? '● ' : '○ '}${label} · ${date}, ${ts}`;
+  localStorage.setItem(EXT_SYNC_KEY, JSON.stringify({ text, live: isLive }));
+  renderExtSyncStatus();
+}
+
+function renderExtSyncStatus() {
+  const el = document.getElementById('ext-sync-status');
+  if (!el) return;
+  const raw = localStorage.getItem(EXT_SYNC_KEY);
+  if (!raw) { el.textContent = ''; return; }
+  try {
+    const { text, live } = JSON.parse(raw);
+    el.textContent = text;
+    el.style.color = live ? 'var(--accent2)' : 'var(--text3)';
+  } catch(e) { el.textContent = ''; }
+}
+
 // ── EXTENSION AUTO-SYNC ───────────────────────────────
 // On every dashboard load, if the Job Search OS extension is installed,
 // pull any queued pipeline/outreach items and import them automatically.
@@ -4472,6 +4497,9 @@ function checkExtensionSync() {
         renderOutreachTable();
         updateOutreachMetrics();
         toast(`Auto-synced ${total} item${total === 1 ? '' : 's'} from extension`);
+        setExtSyncStatus(`Synced ${total} item${total === 1 ? '' : 's'} from extension`, true);
+      } else {
+        setExtSyncStatus('Extension connected · no new items', false);
       }
     });
   } catch(e) { /* extension not installed or not reachable */ }
