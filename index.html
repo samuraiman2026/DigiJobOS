@@ -2322,10 +2322,7 @@ function buildScoreAngles(jd, total) {
 function buildScorePrompt(company, jd) {
   const prompt = `Score this JD against my BD/Partnerships profile.
 
-My background: Huawei (0-to-1 ISV ecosystem, 1,000+ partners, $1M→$100M revenue,
-Kirin 9000/Edge AI, 2x President's Award), Qualia (API product BD, $20M pipeline,
-$9M closed at 120% of goal), Pandora ($155M/$40M/$10M new channels, OEM: Sony/
-Microsoft/Honda), BTech Computer Engineering, Bell Labs, PMSV advisory (current).
+My background (metrics, career history, and interview stories) is available in CLAUDE.md. Use that context for this prompt.
 
 ${company ? 'Role: ' + company : ''}
 JD: ${jd || '[paste JD here]'}
@@ -2439,7 +2436,7 @@ ${jd ? 'JD:\n' + jd : ''}
 Bullet selection guidance for this role type (${type}):
 ${bulletGuidance}
 
-My full background: Huawei (0-to-1 ISV ecosystem, 1,000+ partners, $1M→$100M, Kirin 9000/Edge AI, 2x President's Award), Qualia (API BD, $20M pipeline, $9M at 120%, 60% win rate, first BD hire), Pandora ($155M/$40M/$10M new channels, OEM: Sony/Samsung/Honda/Microsoft), Mobclix ($16M, 185% YoY, 30B impressions), Sony Mobile (first $10M Android ad revenue, 16 markets), PMSV (Adyogi +16% distribution, Wove first 3 enterprise partners in 90 days, MobiOffice +7% conversion), BTech Computer Engineering, Bell Labs, PMSV advisory active.
+My background (metrics, career history, and interview stories) is available in CLAUDE.md. Use that context for this prompt.
 
 Contact context: ${contact === 'none' ? 'No warm contact — cold referral strategy needed' : contact === 'weak' ? 'Weak 2nd-degree connection — warm outreach angle needed' : 'Strong 1st-degree contact — referral path available'}
 
@@ -2490,7 +2487,7 @@ function runPrep() {
 Round: ${round} | Interviewer: ${interviewer}
 ${worry ? 'Specific concern: ' + worry : ''}
 
-My background: Huawei (0-to-1 ISV ecosystem, 1,000+ ISVs, $1M→$100M, Kirin 9000 on-device AI, 2x President's Award, team of 8), Qualia (API product BD, $20M pipeline, $9M at 120%, 60% win rate, first BD hire), Pandora ($155M/$40M/$10M new channels, OEM: Sony/Samsung/Honda), Mobclix ($16M, 185% YoY), Sony Mobile (first $10M Android revenue, 16 markets), PMSV advisory, BTech Computer Engineering, Bell Labs, AI Partnership Stack framework.
+My background (career metrics, Huawei/Qualia/Pandora history, and 5 STAR stories A-E) is in CLAUDE.md. Use that context for this prompt.
 
 Please search the web for: (a) recent news about ${role.split('—')[0].trim()}, (b) interviewer background if name provided.
 
@@ -2562,7 +2559,7 @@ ${qs ? '\nQuestions asked:\n' + qs : ''}
 ${notes ? '\nKey moments:\n' + notes : ''}
 Gut read: ${gut}
 
-My background for scoring context: Huawei (0-to-1 ISV ecosystem, 1,000+ ISVs, $1M→$100M, Kirin 9000 on-device AI), Qualia (API BD, $9M at 120%, first BD hire), Pandora ($200M+ new channels, OEM: Sony/Samsung/Honda), Mobclix ($16M, 185% YoY), Sony Mobile (first $10M, 16 markets), PMSV advisory, BTech/Bell Labs.
+My background for context (Huawei, Qualia, Pandora) is in CLAUDE.md. Use that context for this prompt.
 
 Generate:
 1. Score each answer: Relevance (1-5), Specificity (1-5), Impact clarity (1-5)
@@ -2627,7 +2624,7 @@ function runPattern() {
   const prompt = `Analyze my BD/Partnerships interview patterns.
 ${log ? '\nDebrief history:\n' + log : '\n[No debrief history yet — prime with known gaps for senior BD candidates]'}
 
-My background: Huawei ISV ecosystem (0-to-1, 1,000+ ISVs, $1M→$100M), Qualia API BD (first BD hire, $9M 120%), Pandora OEM channels ($200M+), Mobclix SSP ($16M, 185% YoY), Sony Mobile (first $10M, 16 markets), PMSV advisory.
+My 15+ years of BD metrics (Huawei, Qualia, Pandora, PMSV) are in CLAUDE.md. Use that context for this prompt.
 
 My 5 stories: A=Huawei ISV, B=Qualia API, C=Pandora channels/OEM, D=PMSV+AI Stack, E=Sony/Mobclix.
 
@@ -3199,7 +3196,7 @@ Nudge strategy: ${path.nudge}` : 'No warm path mapped — need cold outreach str
 ${contact?.contact ? `\nNamed contact: ${contact.contact}` : ''}
 ${contact?.pov ? `\nMy POV / value add: ${contact.pov}` : ''}
 
-My background: Huawei (0-to-1 ISV ecosystem, 1,000+ ISVs, $1M→$100M, Kirin 9000 Edge AI, 2x President's Award), Qualia (API BD, $9M at 120%, first BD hire), Pandora ($200M+ new channels, OEM: Sony/Samsung/Honda), PMSV advisory active.
+My background metrics (Huawei, Qualia, Pandora) are available in CLAUDE.md. Use that context for this prompt.
 
 My network assets: Ex-Huawei ISV partners (Pinterest, Shazam, Adobe, Meta, Airbnb), Pandora OEM contacts (Sony, Samsung, Honda, Microsoft), Qualia fintech network, AI Collective alumni, Pavilion GTM community.
 
@@ -3277,7 +3274,7 @@ function generateDigestPrompt() {
 
   const prompt = `Run my daily BD/Partnerships job search digest for ${rangeLabel}.
 
-My background: Huawei (0-to-1 ISV ecosystem, 1,000+ ISVs, $1M→$100M, Kirin 9000/Edge AI), Qualia (API BD, $9M at 120%, first BD hire), Pandora ($200M+ new channels, OEM: Sony/Samsung/Honda), PMSV advisory.
+My full background and metrics (Huawei, Qualia, Pandora) are in CLAUDE.md. Use that context for this prompt.
 ${inclJobs ? `
 SECTION 1 — NEW JOB ALERTS:
 Search my Gmail for emails from jobalerts-noreply@linkedin.com and similar job alert senders from ${rangeLabel}.
@@ -3415,7 +3412,7 @@ const PILLAR_CONFIGS = {
 
 Hook style: ${hook}
 
-My credentials: Built 1,000+ ISV ecosystem at Huawei (Kirin 9000 Edge AI), first BD hire at Qualia (fintech API platform, $9M at 120%), Pandora OEM ecosystem (Sony/Samsung/Honda). Created the AI Partnership Stack framework for practitioners navigating the shift from SaaS to AI-native BD.
+My credentials and real-world metrics (Huawei, Qualia, Pandora) are in CLAUDE.md. Use that context for this post.
 
 The 6-layer framework:
 1. Intelligence core (model layer — sets constraints on partnership strategy)
@@ -3520,7 +3517,7 @@ Post requirements:
 Myth: "${myth}"
 Reality: "${reality}"
 
-My credentials: Ran ISV programs at scale (1,000+ ISVs, Huawei), first BD hire building from zero (Qualia), incubated $200M+ in new revenue channels (Pandora).
+My credentials and metrics (Huawei, Qualia, Pandora) are available in CLAUDE.md. Use that context for this post.
 
 Post requirements:
 — 150–250 words
@@ -4477,7 +4474,7 @@ Draft a LinkedIn outreach message under 80 words for ${c.company}.
 - Specific, not a template`;
   }).join('\n\n');
 
-  const fullPrompt = `Generate personalized outreach messages for these ${selected.length} companies.\n\nMy background: Huawei (0-to-1 ISV ecosystem, 1,000+ partners, $1M→$100M, Kirin 9000/Edge AI), Qualia (API BD, $9M at 120%, first BD hire), Pandora ($200M+ new channels, OEM: Sony/Samsung/Honda), PMSV advisory (active). BD/Partnerships, 15+ years.\n\n${prompts}`;
+  const fullPrompt = `Generate personalized outreach messages for these ${selected.length} companies.\n\nMy full BD/Partnerships background and metrics (Huawei, Qualia, Pandora, PMSV) are available in CLAUDE.md. Use that context for this prompt.\n\n${prompts}`;
 
   const el = document.getElementById('ot-prompt-text');
   const outWrap = document.getElementById('ot-prompt-out');
