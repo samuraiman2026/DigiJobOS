@@ -1,5 +1,5 @@
 # Job Search OS - BD/Partnerships Edition
-**Version 4.2 · April 2026**
+**Version 4.3 · April 2026**
 
 A personal job search operating system built on Claude. Not a prompt library. Not a chatbot. A persistent, connected workspace that knows who you are, reads your calendar and email, tracks your outreach, generates tailored resumes, maps your referral network, and runs structured interactive workflows on command.
 
@@ -43,13 +43,15 @@ Claude should respond with your Huawei/Qualia/Pandora background and core metric
 
 ---
 
-## Token Optimization (New in v4.2)
+## Token Optimization (Updated v4.3)
 
-Version 4.2 is engineered for **extreme token efficiency**. By splitting the knowledge base into three files (`CLAUDE.md`, `BULLET_LIBRARY.md`, `WORKFLOW_GUIDE.md`) and using **XML-tagged structural prompting**, the system now consumes ~75% fewer tokens per turn.
+The system is engineered for **extreme token efficiency** through architectural partitioning and XML-tagged structural prompting.
 
-- **`CLAUDE.md` (The Brain)**: Loaded every turn. Contains only essential identity and metrics.
-- **`BULLET_LIBRARY.md` (The Data)**: Only accessed when building or refining resumes.
-- **`WORKFLOW_GUIDE.md` (The Logic)**: Instructions for slash commands are stored here, so they don't need to be sent in every prompt.
+- **`CLAUDE.md` (The Brain)**: Loaded every turn. Contains only essential identity, metrics, and behavioral instructions - **38% smaller in v4.3** after moving the Resume Relevance Mapping to `BULLET_LIBRARY.md`.
+- **`BULLET_LIBRARY.md` (The Data)**: Contains all resume bullets plus the Resume Relevance Mapping. Only accessed when building or refining resumes.
+- **`WORKFLOW_GUIDE.md` (The Logic)**: All slash command instructions. Prompts reference this file instead of repeating logic inline.
+
+**After each update to these files, re-upload them to your Claude Project knowledge base.**
 
 ---
 
@@ -74,6 +76,7 @@ Version 4.2 is engineered for **extreme token efficiency**. By splitting the kno
 
 | Version | Date | What changed |
 |---|---|---|
+| v4.3 | April 13, 2026 | **Sync bug fix**: imported contacts and pipeline roles now appear immediately in the dashboard without re-navigating. **Extension fix**: pipeline sync button now displays correctly (flex layout). **Token optimization**: CLAUDE.md reduced 38% - Resume Relevance Mapping moved to BULLET_LIBRARY.md, redundant Slash Commands section removed. |
 | v4.2 | April 13, 2026 | **Renamed dashboard to `index.html`** for GitHub Pages. Added **password gate**. **Full Token Optimization**: Split knowledge base into 3 files. Implemented **XML structural prompting**. Removed all JD/email truncation limits. Standardized punctuation (no em-dashes). **Direct pipeline sync from extension.** |
 | v4.1 | April 12, 2026 | MV3 Extension fix. Pipeline strike-through. Outreach "Not Interested" logic. `/export` weekly Sheets panel. |
 | v4.0 | April 11, 2026 | New Tools: `/sync`, `/network`, `/digest`, `/post`. |
