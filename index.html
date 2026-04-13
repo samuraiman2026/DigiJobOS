@@ -4412,11 +4412,11 @@ function addContact() {
   ['ac-company','ac-role','ac-contact','ac-pov','ac-date'].forEach(id => document.getElementById(id).value = '');
 }
 
-init();
-checkExtensionSync();
-
 // ── EXTENSION SYNC STATUS ────────────────────────────
 const EXT_SYNC_KEY = 'jobos_ext_sync_ts';
+
+init();
+checkExtensionSync();
 
 function setExtSyncStatus(label, isLive) {
   const ts = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
