@@ -271,3 +271,16 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     return true;
   }
 });
+
+// ── EXTERNAL MESSAGES (from dashboard page) ───────────
+// Dashboard calls chrome.runtime.sendMessage(JOBOS_EXT_ID, ...) on load
+// to pull any queued pipeline/outreach items without needing a tab open.
+chrome.runtime.onMessageExternal.addListener((msg, sender, sendResponse) => {
+  if (msg.action === 'getPendingSync') {
+    chrome.storage.local.get(OUTREACH_SYNC_KEY, data => {
+      const payload = data[OUTREACH_SYNC_KEY] || { contacts: [], pipeline: [] };
+      sendResponse({ contacts: payload.contacts || [], pipeline: payload.pipeline || [] });
+    });
+    return true;
+  }
+});

@@ -4411,6 +4411,71 @@ function addContact() {
 }
 
 init();
+checkExtensionSync();
+
+// ── EXTENSION AUTO-SYNC ───────────────────────────────
+// On every dashboard load, if the Job Search OS extension is installed,
+// pull any queued pipeline/outreach items and import them automatically.
+function checkExtensionSync() {
+  const extId = window.JOBOS_EXT_ID;
+  if (!extId || typeof chrome === 'undefined' || !chrome.runtime?.sendMessage) return;
+  try {
+    chrome.runtime.sendMessage(extId, { action: 'getPendingSync' }, resp => {
+      if (chrome.runtime.lastError || !resp) return;
+      const incomingContacts = resp.contacts || [];
+      const incomingPipeline = resp.pipeline || [];
+      let contactsAdded = 0, pipelineAdded = 0;
+
+      incomingContacts.forEach(c => {
+        const exists = OT_STATE.contacts.some(x => x.company?.toLowerCase() === c.company?.toLowerCase());
+        if (!exists && c.company) {
+          OT_STATE.contacts.push({
+            id: Date.now() + Math.random(),
+            company: c.company,
+            tier: c.tier || (c.scoreFromExt >= 75 ? '1' : '2'),
+            role: c.role || '',
+            contact: c.contact || '',
+            pov: c.pov || (c.scoreFromExt ? `Scored ${c.scoreFromExt}% in extension` : ''),
+            followups: 0,
+            lastOutreach: c.lastOutreach || '',
+            status: c.status || 'Not Started',
+            selected: false
+          });
+          contactsAdded++;
+        }
+      });
+
+      incomingPipeline.forEach(r => {
+        const exists = STATE.pipeline.some(x =>
+          x.company?.toLowerCase() === r.company?.toLowerCase() &&
+          x.role?.toLowerCase() === r.role?.toLowerCase()
+        );
+        if (!exists && r.company) {
+          STATE.pipeline.push({
+            id: Date.now() + Math.random(),
+            company: r.company,
+            role: r.role || 'BD Role',
+            stage: r.stage || 'Applied',
+            health: r.health || 'green',
+            lastAction: r.lastAction || new Date().toLocaleDateString('en-US', { month:'short', day:'numeric' }),
+            nextStep: r.nextStep || 'Awaiting response'
+          });
+          pipelineAdded++;
+        }
+      });
+
+      if (contactsAdded > 0) saveOutreach();
+      if (pipelineAdded > 0) saveState();
+      const total = contactsAdded + pipelineAdded;
+      if (total > 0) {
+        renderPipelineMini();
+        renderOutreachTable();
+        updateOutreachMetrics();
+        toast(`Auto-synced ${total} item${total === 1 ? '' : 's'} from extension`);
+      }
+    });
+  } catch(e) { /* extension not installed or not reachable */ }
+}
 
 </script>
 </body>
