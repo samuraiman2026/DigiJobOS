@@ -4442,11 +4442,26 @@ function renderExtSyncStatus() {
 // On every dashboard load, if the Job Search OS extension is installed,
 // pull any queued pipeline/outreach items and import them automatically.
 function checkExtensionSync() {
-  const extId = window.JOBOS_EXT_ID;
-  if (!extId || typeof chrome === 'undefined' || !chrome.runtime?.sendMessage) return;
+  const extId = window.JOBOS_EXT_ID || document.documentElement.dataset.jobosExtId;
+  const el = document.getElementById('ext-sync-status');
+  if (!extId) {
+    if (el) { el.textContent = '○ Extension not detected - install Job Search OS extension'; el.style.color = 'var(--text3)'; }
+    return;
+  }
+  if (typeof chrome === 'undefined' || !chrome.runtime?.sendMessage) {
+    if (el) { el.textContent = '○ Extension messaging unavailable (open via https)'; el.style.color = 'var(--text3)'; }
+    return;
+  }
   try {
     chrome.runtime.sendMessage(extId, { action: 'getPendingSync' }, resp => {
-      if (chrome.runtime.lastError || !resp) return;
+      if (chrome.runtime.lastError) {
+        if (el) { el.textContent = '○ Extension unreachable - reload extension at chrome://extensions'; el.style.color = 'var(--amber)'; }
+        return;
+      }
+      if (!resp) {
+        if (el) { el.textContent = '○ No response from extension'; el.style.color = 'var(--amber)'; }
+        return;
+      }
       const incomingContacts = resp.contacts || [];
       const incomingPipeline = resp.pipeline || [];
       let contactsAdded = 0, pipelineAdded = 0;
