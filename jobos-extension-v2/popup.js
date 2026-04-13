@@ -365,7 +365,7 @@ function syncToPipeline() {
   const company = jobData.company || 'Unknown';
   const role = jobData.title || '';
   const total = parseInt(document.getElementById('p-total').textContent) || 0;
-  chrome.runtime.sendMessage({ action: 'syncPipeline', data: { company, role, score: total } }, resp => {
+  chrome.runtime.sendMessage({ action: 'syncPipeline', data: { company, role, score: total, url: jobData.url || '' } }, resp => {
     if (chrome.runtime.lastError) { toast('Sync error - try again'); return; }
     const btn = document.getElementById('btn-sync-pipeline');
     if (resp?.added) {

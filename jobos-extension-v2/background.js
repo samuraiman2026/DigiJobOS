@@ -224,7 +224,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     chrome.storage.local.get(OUTREACH_SYNC_KEY, async data => {
       const existing = data[OUTREACH_SYNC_KEY] || { contacts: [], pipeline: [], lastUpdated: null };
       const pipeline = existing.pipeline || [];
-      const { company, role, score } = msg.data;
+      const { company, role, score, url } = msg.data;
 
       const alreadyExists = pipeline.some(r =>
         r.company?.toLowerCase() === company?.toLowerCase() && r.role?.toLowerCase() === role?.toLowerCase()
@@ -234,6 +234,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
           id: Date.now(),
           company,
           role: role || '',
+          url: url || '',
           stage: 'Applied',
           health: score >= 75 ? 'green' : score >= 50 ? 'amber' : 'red',
           lastAction: new Date().toLocaleDateString('en-US', { month:'short', day:'numeric' }),
