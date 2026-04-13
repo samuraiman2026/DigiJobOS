@@ -250,7 +250,12 @@ function buildAngles(jd) {
 
 // ── PROMPT BUILDERS ───────────────────────────────────
 function buildScorePrompt(title, company, jd) {
-  return `Score this JD against my BD/Partnerships profile.\n\nMy background: ${profile.background}\n\n${company?'Company: '+company:''}${title?'\nRole: '+title:''}\n${jd?'\nJD:\n'+jd.substring(0,3000):''}\n\nScore 1-10 on each (show visual bars):\n1. Ecosystem/partner motion match (25%)\n2. 0-to-1 builder requirement (25%)\n3. Technical BD depth needed (20%)\n4. AI-native/Edge AI angle (20%)\n5. Seniority and scope match (10%)\n\nOverall weighted score + verdict: apply now / apply with bridge / pass.\nMy 2 strongest angles + biggest gap for this specific role.`;
+  return `Run /score for this role using the rules in WORKFLOW_GUIDE.md.
+
+<role>${company ? company + ' — ' + title : title || '[role]'}</role>
+<jd>
+${jd || '[paste JD here]'}
+</jd>`;
 }
 
 function generateApply() {
@@ -258,9 +263,18 @@ function generateApply() {
   const type = document.getElementById('p-apply-type').value;
   const contact = document.getElementById('p-apply-contact').value;
   const role = jobData ? `${jobData.company} — ${jobData.title}` : 'this role';
-  const jd = jobData?.jobText || '';
+  const jd = jobData?.jobText || document.getElementById('manual-jd').value;
   const bm = profile.bulletMap?.[type] || '';
-  prompts.apply = `Run my full BD/Partnerships application workflow.\n\nRole: ${role}\n${jd?'JD:\n'+jd.substring(0,2500):''}\n\nMy background: ${profile.background}\n\nBullet selection (${type}): ${bm}\n\nContact: ${contact==='none'?'No warm contact — cold referral strategy needed':contact==='weak'?'Weak 2nd-degree — warm outreach angle needed':'Strong 1st-degree contact — referral path available'}\n\nDeliver: (1) JD analysis, (2) resume restructure 4-5 bullets per role, (3) gap bridge, (4) referral strategy, (5) cover note with one specific hook.`;
+  
+  prompts.apply = `Run /apply for this role using the rules in WORKFLOW_GUIDE.md.
+
+<role>${role}</role>
+<jd>
+${jd}
+</jd>
+<bullet_guidance>${bm}</bullet_guidance>
+<contact_context>${contact==='none'?'No warm contact — cold referral strategy needed':contact==='weak'?'Weak 2nd-degree — warm outreach angle needed':'Strong 1st-degree contact — referral path available'}</contact_context>`;
+
   const el = document.getElementById('apply-out');
   el.textContent = prompts.apply; el.style.display = 'block';
   document.getElementById('apply-copy').style.display = 'flex';
@@ -270,7 +284,17 @@ function generateApply() {
 function generateBrief() {
   const pipeline = document.getElementById('p-brief-pipeline').value.trim();
   const followups = document.getElementById('p-brief-followups').value.trim();
-  prompts.brief = `Good morning. Run my daily BD/Partnerships job search briefing.\n\nMy pipeline:\n${pipeline||'Nothing.tech — awaiting HM scheduling\nMicrosoft — applied, seeking referral\nEmissary — active conversations\nTuring — monitoring'}\n\nPending follow-ups:\n${followups||'None flagged'}\n\nGenerate:\n1. Top 3 actions for today, ranked by impact\n2. Any roles going cold that need immediate action\n3. Referral outreach I should send today\n4. One-line status on each active role\n\nKeep it to a 90-second read. Game plan, not a report.`;
+  
+  prompts.brief = `Run /brief using the rules in WORKFLOW_GUIDE.md.
+
+<pipeline>
+${pipeline || 'Reference my current pipeline in CLAUDE.md if not provided here.'}
+</pipeline>
+
+<overdue_followups>
+${followups || 'None flagged.'}
+</overdue_followups>`;
+
   const el = document.getElementById('brief-out');
   el.textContent = prompts.brief; el.style.display = 'block';
   document.getElementById('brief-copy').style.display = 'flex';

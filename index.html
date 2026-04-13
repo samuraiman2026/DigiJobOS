@@ -2781,7 +2781,7 @@ function rvGetActive() {
 }
 
 function rvMkPrompt(bs,ctx) {
-  return `Rewrite these resume bullets for: ${RV.role||'[role]'} at ${RV.company||'[company]'}.\n\n${RV.jd?'JD:\n'+RV.jd.substring(0,1500)+'\n\n':''}${ctx?'Extra context: '+ctx+'\n\n':''}Bullets:\n${bs.map(b=>'['+b.role+'] '+b.text).join('\n')}\n\nRules: Match JD language exactly where authentic. Preserve every metric unchanged ($20M, 120%, 1,000+, etc). Lead each bullet with impact not activity. Under 40 words per bullet. Output: [Role Label] • rewritten text, one per line.`;
+  return `Rewrite these resume bullets for: ${RV.role||'[role]'} at ${RV.company||'[company]'}.\n\n${RV.jd?'JD:\n'+RV.jd+'\n\n':''}${ctx?'Extra context: '+ctx+'\n\n':''}Bullets:\n${bs.map(b=>'['+b.role+'] '+b.text).join('\n')}\n\nRules: Match JD language exactly where authentic. Preserve every metric unchanged ($20M, 120%, 1,000+, etc). Lead each bullet with impact not activity. Under 40 words per bullet. Output: [Role Label] • rewritten text, one per line.`;
 }
 function rvBuildManualPrompt() {
   const bs=rvGetActive(); const ctx=document.getElementById('rv-ctx')?.value?.trim()||'';
@@ -3256,8 +3256,8 @@ function sendMorningDigest() {
   let jobSection = "";
   threads.forEach(t => {
     const msg = t.getMessages()[0];
-    const body = msg.getPlainBody().substring(0, 3000);
-    jobSection += body.substring(0, 500) + "\\n---\\n";
+    const body = msg.getPlainBody();
+    jobSection += body + "\\n---\\n";
   });
 
   // Search for recruiter replies

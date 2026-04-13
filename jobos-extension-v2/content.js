@@ -52,10 +52,10 @@
     }
 
     // Clean up
-    data.title   = clean(data.title).substring(0, 120);
-    data.company = clean(data.company).substring(0, 80);
-    data.location = clean(data.location).substring(0, 80);
-    data.jobText = clean(data.jobText).substring(0, 6000);
+    data.title   = clean(data.title).substring(0, 200);
+    data.company = clean(data.company).substring(0, 150);
+    data.location = clean(data.location).substring(0, 150);
+    data.jobText = clean(data.jobText).substring(0, 20000);
 
     return data;
   }
