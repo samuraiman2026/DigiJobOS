@@ -361,7 +361,7 @@ select { appearance: none; cursor: pointer; }
     <!-- DASHBOARD -->
     <div class="panel active" id="panel-dashboard">
       <div class="panel-header">
-        <div class="panel-eyebrow">Friday, April 10 · Good morning</div>
+        <div class="panel-eyebrow" id="dash-eyebrow">—</div>
         <div class="panel-title">Pranjal's command center</div>
         <div class="panel-sub">Your full job search at a glance. Pick a workflow to start.</div>
       </div>
@@ -487,18 +487,8 @@ select { appearance: none; cursor: pointer; }
 
       <div style="margin-top:20px;">
         <div class="card card-accent">
-          <div class="card-title" style="margin-bottom:10px;">/pipeline prompt — copy into Claude</div>
-          <div class="prompt-block" id="prompt-pipeline">Review my job search pipeline and tell me what to prioritize this week.
-
-Current pipeline:
-  Nothing.tech — Director BD — Recruiter screen done
-  Microsoft — Sr. Manager Global Partnerships — Applied, seeking referral
-  Emissary — Founding GTM Lead — Active conversations
-  Turing.com — Client Partner AI Startups — Monitoring
-
-Tell me: (1) What is at risk of going cold? (2) What has momentum?
-(3) My top 3 priority actions this week. (4) Any roles to add?
-<button class="prompt-copy-btn" onclick="copyPrompt('prompt-pipeline')">copy</button></div>
+          <div class="card-title" style="margin-bottom:10px;">/pipeline prompt — builds from your live pipeline</div>
+          <div class="prompt-block" id="prompt-pipeline"><span class="output-placeholder">Loading pipeline data...</span><button class="prompt-copy-btn" onclick="copyPrompt('prompt-pipeline')">copy</button></div>
         </div>
       </div>
     </div>
@@ -658,25 +648,30 @@ Tell me: (1) What is at risk of going cold? (2) What has momentum?
       <div class="panel-header">
         <div class="panel-eyebrow">Workflow 00 · /brief</div>
         <div class="panel-title">Morning briefing</div>
-        <div class="panel-sub">Run every morning. Calendar reads automatically. Takes 2 minutes. Tells you exactly what to do today.</div>
+        <div class="panel-sub">Generates a prompt that reads your live calendar, Gmail, and pipeline when pasted into your Claude Project. Takes 30 seconds.</div>
       </div>
 
-      <div class="card card-accent" style="margin-bottom:16px;">
-        <div class="card-title" style="margin-bottom:10px;">Today's schedule (live)</div>
-        <div id="brief-calendar"></div>
+      <div class="card" style="margin-bottom:14px;">
+        <div class="card-title" style="margin-bottom:6px;">What this does</div>
+        <div class="card-body" style="line-height:1.8;font-size:12px;color:var(--text2);">
+          When you paste the generated prompt into your <strong style="color:var(--text);">Job Search OS Claude Project</strong>, Claude will:<br>
+          · Read today's Google Calendar via MCP<br>
+          · Search your Gmail for new LinkedIn alerts + recruiter replies<br>
+          · Pull your live pipeline (auto-included below — no need to type it)<br>
+          · Flag overdue follow-ups from your outreach tracker<br>
+          · Give you your top 3 actions for the day
+        </div>
       </div>
 
+      <div id="brief-calendar"></div>
+
       <div class="input-row">
-        <label class="input-label">Pipeline status (paste current stages)</label>
-        <textarea id="brief-pipeline" rows="3" placeholder="Nothing.tech — awaiting HM scheduling&#10;Microsoft — applied, seeking referral&#10;Emissary — active conversations&#10;Turing — monitoring"></textarea>
-      </div>
-      <div class="input-row">
-        <label class="input-label">Pending follow-ups (anything with no reply in 3+ days)</label>
-        <textarea id="brief-followups" rows="2" placeholder="e.g. Sent LinkedIn DM to Microsoft contact on Tuesday — no reply yet"></textarea>
+        <label class="input-label">Any extra context for today? (optional)</label>
+        <textarea id="brief-followups" rows="2" placeholder="e.g. Following up with Microsoft contact — no reply since Tuesday. Interview with Tenstorrent at 3pm."></textarea>
       </div>
 
       <div class="btn-row">
-        <button class="btn btn-primary" onclick="runBrief()">Generate briefing →</button>
+        <button class="btn btn-primary" onclick="runBrief()">Generate briefing prompt →</button>
       </div>
 
       <div style="margin-top:16px;" id="brief-output-wrap" style="display:none;">
@@ -1508,7 +1503,7 @@ At the start of any session where I ask about my job search, pipeline, or outrea
       </div>
 
       <div class="card card-accent" style="margin-bottom:16px;">
-        <div class="card-title" style="margin-bottom:10px;">Today's digest — April 11, 2026</div>
+        <div class="card-title" style="margin-bottom:10px;" id="digest-date-heading">Today's digest</div>
         <div id="digest-today-content">
           <div style="font-family:var(--mono);font-size:10px;color:var(--text3);">Run the digest below to populate today's report.</div>
         </div>
@@ -1863,7 +1858,7 @@ function nav(id) {
   if (panel) panel.classList.add('active');
   if (navBtn) navBtn.classList.add('active');
   if (id === 'brief') loadCalendarForBrief();
-  if (id === 'pipeline') renderPipeline();
+  if (id === 'pipeline') { renderPipeline(); buildPipelinePrompt(); }
   if (id === 'history') renderHistory();
   if (id === 'dashboard') { renderPipelineMini(); renderActivityGrid(); }
   if (id === 'outreach') { renderOutreachTable(); updateOutreachMetrics(); renderVelocityChart(); renderStatusBreakdown(); }
@@ -1877,52 +1872,58 @@ function nav(id) {
 async function loadCalendarForBrief() {
   const el = document.getElementById('brief-calendar');
   if (!el) return;
-  el.innerHTML = '<div class="loading" style="font-family:var(--mono);font-size:10px;color:var(--text3);">Reading calendar...</div>';
-  // Calendar data already fetched earlier in session — using known data
-  const events = [
-    { time: '2:30 PM', name: 'veemee chat — Pranjal & Schyler VerSteeg', type: 'networking' },
-    { time: '3:00 PM', name: 'veemee chat — Pranjal & Tania Guiloff', type: 'networking', flag: '⚠ overlap' },
-    { time: '11:00 PM', name: 'Satsang (recurring)', type: 'personal' }
-  ];
-  el.innerHTML = events.map(e => `
-    <div class="cal-event">
-      <span class="cal-time">${e.time}</span>
-      <span class="cal-name">${e.name}${e.flag ? ' <span style="color:var(--amber);font-size:10px;">'+e.flag+'</span>' : ''}</span>
-      <span class="cal-type">${e.type}</span>
-    </div>`).join('');
+  el.innerHTML = `
+    <div style="background:var(--bg3);border:1px solid var(--border);border-left:2px solid var(--accent2);border-radius:var(--r);padding:10px 12px;margin-bottom:12px;">
+      <div style="font-family:var(--mono);font-size:9px;color:var(--accent);text-transform:uppercase;margin-bottom:4px;">Calendar — live via Claude Project</div>
+      <div style="font-size:12px;color:var(--text2);line-height:1.6;">This dashboard can't read Google Calendar directly. Copy the prompt below and paste it into your <strong style="color:var(--text);">Job Search OS Claude Project</strong> — Claude will read your live calendar via the Google Calendar MCP connector.</div>
+    </div>`;
 }
 
 function renderDashboardCalendar() {
   const el = document.getElementById('calendar-today');
   if (!el) return;
-  const events = [
-    { time: '2:30 PM', name: 'Schyler VerSteeg — veemee', type: 'networking' },
-    { time: '3:00 PM', name: 'Tania Guiloff — veemee ⚠', type: 'networking' },
-    { time: '11:00 PM', name: 'Satsang', type: 'personal' }
-  ];
-  el.innerHTML = events.map(e => `
-    <div class="cal-event">
-      <span class="cal-time">${e.time}</span>
-      <span class="cal-name">${e.name}</span>
-      <span class="cal-type">${e.type}</span>
-    </div>`).join('');
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' });
+  el.innerHTML = `
+    <div style="padding:10px 0 6px;border-top:1px solid var(--border);margin-top:8px;">
+      <div style="font-family:var(--mono);font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;">${dateStr}</div>
+      <div style="background:var(--bg3);border:1px solid var(--border);border-left:2px solid var(--accent2);border-radius:var(--r);padding:10px 12px;">
+        <div style="font-size:12px;color:var(--text2);line-height:1.7;">
+          To see today's calendar, open your <strong style="color:var(--text);">Job Search OS Claude Project</strong> and run:<br>
+          <span style="font-family:var(--mono);font-size:10px;color:var(--accent);background:var(--bg4);padding:3px 8px;border-radius:3px;display:inline-block;margin-top:4px;">What's on my calendar today?</span>
+        </div>
+        <div style="font-family:var(--mono);font-size:9px;color:var(--text3);margin-top:8px;">Google Calendar reads live via MCP in the Claude Project — not available in this local HTML file.</div>
+      </div>
+    </div>`;
 }
 
 // ==================== PIPELINE ====================
 function renderPipeline() {
   const tbody = document.getElementById('pipeline-tbody');
   if (!tbody) return;
+  if (!STATE.pipeline.length) {
+    tbody.innerHTML = `<tr><td colspan="8" style="padding:24px;text-align:center;font-family:var(--mono);font-size:11px;color:var(--text3);">No roles in pipeline. Click + Add role to get started.</td></tr>`;
+    return;
+  }
   tbody.innerHTML = STATE.pipeline.map(r => {
     const stageCls = { 'Monitoring':'stage-applied','Applied':'stage-applied','Recruiter screen':'stage-screen','HM round':'stage-screen','Panel':'stage-screen','Offer':'stage-offer','Withdrawn':'stage-applied','Closed':'stage-applied','Rejected':'stage-applied' }[r.stage] || 'stage-applied';
     const _pDone = r.stage === 'Withdrawn' || r.stage === 'Closed' || r.stage === 'Rejected';
     const healthCls = { green:'health-green', amber:'health-amber', red:'health-red' }[r.health] || 'health-amber';
     return `<tr style="${_pDone?'opacity:0.45;':''}">
       <td style="font-weight:500;padding-left:20px;${_pDone?'color:var(--text3);text-decoration:line-through;':'color:var(--text);'}">${r.company}</td>
-      <td>${r.role}</td>
+      <td style="font-size:12px;color:var(--text2);">${r.role}</td>
       <td><span class="stage-pill ${stageCls}">${r.stage}</span></td>
-      <td><span class="health-dot ${healthCls}"></span></td>
-      <td style="font-family:var(--mono);font-size:10px;">${r.lastAction}</td>
-      <td>${r.nextStep}</td>
+      <td>
+        <select onchange="updatePipelineHealth(${r.id},this.value)" style="background:transparent;border:none;cursor:pointer;padding:2px;" title="Change health">
+          <option value="green" ${r.health==='green'?'selected':''}>🟢</option>
+          <option value="amber" ${r.health==='amber'?'selected':''}>🟡</option>
+          <option value="red" ${r.health==='red'?'selected':''}>🔴</option>
+        </select>
+      </td>
+      <td style="font-family:var(--mono);font-size:10px;color:var(--text3);">${r.lastAction}</td>
+      <td>
+        <input type="text" value="${r.nextStep||''}" onblur="updatePipelineNextStep(${r.id},this.value)" style="background:transparent;border:none;border-bottom:1px solid var(--border2);font-size:12px;color:var(--text2);width:100%;min-width:120px;padding:2px 0;" placeholder="Next step...">
+      </td>
       <td>
         <select onchange="updatePipelineStage(${r.id},this.value)" style="background:transparent;border:1px solid var(--border2);font-family:var(--mono);font-size:9px;padding:3px 6px;border-radius:4px;cursor:pointer;color:var(--text2);">
           ${['Monitoring','Applied','Recruiter screen','HM round','Panel','Offer','Withdrawn','Rejected','Closed'].map(s=>`<option value="${s}" ${r.stage===s?'selected':''}>${s}</option>`).join('')}
@@ -1947,6 +1948,30 @@ function renderPipelineMini() {
   document.getElementById('badge-pipeline').textContent = STATE.pipeline.length;
 }
 
+function buildPipelinePrompt() {
+  const el = document.getElementById('prompt-pipeline');
+  if (!el) return;
+  const active = STATE.pipeline.filter(r => !['Withdrawn','Rejected','Closed'].includes(r.stage));
+  const closed = STATE.pipeline.filter(r => ['Withdrawn','Rejected','Closed'].includes(r.stage));
+  const pipelineLines = active.map(r =>
+    `  ${r.company} — ${r.role} — ${r.stage} [${r.health}] — Last action: ${r.lastAction} — Next: ${r.nextStep}`
+  ).join('\n');
+  const prompt = `Review my job search pipeline and tell me what to prioritize this week.
+
+Current pipeline (${active.length} active):
+${pipelineLines || '  (No active roles — add roles via the pipeline tracker)'}
+${closed.length ? `\nClosed/withdrawn: ${closed.map(r=>r.company).join(', ')}` : ''}
+Tell me: (1) What is at risk of going cold? (2) What has momentum?
+(3) My top 3 priority actions this week. (4) Any obvious gaps or roles to add?`;
+
+  el.textContent = prompt + '\n';
+  const btn = document.createElement('button');
+  btn.className = 'prompt-copy-btn';
+  btn.textContent = 'copy';
+  btn.onclick = () => copyPrompt('prompt-pipeline');
+  el.appendChild(btn);
+}
+
 function openAddRole() {
   document.getElementById('modal-addrole').classList.add('open');
 }
@@ -1963,11 +1988,12 @@ function addRole() {
     role,
     stage: document.getElementById('ar-stage').value,
     health: 'green',
-    lastAction: 'Today',
+    lastAction: new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'}),
     nextStep: document.getElementById('ar-next').value || 'TBD'
   });
   saveState();
   renderPipeline();
+  buildPipelinePrompt();
   closeModal('modal-addrole');
   toast('Role added to pipeline');
   ['ar-company','ar-role','ar-next'].forEach(id => document.getElementById(id).value = '');
@@ -1978,6 +2004,7 @@ function removeRole(id) {
   saveState();
   renderPipeline();
   renderPipelineMini();
+  buildPipelinePrompt();
 }
 
 function updatePipelineStage(id, stage) {
@@ -1988,7 +2015,28 @@ function updatePipelineStage(id, stage) {
   saveState();
   renderPipeline();
   renderPipelineMini();
+  buildPipelinePrompt();
   logUsage('/pipeline', `${r.company} → ${stage}`);
+}
+
+function updatePipelineHealth(id, health) {
+  const r = STATE.pipeline.find(x => x.id === id);
+  if (!r) return;
+  r.health = health;
+  r.lastAction = new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  saveState();
+  renderPipelineMini();
+  logUsage('/pipeline', `${r.company} health → ${health}`);
+}
+
+function updatePipelineNextStep(id, nextStep) {
+  const r = STATE.pipeline.find(x => x.id === id);
+  if (!r || r.nextStep === nextStep) return;
+  r.nextStep = nextStep;
+  r.lastAction = new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  saveState();
+  logUsage('/pipeline', `${r.company} next step updated`);
+  toast(`${r.company} saved`);
 }
 
 // ==================== USAGE TRACKING ====================
@@ -2302,31 +2350,31 @@ function scoreToResume() {
 
 // ==================== WORKFLOW GENERATORS ====================
 function runBrief() {
-  const pipeline = document.getElementById('brief-pipeline').value.trim();
   const followups = document.getElementById('brief-followups').value.trim();
-  const prompt = `Good morning. Run my daily BD/Partnerships job search briefing.
-
-Calendar today (already read — 2 veemee networking chats at 2:30PM and 3:00PM, Satsang at 11PM).
-
-My pipeline:
-${pipeline || 'Nothing.tech — awaiting HM scheduling\nMicrosoft — applied, seeking referral\nEmissary — active conversations\nTuring — monitoring'}
-
-Pending follow-ups:
-${followups || 'None flagged'}
-
-Generate:
-1. Top 3 actions for today, ranked by impact — flag anything time-sensitive
-2. Any roles going cold that need immediate action
-3. Referral outreach I should send today (warm, not cold)
-4. One thing from my interview history to review before any call today
-5. One-line status on each active role
-
-Keep it to a 90-second read. Game plan, not a report.`;
-  document.getElementById('brief-output').textContent = prompt + '\n';
+  const active = STATE.pipeline.filter(r => !['Withdrawn','Rejected','Closed'].includes(r.stage));
+  const pipelineSummary = active.length
+    ? active.map(r => '  ' + r.company + ' — ' + r.role + ' — ' + r.stage + ' [' + r.health + '] — Next: ' + r.nextStep).join('\n')
+    : '  No active roles in pipeline';
+  const todayMs = Date.now();
+  const _months = {Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+  const overdue = OT_STATE.contacts.filter(c => {
+    if (!c.lastOutreach || ['Replied','Interviewing','Not Started','Not Interested'].includes(c.status)) return false;
+    const m = c.lastOutreach.match(/^([A-Za-z]+)\s+(\d+)/);
+    if (!m) return false;
+    const d = new Date(new Date().getFullYear(), _months[m[1]], parseInt(m[2]));
+    if (d > new Date()) d.setFullYear(d.getFullYear()-1);
+    return Math.floor((todayMs - d.getTime()) / 86400000) >= 10;
+  });
+  const nudgeSummary = overdue.length
+    ? overdue.map(c => '  ' + c.company + (c.contact ? ' ('+c.contact+')' : '') + ' — last: ' + c.lastOutreach).join('\n')
+    : (followups || 'None flagged');
+  const prompt = 'Good morning. Run my daily BD/Partnerships job search briefing.\n\nPlease search my Google Calendar for today\'s events and include them.\nPlease search my Gmail for: (1) new LinkedIn job alert emails today, (2) any recruiter replies in the last 3 days.\n\nMy pipeline (' + active.length + ' active):\n' + pipelineSummary + '\n\nOverdue follow-ups (10+ days):\n' + nudgeSummary + '\n\nGenerate:\n1. Top 3 actions for today, ranked by impact\n2. Any pipeline roles going cold\n3. New LinkedIn alerts worth scoring\n4. Referral outreach to send today\n5. One-line status on each active pipeline role\n\nKeep it to a 90-second read. Game plan, not a report.';
+  const el = document.getElementById('brief-output');
+  el.textContent = prompt + '\n';
   const btn = document.createElement('button');
   btn.className = 'prompt-copy-btn'; btn.textContent = 'copy';
   btn.onclick = () => copyPrompt('brief-output');
-  document.getElementById('brief-output').appendChild(btn);
+  el.appendChild(btn);
   logUsage('/brief', 'Morning briefing generated');
   toast('Brief prompt ready — copy and paste into Claude');
 }
@@ -4027,6 +4075,17 @@ function importFullExport(jsonString) {
 // ==================== END WEEKLY EXPORT ====================
 
 function init() {
+  // Live date — updates every time the file is opened
+  const now = new Date();
+  const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const hour = now.getHours();
+  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+  const dateStr = `${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}`;
+  const eyebrow = document.getElementById('dash-eyebrow');
+  if (eyebrow) eyebrow.textContent = `${dateStr} · ${greeting}`;
+  const digestDate = document.getElementById('digest-date-heading');
+  if (digestDate) digestDate.textContent = `Today's digest — ${months[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
   renderDashboardCalendar();
   renderPipelineMini();
   renderActivityGrid();
