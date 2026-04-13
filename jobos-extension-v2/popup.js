@@ -52,6 +52,7 @@ function wireButtons() {
   // Score tab
   on('btn-score-manual',    scoreManual);
   on('btn-sync-tracker',    syncToTracker);
+  on('btn-sync-pipeline',   syncToPipeline);
   on('btn-open-claude-score', () => openClaude('score'));
   on('btn-copy-score',        () => copyP('score'));
 
@@ -218,7 +219,7 @@ function runScoreEngine(jdText, title, company) {
     const ve = document.getElementById('p-verdict');
     ve.innerHTML = total>=75 ? '<span class="vtag v-apply">✓ Apply now</span>' : total>=50 ? '<span class="vtag v-consider">○ Consider</span>' : '<span class="vtag v-skip">✗ Skip</span>';
     document.getElementById('p-angles').innerHTML = buildAngles(jdText);
-    document.getElementById('sync-row').style.display = 'block';
+    document.getElementById('sync-row').style.display = 'flex';
     prompts.score = buildScorePrompt(title, company, jobData?.jobText || jdText);
     saveScore(company + (title ? ' - '+title : ''), total);
     logUsage('/score', (company||'Unknown') + (title ? ' - '+title : ''));
@@ -322,26 +323,48 @@ function syncToTracker() {
   });
 }
 
+function syncToPipeline() {
+  if (!jobData) { toast('No job data to sync'); return; }
+  const company = jobData.company || 'Unknown';
+  const role = jobData.title || '';
+  const total = parseInt(document.getElementById('p-total').textContent) || 0;
+  chrome.runtime.sendMessage({ action: 'syncPipeline', data: { company, role, score: total } }, resp => {
+    const btn = document.getElementById('btn-sync-pipeline');
+    if (resp?.added) {
+      toast(`${company} added to pipeline ✓`);
+      if (btn) { btn.textContent = '✓ In pipeline'; btn.disabled = true; }
+      loadExportCount();
+      logUsage('/pipeline-sync', company);
+    } else {
+      toast(`${company} already in pipeline`);
+      if (btn) { btn.textContent = '✓ Already tracked'; btn.disabled = true; }
+    }
+  });
+}
+
 function loadExportCount() {
   chrome.storage.local.get(OUTREACH_KEY, data => {
     const contacts = data[OUTREACH_KEY]?.contacts || [];
+    const pipeline = data[OUTREACH_KEY]?.pipeline || [];
+    const total = contacts.length + pipeline.length;
     const el = document.getElementById('export-count');
     const sub = document.getElementById('export-sub');
-    if (el) el.textContent = contacts.length;
-    if (sub) sub.textContent = contacts.length === 0
-      ? 'No roles synced yet. Score a role and click "+ Add to outreach tracker".'
-      : `${contacts.length} role${contacts.length===1?'':'s'} scored. Export to import into the OS dashboard.`;
+    if (el) el.textContent = total;
+    if (sub) sub.textContent = total === 0
+      ? 'No items to sync yet. Score a role and click add.'
+      : `${total} item${total===1?'':'s'} queued. Export to import into the dashboard.`;
   });
 }
 
 function exportToOS() {
   chrome.storage.local.get(OUTREACH_KEY, data => {
     const contacts = data[OUTREACH_KEY]?.contacts || [];
-    if (!contacts.length) { toast('No roles to export yet'); return; }
-    const json = JSON.stringify({ contacts, exportedAt: new Date().toISOString() }, null, 2);
+    const pipeline = data[OUTREACH_KEY]?.pipeline || [];
+    if (!contacts.length && !pipeline.length) { toast('Nothing to export yet'); return; }
+    const json = JSON.stringify({ contacts, pipeline, exportedAt: new Date().toISOString() }, null, 2);
     navigator.clipboard.writeText(json).then(() => {
-      toast(`${contacts.length} roles copied as JSON`);
-      logUsage('/export', contacts.length + ' roles');
+      toast(`${contacts.length + pipeline.length} items copied`);
+      logUsage('/export', (contacts.length + pipeline.length) + ' items');
     });
   });
 }

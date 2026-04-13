@@ -1,6 +1,15 @@
 # Job Search OS - Complete Bullet Library
 This file contains all raw resume bullets across all career phases. Claude should only read this when specifically asked to "Pull bullets" or "Build/Refine Resume."
 
+## Resume Relevance Mapping
+When building resumes, map the "Template Type" to these bullet IDs:
+- **enterprise:** p1, p2, p4, p3 | q1, q2, q3, q4, q8 | h1, h2, h3, h4, h5, h6 | pa1, pa4, pa5 | m1 | s1, s2
+- **edgeai:** p2, p5, p3, p4 | q5, q6, q7, q1 | h7, h8, h9, h10, h4 | pa2, pa3, pa4 | m1 | s1, s2
+- **hardware:** p2, p3, p4 | q5, q6, q7, q1 | h7, h8, h9, h10, h4 | pa2, pa3 | m1 | s1, s2
+- **startup:** p3, p1, p2, p4 | q1, q7, q3 | h3, h4, h1, h2 | pa1, pa5 | m1 | s1
+- **alliances:** p1, p2, p3 | q1, q2, q4, q8 | h1, h3, h5, h4, h9 | pa1, pa5, pa3 | m1 | s1, s2
+- **supply:** p2, p4 | q1, q2 | h3, h4, h1 | pa4, pa1, pa2 | m1 | s1
+
 ## PMSV Tech and Strategy (Dec 2022 – Present)
 - p1: Designed 0-to-1 enterprise BD programs for early-stage companies, building partner intake frameworks, sales playbooks, and outreach strategies that secured first enterprise relationships.
 - p2: Drove U.S. expansion for Adyogi (AI commerce optimization) by securing strategic partnerships with Meta and Shopify, boosting product distribution by 16%.

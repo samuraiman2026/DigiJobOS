@@ -2951,10 +2951,11 @@ function importFromExtension() {
   if (!raw) { toast('Paste JSON first'); return; }
   try {
     const data = JSON.parse(raw);
-    const incoming = data.contacts || data;
-    if (!Array.isArray(incoming)) throw new Error('Expected array of contacts');
-    let added = 0;
-    incoming.forEach(c => {
+    const incomingContacts = data.contacts || (Array.isArray(data) ? data : []);
+    const incomingPipeline = data.pipeline || [];
+    
+    let contactsAdded = 0;
+    incomingContacts.forEach(c => {
       const exists = OT_STATE.contacts.some(x => x.company?.toLowerCase() === c.company?.toLowerCase());
       if (!exists && c.company) {
         OT_STATE.contacts.push({
@@ -2969,15 +2970,40 @@ function importFromExtension() {
           status: c.status || 'Not Started',
           selected: false
         });
-        added++;
+        contactsAdded++;
       }
     });
-    saveOutreach();
-    statusEl.textContent = `✓ Added ${added} new companies (${incoming.length - added} already existed)`;
+
+    let pipelineAdded = 0;
+    incomingPipeline.forEach(r => {
+      const exists = STATE.pipeline.some(x => x.company?.toLowerCase() === r.company?.toLowerCase() && x.role?.toLowerCase() === r.role?.toLowerCase());
+      if (!exists && r.company) {
+        STATE.pipeline.push({
+          id: Date.now() + Math.random(),
+          company: r.company,
+          role: r.role || 'BD Role',
+          stage: r.stage || 'Applied',
+          health: r.health || 'green',
+          lastAction: r.lastAction || new Date().toLocaleDateString('en-US', { month:'short', day:'numeric' }),
+          nextStep: r.nextStep || 'Awaiting response'
+        });
+        pipelineAdded++;
+      }
+    });
+
+    if (contactsAdded > 0) saveOutreach();
+    if (pipelineAdded > 0) saveState();
+
+    statusEl.textContent = `✓ Added ${contactsAdded} contacts and ${pipelineAdded} pipeline roles.`;
     statusEl.style.color = 'var(--accent)';
-    document.getElementById('badge-outreach').textContent = OT_STATE.contacts.length;
-    logUsage('/sync-import', added + ' companies added');
-    toast(`Imported ${added} companies`);
+
+    logUsage('/sync-import', `${contactsAdded} contacts, ${pipelineAdded} roles`);
+    toast(`Import complete: ${contactsAdded + pipelineAdded} items`);
+
+    // Refresh all affected views
+    renderPipelineMini();
+    renderOutreachTable();
+    updateOutreachMetrics();
   } catch(e) {
     statusEl.textContent = `✗ Invalid JSON: ${e.message}`;
     statusEl.style.color = 'var(--red)';

@@ -155,6 +155,38 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     });
     return true;
   }
+  if (msg.action === 'syncPipeline') {
+    chrome.storage.local.get(OUTREACH_SYNC_KEY, data => {
+      const existing = data[OUTREACH_SYNC_KEY] || { contacts: [], pipeline: [], lastUpdated: null };
+      const pipeline = existing.pipeline || [];
+      const { company, role, score } = msg.data;
+
+      const alreadyExists = pipeline.some(r =>
+        r.company?.toLowerCase() === company?.toLowerCase() && r.role?.toLowerCase() === role?.toLowerCase()
+      );
+      if (!alreadyExists) {
+        pipeline.push({
+          id: Date.now(),
+          company,
+          role: role || '',
+          stage: 'Applied',
+          health: score >= 75 ? 'green' : score >= 50 ? 'amber' : 'red',
+          lastAction: new Date().toLocaleDateString('en-US', { month:'short', day:'numeric' }),
+          nextStep: 'Awaiting response',
+          addedAt: new Date().toISOString(),
+          scoreFromExt: score
+        });
+        existing.pipeline = pipeline;
+        existing.lastUpdated = new Date().toISOString();
+        chrome.storage.local.set({ [OUTREACH_SYNC_KEY]: existing }, () => {
+          sendResponse({ added: true });
+        });
+      } else {
+        sendResponse({ added: false, reason: 'already exists' });
+      }
+    });
+    return true;
+  }
   if (msg.action === 'getOverdueContacts') {
     chrome.storage.local.get(OUTREACH_SYNC_KEY, data => {
       const contacts = data[OUTREACH_SYNC_KEY]?.contacts || [];
