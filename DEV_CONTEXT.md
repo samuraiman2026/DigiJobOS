@@ -1,5 +1,5 @@
 # Job Search OS — Developer & LLM Context File
-**Version 4.1 · April 2026 · BD/Partnerships Edition**
+**Version 4.2 · April 2026 · BD/Partnerships Edition**
 
 This file is the authoritative reference for any LLM or developer working on the Job Search OS. Read this before touching any file in the system.
 
@@ -28,25 +28,23 @@ A personal job search operating system built on Claude for a senior BD/Partnersh
 ## File inventory
 
 ```
-outputs/
-├── job-search-os-v5.html               ← Main dashboard v4.1 (4,434 lines, 263KB)
-├── jobos-chrome-extension-v2.zip       ← Chrome extension v2 (MV3 fixed, all buttons work)
-├── CLAUDE.md                           ← Master context file (load into Claude Project)
-├── README.md                           ← User-facing documentation
+/ (root)
+├── index.html                          ← Main dashboard v4.2 (renamed for GitHub Pages)
 ├── DEV_CONTEXT.md                      ← This file
-├── BD_Partnerships_Job_Search_OS.docx  ← All prompts as Word doc (offline reference)
-└── bd-partnerships-os-v2.zip          ← Claude Code OS (slash commands + sub-agents)
+├── README.md                           ← User-facing documentation
+└── jobos-extension-v2/                 ← Chrome extension v2 source
+    ├── manifest.json
+    ├── background.js
+    ├── content.js
+    ├── popup.html                      ← Zero inline handlers (MV3 compliant)
+    └── popup.js                        ← wireButtons() via addEventListener
+    └── icons/
+        ├── icon16.png
+        ├── icon48.png
+        └── icon128.png
 
-home/claude/ (build environment)
-├── build_resume.js                     ← Node.js .docx builder
-├── jobos-extension-v2/                 ← Chrome extension v2 source
-│   ├── manifest.json
-│   ├── background.js
-│   ├── content.js
-│   ├── popup.html                      ← Zero inline handlers (MV3 compliant)
-│   └── popup.js                        ← wireButtons() via addEventListener
-├── job-search-os-v5.html              ← v4 (previous)
-└── job-search-os-v5-export.html       ← v4.1 working copy
+(External / Knowledge Base)
+├── CLAUDE.md                           ← Master context file (load into Claude Project)
 ```
 
 ---
@@ -56,20 +54,20 @@ home/claude/ (build environment)
 ### Four surfaces, one brain
 
 **Surface 1 — Claude.ai Project (primary)**
-CLAUDE.md is uploaded to Project knowledge and loads automatically on every conversation. Google Calendar, Gmail, web search, and Monday.com are live via MCP connectors.
+CLAUDE.md is uploaded to Project knowledge and loads automatically on every conversation. Google Calendar, Gmail, and web search are live via MCP connectors.
 
-**Surface 2 — HTML Dashboard (`job-search-os-v5.html`)**
-Single-file web app, 4,434 lines, 263KB. Opens in any browser with no server. Contains all 10 workflows, resume generator, and 5 Tools panels. Version badge: v4.
+**Surface 2 — HTML Dashboard (`index.html`)**
+Single-file web app, ~4,500 lines. Opens in any browser with no server. Renamed to `index.html` to support direct deployment to GitHub Pages. Contains all workflows, resume generator, and Tools panels. Version badge: v4.
 
 **Surface 3 — Chrome Extension v2**
 Activates on job board pages. All buttons wired via addEventListener (MV3 compliant). Auto-extracts JD, scores instantly, syncs scored roles to outreach tracker, shows numeric amber badge for overdue follow-ups.
 
-**Surface 4 — Claude Code CLI**
-For terminal users. CLAUDE.md auto-loads. Full slash command set in `.claude/commands/`. Sub-agents in `sub-agents/`. Pattern log in `context/pattern-log.md`.
+**Surface 4 — Claude Code CLI (Optional)**
+For terminal users. Full slash command set can be mirrored in `.claude/commands/`.
 
 ---
 
-## Sidebar structure (`job-search-os-v5.html`)
+## Sidebar structure (`index.html`)
 
 ```
 Overview
@@ -95,7 +93,7 @@ Tools
   ◎   Network map
   ◈   Email digest
   ✦   LinkedIn post
-  ↗   Weekly export     ← new in v4.1
+  ↗   Weekly export
 
 Agents
   @   Sub-agents
@@ -112,8 +110,6 @@ Agents
 | `jobos_sync_url` | Deployed GitHub Pages URL string | `/sync` panel |
 | `jobos_digest_config` | `{ minScore, alwaysInclude, sources, nudgeDays }` | `/digest` Configure tab |
 | `jobos_post_history` | Array of last 20 posts: `[{ text, pillar, date, ts }]` | `/post` panel |
-
-No new keys in v4.1 — the export panel reads from existing keys.
 
 ---
 
@@ -154,251 +150,25 @@ No new keys in v4.1 — the export panel reads from existing keys.
 
 ---
 
-## New in v4.1 — full architecture details
+## New in v4.2 — GitHub Pages Optimization
 
-### `/export` — Weekly export panel
+### `index.html` Renaming
+The dashboard file has been renamed from `job-search-os-v5.html` to `index.html`. This allows for zero-config deployment to GitHub Pages. Once pushed to a repo, the dashboard is live at `https://username.github.io/repo-name`.
 
-**Purpose**: Export all job search data to Google Sheets on a weekly cadence.
-
-**State**: No new localStorage keys. Reads from `STATE` (pipeline, history, scores) and `OT_STATE` (contacts, dailyLog).
-
-**Key functions**:
-```javascript
-renderExportPanel()        // wires buttons, calculates metrics, renders weekly summary
-buildPipelineCSV()         // headers + STATE.pipeline rows → comma-separated
-buildOutreachCSV()         // headers + OT_STATE.contacts rows → comma-separated
-buildScoresCSV()           // headers + STATE.scores → with verdict calculated
-buildActivityCSV()         // last 7 days of STATE.history → comma-separated
-buildPipelineTSV()         // tab-separated for direct Sheets paste
-buildOutreachTSV()         // tab-separated for direct Sheets paste
-exportAllJSON()            // full export: pipeline + outreach + scores + activityThisWeek + stats
-downloadCSV(csv, name)     // creates Blob, triggers download with date-stamped filename
-pasteToSheets(tsv, label)  // navigator.clipboard.writeText for Sheets paste workflow
-generateSheetsScript()     // produces full Apps Script with createJobSearchSheet(), importFullExport(), sendWeeklyReminder()
-renderWeeklySummary()      // calculates week metrics live from STATE + OT_STATE
-copyWeeklySummary()        // formats full structured briefing string for Claude review
-```
-
-**CSV structure per export**:
-- Pipeline: Company, Role, Stage, Health, Last Action, Next Step
-- Outreach: Company, Tier, Role, Contact, Status, Follow-ups, Last Outreach, POV / Angle
-- Scored Roles: Company, Score, Verdict (Apply/Consider/Skip), Date
-- Activity Log: Command, Detail, Date, Time (filtered to last 7 days)
-
-**Apps Script — `createJobSearchSheet()`**:
-- Creates Google Sheet named "Job Search OS" with 5 tabs
-- Headers frozen row 1, dark background with accent-green headers per tab
-- Sets `ScriptApp` trigger: weekly Sunday 9am → `sendWeeklyReminder()`
-- `sendWeeklyReminder()` emails Pranjal a reminder with Sheet URL and export instructions
-- `importFullExport(jsonString)` — paste the full JSON export string, writes all tabs with week tag
-
-**Button wiring** (called on every `renderExportPanel()` call — uses `replaceWith(cloneNode(true))` to avoid duplicate listeners):
-```javascript
-const wire = (id, fn) => {
-  const el = document.getElementById(id);
-  if (el) { el.replaceWith(el.cloneNode(true)); document.getElementById(id).addEventListener('click', fn); }
-};
-```
+### `/sync` Panel
+The Sync panel now encourages deployment to GitHub Pages to provide a stable URL for the Chrome Extension and the Claude Project to reference live outreach data.
 
 ---
 
-### Pipeline tracker — strike-through (v4.1)
-
-**New stages**: Withdrawn, Rejected, Closed (added to modal select and `stageCls` map).
-
-**`_pDone` variable** in `renderPipeline()`:
-```javascript
-const _pDone = r.stage === 'Withdrawn' || r.stage === 'Closed' || r.stage === 'Rejected';
-// Applied to row: style="${_pDone?'opacity:0.45;':''}"
-// Applied to company td: text-decoration:line-through when _pDone
-```
-
-**`updatePipelineStage(id, stage)`** — new function:
-```javascript
-function updatePipelineStage(id, stage) {
-  const r = STATE.pipeline.find(x => x.id === id);
-  if (!r) return;
-  r.stage = stage;
-  r.lastAction = new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'});
-  saveState(); renderPipeline(); renderPipelineMini();
-  logUsage('/pipeline', `${r.company} → ${stage}`);
-}
-```
-
-**Move dropdown** added as a new table column between Next Step and Remove (×):
-```javascript
-`<select onchange="updatePipelineStage(${r.id},this.value)" style="...">
-  ${['Monitoring','Applied','Recruiter screen','HM round','Panel','Offer','Withdrawn','Rejected','Closed']
-    .map(s=>`<option value="${s}" ${r.stage===s?'selected':''}>${s}</option>`).join('')}
-</select>`
-```
-
----
-
-### Outreach tracker — strike-through (v4.1)
-
-**`_done` variable** in `renderOutreachTable()`:
-```javascript
-const _done = c.status === 'Not Interested';
-// Row: opacity:0.45 when _done
-// Company td: text-decoration:line-through;text-decoration-color:var(--text3) when _done
-```
-
-"Not Interested" was already in the status dropdown — it now has visual meaning. Data is fully preserved; no delete occurs. The strike-through makes the row visually inactive without removing the company from history or metrics.
-
----
-
-## Chrome Extension v2 — MV3 fix (v4.1)
+## Chrome Extension v2 — MV3 fix
 
 ### Root cause
-
-Manifest V3 enforces a strict Content Security Policy that **silently blocks all inline `onclick="..."` attribute handlers** in extension popup HTML. Every button in the previous popup.html was wired with `onclick="functionName()"` — so every button was silently broken with no console error visible to the user.
+Manifest V3 enforces a strict Content Security Policy that blocks all inline `onclick="..."` attribute handlers.
 
 ### Fix
+`popup.html` rebuilt with **zero inline handlers**. Every interactive element has a unique `id`. `popup.js` wires all interactions via `addEventListener` on `DOMContentLoaded`.
 
-`popup.html` rebuilt with **zero inline handlers**. Every interactive element has a unique `id`. `popup.js` has a single `wireButtons()` function called on `DOMContentLoaded` that wires all interactions via `addEventListener`:
-
-```javascript
-function wireButtons() {
-  // Tabs
-  on('tab-score',  () => switchTab('score'));
-  on('tab-apply',  () => switchTab('apply'));
-  // ... all 6 tabs
-
-  // Score tab
-  on('btn-score-manual',     scoreManual);
-  on('btn-sync-tracker',     syncToTracker);
-  on('btn-open-claude-score',() => openClaude('score'));
-  on('btn-copy-score',       () => copyP('score'));
-
-  // Apply, Brief, Nudges, Shortcuts tabs
-  // ... all buttons wired here
-}
-
-function on(id, fn) {
-  const el = document.getElementById(id);
-  if (el) el.addEventListener('click', fn);
-}
-```
-
-**Nudge buttons** are rendered dynamically via `innerHTML` and cannot be wired in `wireButtons()`. They use `data-` attributes and are wired after `list.innerHTML` is set:
-
-```javascript
-list.querySelectorAll('[data-nudge-idx]').forEach(btn => {
-  btn.addEventListener('click', () => copyNudgePrompt(parseInt(btn.dataset.nudgeIdx)));
-});
-list.querySelectorAll('[data-done-idx]').forEach(btn => {
-  btn.addEventListener('click', () => markNudgeDone(parseInt(btn.dataset.doneIdx), btn.dataset.doneCo));
-});
-```
-
-**Rule**: Any button added dynamically to the DOM (via `innerHTML`) must be wired via `querySelectorAll` + `addEventListener` immediately after the DOM update, not in `wireButtons()`.
-
----
-
-## Resume generator (unchanged from v3.1)
-
-Lives as `panel-resume` in `job-search-os-v5.html`. All variables prefixed `RV_` or `rv`. Score→resume handoff via `scoreToResume()` → `rvLoadFromScore()`. Full documentation in previous versions unchanged.
-
----
-
-## Chrome Extension v2 — full architecture summary
-
-| File | What it does |
-|---|---|
-| `manifest.json` | MV3, permissions: activeTab, scripting, storage, contextMenus, alarms |
-| `background.js` | Service worker: hourly alarm, nudge badge, syncOutreach/getOverdueContacts message handler |
-| `content.js` | Page scraper: multi-selector extraction, 800ms retry for LinkedIn lazy loading |
-| `popup.html` | 6-tab popup, zero inline onclick handlers |
-| `popup.js` | All logic: wireButtons(), scoring, Gist sync, nudge rendering, outreach sync |
-
-**Storage keys** (chrome.storage.local):
-- `jobos_ext_v1`: `{ history[], scores[], stats: {total, streak, lastDate} }`
-- `jobos_outreach_sync`: `{ contacts[], lastUpdated }` — roles synced from scoring
-- `jobos_gist_url`: Raw GitHub Gist URL string
-
----
-
-## Bullet library system
-
-Exists in two places (keep in sync):
-1. `job-search-os-v5.html` — `RV_LIB` / `RV_SEL` in resume generator section (bullet text field is `t`)
-2. `build_resume.js` — `LIB` / `SELECTIONS`
-
-Role type decision guide:
-- `enterprise`: lead with `h1`/`h3`/`h5` (scale, C-suite, revenue)
-- `edgeai`: lead with `h7`/`h8` (ISV ecosystem, Kirin 9000 on-device)
-- `hardware`: lead with `pa3` (Pandora OEM) + `h8` (Kirin)
-- `startup`: lead with `q1`/`p3` (Qualia first hire, Wove 90-day)
-- `alliances`: lead with `h9` (licensing/co-dev Meta/Adobe/Airbnb)
-- `supply`: lead with `m1` (Mobclix $16M) + `pa4` (Pandora remnant)
-
----
-
-## Scoring system
-
-Identical across `/score` panel, Chrome extension popup, resume generator live preview.
-
-```javascript
-s1 = kw(jd, ['ecosystem','partner','isv',...])  // 25%
-s2 = kw(jd, ['build','create','launch',...])    // 25%
-s3 = kw(jd, ['technical','engineering','api',...]) // 20%
-s4 = kw(jd, ['ai','machine learning','llm',...]) // 20%
-s5 = kw(jd, ['director','senior manager',...])  // 10%
-
-function kw(text, words) {
-  return Math.round(50 + Math.min(hits / Math.max(words.length * 0.35, 1), 1) * 50);
-}
-total = s1*.25 + s2*.25 + s3*.20 + s4*.20 + s5*.10
-```
-
-Verdicts: ≥75% Apply (green), 50–74% Consider (amber), <50% Skip (red).
-
-**If you update keyword lists**: Search `kw(` in `job-search-os-v5.html` (two instances) and `scoreKw(` in extension `popup.js`. All three must stay in sync.
-
----
-
-## Technical stack
-
-| Component | Stack |
-|---|---|
-| Dashboard | Vanilla HTML/CSS/JS, single file, 4,434 lines, 263KB, localStorage |
-| Resume builder (CLI) | Node.js, `docx@9.6.1` |
-| Chrome extension | MV3, `chrome.storage.local`, `chrome.alarms`, addEventListener-only |
-| Claude API | `claude-sonnet-4-20250514`, streaming via `/v1/messages` with SSE |
-| Google Sheets export | CSV/TSV download + Google Apps Script (`createJobSearchSheet`, `importFullExport`) |
-| CricVantage (separate) | React + Vite + TypeScript + Tailwind (Vercel), FastAPI + Python (Railway) |
-
----
-
-## Common operations for LLMs
-
-### Adding a new workflow panel
-1. Add sidebar nav item with `id="nav-newcmd"` and `onclick="nav('newcmd')"`
-2. Add panel div with `id="panel-newcmd"`
-3. Add to `nav()`: `if (id === 'newcmd') { renderNewCmd(); }`
-4. Add `renderNewCmd()`: reads inputs, builds prompt, injects into `.prompt-block`, logs usage
-
-### Adding a company to the network map
-Add to `COMPANY_PATHS`: `warmPath`, `strength` (1–3), `connection`, `angle`, `nudge`. Company must also exist in `OT_STATE.contacts`.
-
-### Adding a LinkedIn post pillar
-Add to `PILLAR_CONFIGS`: `title`, `fields` (HTML string), `buildPrompt()` function. Add pillar card div with `id="pp-newpillar"` and `onclick="selectPillar('newpillar')"`.
-
-### Adding a column to the weekly export
-Update the relevant `build*CSV()` and `build*TSV()` functions, and update the `importFullExport()` in `generateSheetsScript()` to write the extra column. Also update the Apps Script `setupHeaders()` call for that tab.
-
-### Updating the digest default companies
-Change `alwaysInclude` in `loadDigestConfig()` defaults, or via the Configure tab UI.
-
-### Changing the Claude API model
-Search for `claude-sonnet-4-20250514` in `job-search-os-v5.html` — two instances (resume generator and post generator). Update both.
-
-### Updating nudge threshold
-Change `NUDGE_THRESHOLD_DAYS` in `background.js` AND `NUDGE_DAYS` in `popup.js`. Repack and reinstall extension. The digest prompt threshold is separate — controlled by `cfg.nudgeDays` from localStorage.
-
-### Adding a new pipeline stage
-Add the stage string to: the `ar-stage` select options in the add-role modal, the `stageCls` map in `renderPipeline()`, the `_pDone` condition if it should show as struck-through, and the inline Move select options in the pipeline table row template.
+**Rule**: Any button added dynamically to the DOM (via `innerHTML`) must be wired via `querySelectorAll` + `addEventListener` immediately after the DOM update.
 
 ---
 
@@ -424,59 +194,24 @@ Add the stage string to: the `ar-stage` select options in the add-role modal, th
 
 **10. Network map paths are grounded in real relationships.** Never invent a connection in `COMPANY_PATHS`.
 
-**11. MV3 extension: no inline handlers.** All event handling via `addEventListener` in `wireButtons()`. Dynamically rendered buttons must be wired via `querySelectorAll` immediately after the DOM update.
+**11. MV3 extension: no inline handlers.** All event handling via `addEventListener` in `wireButtons()`.
 
-**12. Strike-through, not delete.** Closed/withdrawn pipeline roles and Not Interested companies should dim and strike-through, not be removed. Data integrity matters for the pattern log and history.
-
----
-
-## FAQ for LLMs
-
-**Q: Extension buttons aren't working.**
-A: Root cause is always MV3 CSP. Check `popup.html` has zero `onclick=` attributes. Check `wireButtons()` in `popup.js` covers the button. For dynamically rendered buttons (nudge cards), check they're wired via `querySelectorAll('[data-*]').forEach(btn => btn.addEventListener(...))` immediately after `innerHTML` is set.
-
-**Q: A user wants to add a column to the weekly Sheets export.**
-A: Update the relevant `build*CSV()` + `build*TSV()` functions in the dashboard. Update the `setupHeaders()` call in the `generateSheetsScript()` output for that tab. Update `importFullExport()` in the script to write the new column. The script is regenerated each time the user clicks "Generate Apps Script →" so they just re-paste the new version.
-
-**Q: The strike-through isn't appearing on a closed pipeline role.**
-A: Check `_pDone` in `renderPipeline()`. The condition is `r.stage === 'Withdrawn' || r.stage === 'Closed' || r.stage === 'Rejected'`. If a new stage was added, add it to this condition. Check the template literal uses `${_pDone?'opacity:0.45;':''}` on the `<tr>` and `${_pDone?'text-decoration:line-through;':''}` on the company `<td>`.
-
-**Q: The weekly export CSV has incorrect data.**
-A: Check the `build*CSV()` function for that tab. Each uses `csvCell()` to escape commas/quotes. Check `STATE` vs `OT_STATE` — pipeline data is in `STATE.pipeline`, outreach in `OT_STATE.contacts`, scores in `STATE.scores`, activity in `STATE.history`. The activity export filters to `h.ts >= weekAgo` — check the ISO string comparison is valid.
-
-**Q: A user wants to add a new target company to the network map.**
-A: Add to `COMPANY_PATHS` with `warmPath`, `strength` (1–3), `connection`, `angle`, `nudge`. Ensure the company is in `OUTREACH_SEED` or OT_STATE.
-
-**Q: The digest prompt overdue section is showing the wrong contacts.**
-A: `generateDigestPrompt()` calculates overdue live from `OT_STATE.contacts`. Check `c.lastOutreach` is in `"Apr 1"` format. Status `Replied` or `Interviewing` is intentionally excluded. Threshold is `cfg.nudgeDays` from `jobos_digest_config`.
-
-**Q: How do I update the network map when Pranjal gets a new warm contact?**
-A: Update `COMPANY_PATHS` entry: increase `strength`, update `connection` and `nudge` to reference the new contact. Update the `contact` field in `OT_STATE.contacts` for that company.
+**12. Strike-through, not delete.** Closed/withdrawn pipeline roles and Not Interested companies should dim and strike-through, not be removed.
 
 ---
 
 ## Pranjal's background — quick reference for LLMs
 
-**Current**: PMSV Tech and Strategy (advisor, December 2022–present). Adyogi (+16% via Meta/Shopify), Wove (first 3 enterprise partners, 90 days), MobiOffice (+7% conversion), Zingerman's (AI GTM system).
+**Huawei** (Feb 2018–Jul 2021): Director BD / Director Strategic Partnerships. 1,000+ ISVs. SDK 300%. Revenue $1M→$100M. Users 2M→30M. Team 8. Kirin 9000: Pinterest, Porsche, Shazam, Vivino. Partners: Meta, Adobe, Match Group, Airbnb. 2× President's Award.
 
-**Qualia** (Aug 2021–Oct 2022): Director BD. First BD hire. $20M pipeline. $9M at 120%. 60% win rate. 20% activation lift.
+**Qualia** (Aug 2021–Oct 2022): Director BD. First BD hire. $20M pipeline. $9M at 120%.
 
-**Huawei** (Feb 2018–Jul 2021): Director BD / Director Strategic Partnerships. 1,000+ ISVs. SDK 300%. Revenue $1M→$100M. Users 2M→30M. Team 8. Kirin 9000: Pinterest, Porsche, Shazam, Vivino. Partners: Meta, Adobe, Match Group, Airbnb. Deal cycle −30%. 2× President's Award.
+**Pandora** (Oct 2012–Mar 2015): BD New Initiatives. Sponsored Listening ($155M), Retargeting ($40M), TV Ads ($10M). OEM: Sony, Microsoft, Honda. Total $200M+.
 
-**Pandora** (Oct 2012–Mar 2015): BD New Initiatives. Sponsored Listening ($155M), Retargeting ($40M), TV Ads ($10M). OEM: Sony, Microsoft, Honda. Remnant +$35M. Total $200M+.
+**Current**: PMSV Tech and Strategy (advisor). Adyogi (+16%), Wove (first 3 enterprise partners), MobiOffice (+7%), Zingerman's.
 
-**Mobclix** (Jul 2011–Aug 2012): $16M revenue. 185% YoY revenue. 214% YoY volume. 30B impressions/year.
-
-**Sony Mobile** (Feb 2008–Jun 2011): First Android monetization strategy. First $10M ad revenue. 16 global markets.
-
-**Education**: MBA Marketing USC · BTech Computer Engineering Kurukshetra · AWS Generative AI with LLMs · Google Cloud Digital Leader · Pavilion GTM Leadership Accelerator.
-
-**Early career**: Lead Software Engineer Bell Labs/Lucent · Program Manager Yahoo · Sr. Account Manager Singlepoint · Account Manager Motricity.
-
-**AI projects**: FutureProof AI (AI Collective hackathon winner) · CricVantage (cricket analytics, 9.6M ball-by-ball, React+FastAPI) · FORMA (AI fitness trainer, React Native + Claude API) · EnhancePDF (Google Vision AI) · Hatched (founding member).
-
-**Contact**: pranjal.mahna@gmail.com · 424.298.7516 · linkedin.com/in/pranjalmahna · Michigan (remote preferred)
+**Contact**: pranjal.mahna@gmail.com · 424.298.7516 · linkedin.com/in/pranjalmahna
 
 ---
 
-*Last updated: April 12, 2026 · Job Search OS v4.1 · file: job-search-os-v5.html*
+*Last updated: April 13, 2026 · Job Search OS v4.2 · file: index.html*
