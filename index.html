@@ -1997,10 +1997,14 @@ function renderPipelineMini() {
   if (!el) return;
   el.innerHTML = STATE.pipeline.map(r => {
     const healthCls = { green:'health-green', amber:'health-amber', red:'health-red' }[r.health] || 'health-amber';
+    const companyEl = r.url ? `<a href="${r.url}" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;">${r.company}</a>` : r.company;
     return `<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);">
       <span class="health-dot ${healthCls}"></span>
-      <span style="font-size:12px;font-weight:500;color:var(--text);flex:1;">${r.url ? `<a href="${r.url}" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;">${r.company}</a>` : r.company}</span>
-      <span style="font-family:var(--mono);font-size:9px;color:var(--text3);">${r.stage}</span>
+      <span style="flex:1;min-width:0;">
+        <div style="font-size:12px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${companyEl}</div>
+        ${r.role ? `<div style="font-size:10px;color:var(--text3);font-family:var(--mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.role}</div>` : ''}
+      </span>
+      <span style="font-family:var(--mono);font-size:9px;color:var(--text3);white-space:nowrap;">${r.stage}</span>
     </div>`;
   }).join('');
   document.getElementById('badge-pipeline').textContent = STATE.pipeline.length;
@@ -3009,8 +3013,10 @@ function importFromExtension() {
           id: Date.now() + Math.random(),
           company: r.company,
           role: r.role || 'BD Role',
+          url: r.url || '',
           stage: r.stage || 'Applied',
           health: r.health || 'green',
+          addedAt: r.addedAt || new Date().toISOString(),
           lastAction: r.lastAction || new Date().toLocaleDateString('en-US', { month:'short', day:'numeric' }),
           nextStep: r.nextStep || 'Awaiting response'
         });
