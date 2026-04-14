@@ -256,6 +256,8 @@ function runScoreEngine(jdText, title, company) {
     ve.innerHTML = total>=75 ? '<span class="vtag v-apply">✓ Apply now</span>' : total>=50 ? '<span class="vtag v-consider">○ Consider</span>' : '<span class="vtag v-skip">✗ Skip</span>';
     document.getElementById('p-angles').innerHTML = buildAngles(jdText);
     document.getElementById('sync-row').style.display = 'flex';
+    document.getElementById('sync-company').value = company || '';
+    document.getElementById('sync-role').value = title || '';
     prompts.score = buildScorePrompt(title, company, jobData?.jobText || jdText);
     saveScore(company + (title ? ' - '+title : ''), total);
     logUsage('/score', (company||'Unknown') + (title ? ' - '+title : ''));
@@ -341,8 +343,8 @@ ${followups || 'None flagged.'}
 // ── OUTREACH SYNC ─────────────────────────────────────
 function syncToTracker() {
   if (!jobData) { toast('No job data to sync'); return; }
-  const company = jobData.company || 'Unknown';
-  const role = jobData.title || '';
+  const company = document.getElementById('sync-company').value.trim() || jobData.company || 'Unknown';
+  const role = document.getElementById('sync-role').value.trim() || jobData.title || '';
   const total = parseInt(document.getElementById('p-total').textContent) || 0;
   const pov = `Scored ${total}% via extension on ${new Date().toLocaleDateString()}`;
   chrome.runtime.sendMessage({ action: 'syncOutreach', data: { company, role, score: total, pov } }, resp => {
@@ -362,8 +364,8 @@ function syncToTracker() {
 
 function syncToPipeline() {
   if (!jobData) { toast('No job data to sync'); return; }
-  const company = jobData.company || 'Unknown';
-  const role = jobData.title || '';
+  const company = document.getElementById('sync-company').value.trim() || jobData.company || 'Unknown';
+  const role = document.getElementById('sync-role').value.trim() || jobData.title || '';
   const total = parseInt(document.getElementById('p-total').textContent) || 0;
   chrome.runtime.sendMessage({ action: 'syncPipeline', data: { company, role, score: total, url: jobData.url || '' } }, resp => {
     if (chrome.runtime.lastError) { toast('Sync error - try again'); return; }
