@@ -401,7 +401,10 @@ select { appearance: none; cursor: pointer; }
         <div class="panel-eyebrow" id="dash-eyebrow">-</div>
         <div class="panel-title">Pranjal's command center</div>
         <div class="panel-sub">Your full job search at a glance. Pick a workflow to start.</div>
-        <div id="ext-sync-status" style="margin-top:8px;font-family:var(--mono);font-size:10px;color:var(--text3);"></div>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:8px;">
+          <div id="ext-sync-status" style="font-family:var(--mono);font-size:10px;color:var(--text3);flex:1;"></div>
+          <button onclick="checkExtensionSync()" style="font-family:var(--mono);font-size:9px;padding:2px 8px;background:transparent;border:1px solid var(--border2);border-radius:4px;color:var(--text3);cursor:pointer;white-space:nowrap;" title="Pull latest from extension">↻ Sync</button>
+        </div>
       </div>
 
       <div class="metrics-grid">
