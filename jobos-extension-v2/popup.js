@@ -63,6 +63,7 @@ function wireButtons() {
   on('btn-gen-apply',         generateApply);
   on('btn-open-claude-apply', () => openClaude('apply'));
   on('btn-copy-apply',        () => copyP('apply'));
+  document.getElementById('p-apply-pipeline').addEventListener('change', onApplyPipelineSelect);
 
   // Brief tab
   on('btn-gen-brief',         generateBrief);
@@ -359,6 +360,33 @@ function buildScorePrompt(title, company, jd) {
 <jd>
 ${jd || '[paste JD here]'}
 </jd>`;
+}
+
+// ── APPLY PIPELINE DROPDOWN ───────────────────────────
+let applyPipelineItems = [];
+
+function populateApplyPipeline() {
+  chrome.storage.local.get(OUTREACH_KEY, data => {
+    applyPipelineItems = (data[OUTREACH_KEY]?.pipeline || []).filter(r => r.jd);
+    const sel = document.getElementById('p-apply-pipeline');
+    while (sel.options.length > 1) sel.remove(1);
+    applyPipelineItems.forEach((r, i) => {
+      const opt = document.createElement('option');
+      opt.value = i;
+      opt.textContent = `${r.company} — ${r.role}`;
+      sel.appendChild(opt);
+    });
+  });
+}
+
+function onApplyPipelineSelect() {
+  const sel = document.getElementById('p-apply-pipeline');
+  const idx = sel.value;
+  if (idx === '') { jobData = null; return; }
+  const r = applyPipelineItems[parseInt(idx)];
+  if (!r) return;
+  jobData = { company: r.company, title: r.role, jobText: r.jd, url: r.url || '' };
+  toast(`Loaded: ${r.company} — ${r.role}`);
 }
 
 function generateApply() {
@@ -681,6 +709,7 @@ function switchTab(id) {
   if (panel) panel.classList.add('active');
   if (id === 'history') loadHistory();
   if (id === 'nudges') { loadNudges(); loadExportCount(); loadGistConfig(); loadDashboardConfig(); }
+  if (id === 'apply') populateApplyPipeline();
 }
 
 // ── TOAST ─────────────────────────────────────────────
