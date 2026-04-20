@@ -366,8 +366,14 @@ ${jd || '[paste JD here]'}
 let applyPipelineItems = [];
 
 function populateApplyPipeline() {
-  chrome.storage.local.get(OUTREACH_KEY, data => {
-    applyPipelineItems = (data[OUTREACH_KEY]?.pipeline || []).filter(r => r.jd);
+  chrome.storage.local.get([OUTREACH_KEY, 'jobos_v3_backup'], data => {
+    const CLOSED = ['Rejected','Withdrawn','Closed'];
+    const outreachItems = (data[OUTREACH_KEY]?.pipeline || []).filter(r => r.jd);
+    const backupItems = (data['jobos_v3_backup']?.pipeline || [])
+      .filter(r => r.jd && !CLOSED.includes(r.stage))
+      .map(r => ({ company: r.company, role: r.role, jd: r.jd, url: r.url || '' }));
+    const seen = new Set(outreachItems.map(r => `${r.company}|${r.role}`));
+    applyPipelineItems = [...outreachItems, ...backupItems.filter(r => !seen.has(`${r.company}|${r.role}`))];
     const sel = document.getElementById('p-apply-pipeline');
     while (sel.options.length > 1) sel.remove(1);
     applyPipelineItems.forEach((r, i) => {
@@ -376,6 +382,11 @@ function populateApplyPipeline() {
       opt.textContent = `${r.company} — ${r.role}`;
       sel.appendChild(opt);
     });
+    if (!applyPipelineItems.length) {
+      const opt = document.createElement('option');
+      opt.value = ''; opt.textContent = '— no pipeline roles with JD saved —'; opt.disabled = true;
+      sel.appendChild(opt);
+    }
   });
 }
 

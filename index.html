@@ -1306,16 +1306,7 @@ select { appearance: none; cursor: pointer; }
       <div id="rvp1">
         <div class="card card-accent">
           <div class="card-title" style="margin-bottom:12px;">Enter role - or quick-load from your active list</div>
-          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;">
-            <button class="btn" style="font-size:11px;font-family:var(--mono);" onclick="rvQL('Tenstorrent','Head of ISV Partnerships, Experience GTM','edgeai','hardware')">Tenstorrent</button>
-            <button class="btn" style="font-size:11px;font-family:var(--mono);" onclick="rvQL('Placer.ai','Strategic Partnerships, Account Director','enterprise','alliances')">Placer.ai</button>
-            <button class="btn" style="font-size:11px;font-family:var(--mono);" onclick="rvQL('Typeface','Director, Strategic Alliances - GSIs & Agencies','enterprise','alliances')">Typeface</button>
-            <button class="btn" style="font-size:11px;font-family:var(--mono);" onclick="rvQL('Nothing.tech','Director, Business Development','edgeai','hardware')">Nothing.tech</button>
-            <button class="btn" style="font-size:11px;font-family:var(--mono);" onclick="rvQL('Microsoft','Sr. Manager, Global Partnerships','enterprise','enterprise')">Microsoft</button>
-            <button class="btn" style="font-size:11px;font-family:var(--mono);" onclick="rvQL('Emissary','Founding GTM Lead','enterprise','startup')">Emissary</button>
-            <button class="btn" style="font-size:11px;font-family:var(--mono);" onclick="rvQL('G42','Senior Director, Strategic AI Accounts','edgeai','alliances')">G42</button>
-            <button class="btn" style="font-size:11px;font-family:var(--mono);" onclick="rvQL('Apple','BD / Strategic Partnerships','enterprise','enterprise')">Apple</button>
-          </div>
+          <div id="rv-pipeline-ql" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;"></div>
           <div class="two-col">
             <div class="input-row"><label class="input-label">Company</label><input type="text" id="rv-company" placeholder="e.g. Tenstorrent" oninput="rvLiveScore()"></div>
             <div class="input-row"><label class="input-label">Role title</label><input type="text" id="rv-role" placeholder="e.g. Head of ISV Partnerships" oninput="rvLiveScore()"></div>
@@ -1954,6 +1945,7 @@ function nav(id) {
   if (id === 'brief') loadCalendarForBrief();
   if (id === 'inbox') renderInbox();
   if (id === 'pipeline') { renderPipeline(); buildPipelinePrompt(); }
+  if (id === 'resume') renderResumePipelineQL();
   if (id === 'history') renderHistory();
   if (id === 'dashboard') { renderPipelineMini(); renderActivityGrid(); }
   if (id === 'outreach') { renderOutreachTable(); updateOutreachMetrics(); renderVelocityChart(); renderStatusBreakdown(); }
@@ -2150,7 +2142,11 @@ function inboxApply(id) {
   saveState();
   renderInbox();
   renderPipelineMini();
-  toast(`${r.company} moved to Applied`);
+  // Navigate to /apply and pre-fill role + JD
+  document.getElementById('apply-role').value = `${r.company} - ${r.role || ''}`.trim().replace(/- $/, '');
+  if (r.jd) document.getElementById('apply-jd').value = r.jd;
+  nav('apply');
+  toast(`${r.company} → /apply`);
 }
 
 function inboxResume(id) {
@@ -2876,6 +2872,27 @@ function rvLoadFromScore(company, role, jd) {
   rvLiveScore();
   nav('resume');
   toast('Loaded from /score - continue to step 2');
+}
+
+function renderResumePipelineQL() {
+  const el = document.getElementById('rv-pipeline-ql');
+  if (!el) return;
+  const CLOSED = ['Rejected','Withdrawn','Closed'];
+  const roles = STATE.pipeline.filter(r => !CLOSED.includes(r.stage));
+  if (!roles.length) {
+    el.innerHTML = '<span style="font-family:var(--mono);font-size:10px;color:var(--text3);">No active pipeline roles — add via /pipeline or the extension.</span>';
+    return;
+  }
+  el.innerHTML = roles.map(r =>
+    `<button class="btn" style="font-size:11px;font-family:var(--mono);" onclick="rvLoadFromPipeline(${r.id})">${r.company}</button>`
+  ).join('');
+}
+
+function rvLoadFromPipeline(id) {
+  const r = STATE.pipeline.find(x => x.id === id);
+  if (!r) return;
+  rvLoadFromScore(r.company, r.role || '', r.jd || '');
+  toast(`${r.company} loaded into /resume`);
 }
 
 function rvQL(co,ro,tm,rt) {
