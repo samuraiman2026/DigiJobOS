@@ -184,6 +184,35 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     getNudgeCount().then(count => sendResponse({ count }));
     return true;
   }
+  if (msg.action === 'fillResume') {
+    chrome.storage.local.get(DASHBOARD_KEY, data => {
+      const dashUrl = data[DASHBOARD_KEY];
+      if (!dashUrl) { sendResponse({ filled: false }); return; }
+      chrome.tabs.query({}, tabs => {
+        const norm = url => url.replace(/\/$/, '');
+        const tab = tabs.find(t => t.url && norm(t.url).startsWith(norm(dashUrl)));
+        if (!tab) { sendResponse({ filled: false }); return; }
+        chrome.scripting.executeScript({
+          target: { tabId: tab.id },
+          world: 'MAIN',
+          func: (company, role, jd) => {
+            try {
+              if (typeof rvLoadFromScore === 'function') {
+                rvLoadFromScore(company, role, jd);
+                return true;
+              }
+              return false;
+            } catch(e) { return false; }
+          },
+          args: [msg.data.company, msg.data.role, msg.data.jd]
+        }, results => {
+          if (chrome.runtime.lastError) { sendResponse({ filled: false }); return; }
+          sendResponse({ filled: results?.[0]?.result === true });
+        });
+      });
+    });
+    return true;
+  }
   if (msg.action === 'syncOutreach') {
     chrome.storage.local.get(OUTREACH_SYNC_KEY, async data => {
       const existing = data[OUTREACH_SYNC_KEY] || { contacts: [], lastUpdated: null };
@@ -224,7 +253,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     chrome.storage.local.get(OUTREACH_SYNC_KEY, async data => {
       const existing = data[OUTREACH_SYNC_KEY] || { contacts: [], pipeline: [], lastUpdated: null };
       const pipeline = existing.pipeline || [];
-      const { company, role, score, url } = msg.data;
+      const { company, role, score, url, jd } = msg.data;
 
       const alreadyExists = pipeline.some(r =>
         r.company?.toLowerCase() === company?.toLowerCase() && r.role?.toLowerCase() === role?.toLowerCase()
@@ -235,12 +264,13 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
           company,
           role: role || '',
           url: url || '',
-          stage: 'Applied',
+          stage: 'To Review',
           health: score >= 75 ? 'green' : score >= 50 ? 'amber' : 'red',
           lastAction: new Date().toLocaleDateString('en-US', { month:'short', day:'numeric' }),
-          nextStep: 'Awaiting response',
+          nextStep: 'Review and decide',
           addedAt: new Date().toISOString(),
-          scoreFromExt: score
+          scoreFromExt: score,
+          jd: jd || ''
         };
         pipeline.push(item);
         existing.pipeline = pipeline;
@@ -293,6 +323,18 @@ chrome.runtime.onMessageExternal.addListener((msg, sender, sendResponse) => {
       existing.pipeline = [];
       existing.lastUpdated = new Date().toISOString();
       chrome.storage.local.set({ [OUTREACH_SYNC_KEY]: existing }, () => sendResponse({ cleared: true }));
+    });
+    return true;
+  }
+  if (msg.action === 'saveStateBackup') {
+    // Persist full dashboard state to chrome.storage.local so it survives browser restarts
+    // even when the tab's localStorage gets cleared.
+    chrome.storage.local.set({ jobos_v3_backup: msg.state }, () => sendResponse({ saved: true }));
+    return true;
+  }
+  if (msg.action === 'loadStateBackup') {
+    chrome.storage.local.get('jobos_v3_backup', data => {
+      sendResponse({ state: data.jobos_v3_backup || null });
     });
     return true;
   }

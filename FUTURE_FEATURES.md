@@ -4,6 +4,14 @@ This document tracks proposed enhancements for future versions of the Job Search
 
 ---
 
+## Shipped in v4.6
+
+- **Role inbox / triage queue** ✓ — "To Review" stage, Inbox panel, Apply/Resume/Pass actions, extension routes to inbox by default.
+- **Daily affirmation** ✓ — Rotating quote at top of dashboard, stable all day, changes each morning.
+- **Resume fill from extension** ✓ — "→ Fill /resume" button sends company, role, and JD directly into Step 1 fields.
+
+---
+
 ## 1. Intelligence & Automation
 
 ### Semantic Bullet Search
@@ -37,6 +45,7 @@ This document tracks proposed enhancements for future versions of the Job Search
 ### Lightweight Backend (Cloud Sync)
 - **Feature**: Replace `localStorage` with a Supabase or Firebase backend.
 - **Impact**: Seamless syncing between laptop, desktop, and mobile without manual JSON export/import.
+- **Status**: Partially addressed in v4.5 - `chrome.storage.local` now acts as a persistent backup that survives browser restarts. Full cross-device sync still requires a backend.
 
 ### Gmail/Calendar MCP Connector (Native)
 - **Feature**: A dedicated Node.js helper that runs locally to provide Claude with direct, authenticated access to Gmail and Calendar.
@@ -56,4 +65,4 @@ This document tracks proposed enhancements for future versions of the Job Search
 
 ---
 
-*Last updated: April 13, 2026*
+*Last updated: April 20, 2026*

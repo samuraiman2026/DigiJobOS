@@ -118,6 +118,14 @@ select { appearance: none; cursor: pointer; }
 .pipeline-table tr:hover td { background: var(--bg3); }
 .stage-pill { display: inline-block; font-family: var(--mono); font-size: 9px; padding: 3px 8px; border-radius: 10px; }
 .stage-active { background: rgba(184,224,74,0.12); color: var(--accent); }
+.stage-review { background: rgba(184,224,74,0.08); color: var(--accent); border: 1px solid rgba(184,224,74,0.2); }
+.inbox-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r2); padding: 14px 16px; margin-bottom: 10px; display: flex; align-items: flex-start; gap: 14px; }
+.inbox-card:hover { border-color: var(--border2); }
+.inbox-card-body { flex: 1; min-width: 0; }
+.inbox-card-company { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 2px; }
+.inbox-card-role { font-size: 11px; color: var(--text2); margin-bottom: 8px; font-family: var(--mono); }
+.inbox-card-meta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.inbox-card-actions { display: flex; gap: 6px; flex-shrink: 0; align-items: center; }
 .stage-applied { background: rgba(74,168,224,0.12); color: var(--blue); }
 .stage-screen { background: rgba(224,168,74,0.12); color: var(--amber); }
 .stage-cold { background: rgba(224,90,74,0.12); color: var(--red); }
@@ -311,6 +319,10 @@ select { appearance: none; cursor: pointer; }
       <button class="nav-item active" onclick="nav('dashboard')" id="nav-dashboard">
         <span class="ni-icon">◈</span> Dashboard
       </button>
+      <button class="nav-item" onclick="nav('inbox')" id="nav-inbox">
+        <span class="ni-icon">⊙</span> Inbox
+        <span class="ni-badge" id="badge-inbox" style="background:var(--accent);color:#111;display:none;">0</span>
+      </button>
       <button class="nav-item" onclick="nav('pipeline')" id="nav-pipeline">
         <span class="ni-icon">⊞</span> Pipeline
         <span class="ni-badge" id="badge-pipeline">4</span>
@@ -390,6 +402,10 @@ select { appearance: none; cursor: pointer; }
       <div class="stat-row"><span class="stat-label">Interviews</span><span class="stat-val" id="stat-ints">0</span></div>
       <div class="stat-row"><span class="stat-label">Streak</span><span class="stat-val" id="stat-streak">0d</span></div>
     </div>
+
+    <div style="padding: 14px 18px; border-top: 1px solid var(--border); font-family: var(--mono); font-size: 9px; color: var(--text3); letter-spacing: 0.05em;">
+      Created by Pranjal Mahna
+    </div>
   </aside>
 
   <!-- MAIN -->
@@ -397,6 +413,14 @@ select { appearance: none; cursor: pointer; }
 
     <!-- DASHBOARD -->
     <div class="panel active" id="panel-dashboard">
+      <div id="daily-affirmation" style="background:var(--bg2);border:1px solid var(--border);border-left:2px solid var(--accent);border-radius:var(--r2);padding:12px 16px;margin-bottom:20px;display:flex;align-items:flex-start;gap:12px;">
+        <span style="font-family:var(--mono);font-size:14px;color:var(--accent);flex-shrink:0;line-height:1.4;">"</span>
+        <div style="flex:1;">
+          <div id="affirmation-text" style="font-size:13px;color:var(--text);line-height:1.6;font-style:italic;"></div>
+          <div id="affirmation-author" style="font-family:var(--mono);font-size:9px;color:var(--text3);margin-top:5px;letter-spacing:0.05em;"></div>
+        </div>
+      </div>
+
       <div class="panel-header">
         <div class="panel-eyebrow" id="dash-eyebrow">-</div>
         <div class="panel-title">Pranjal's command center</div>
@@ -496,6 +520,19 @@ select { appearance: none; cursor: pointer; }
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- INBOX -->
+    <div class="panel" id="panel-inbox">
+      <div class="panel-header">
+        <div class="panel-eyebrow">Triage · /inbox</div>
+        <div class="panel-title">Role inbox</div>
+        <div class="panel-sub">Roles queued for review. Score high enough to apply? Move it. Not a fit? Pass it. Nothing sits here unactioned.</div>
+      </div>
+      <div id="inbox-empty" style="display:none;padding:40px 0;text-align:center;font-family:var(--mono);font-size:11px;color:var(--text3);">
+        Inbox zero. Add roles via the Chrome extension or the pipeline + Add role button with stage "To Review".
+      </div>
+      <div id="inbox-list"></div>
     </div>
 
     <!-- PIPELINE -->
@@ -1808,6 +1845,7 @@ At the start of any session where I ask about my job search, pipeline, or outrea
     <div class="input-row"><label class="input-label">Role title</label><input type="text" id="ar-role" placeholder="e.g. Director, Business Development"></div>
     <div class="input-row"><label class="input-label">Stage</label>
       <select id="ar-stage">
+        <option value="To Review">To Review</option>
         <option value="Monitoring">Monitoring</option>
         <option value="Applied">Applied</option>
         <option value="Recruiter screen">Recruiter screen</option>
@@ -1866,8 +1904,10 @@ const STORAGE_KEY = 'jobos_v3';
 function loadState() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : defaultState();
-  } catch(e) { return defaultState(); }
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  window._jobosLocalStorageWasEmpty = true;
+  return defaultState();
 }
 
 function defaultState() {
@@ -1888,6 +1928,16 @@ function defaultState() {
 
 function saveState() {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(STATE)); } catch(e) {}
+  // Mirror to extension's chrome.storage.local so state survives browser restarts
+  // that clear localStorage (e.g. "Clear cookies on exit" browser settings).
+  try {
+    const extId = window.JOBOS_EXT_ID || document.documentElement.dataset.jobosExtId;
+    if (extId && typeof chrome !== 'undefined' && chrome.runtime?.sendMessage) {
+      chrome.runtime.sendMessage(extId, { action: 'saveStateBackup', state: STATE }, () => {
+        if (chrome.runtime.lastError) { /* extension unreachable - ok, silent fail */ }
+      });
+    }
+  } catch(e) {}
 }
 
 let STATE = loadState();
@@ -1901,6 +1951,7 @@ function nav(id) {
   if (panel) panel.classList.add('active');
   if (navBtn) navBtn.classList.add('active');
   if (id === 'brief') loadCalendarForBrief();
+  if (id === 'inbox') renderInbox();
   if (id === 'pipeline') { renderPipeline(); buildPipelinePrompt(); }
   if (id === 'history') renderHistory();
   if (id === 'dashboard') { renderPipelineMini(); renderActivityGrid(); }
@@ -1944,12 +1995,14 @@ function renderDashboardCalendar() {
 function renderPipeline() {
   const tbody = document.getElementById('pipeline-tbody');
   if (!tbody) return;
-  if (!STATE.pipeline.length) {
+  // "To Review" roles live in the inbox panel, not here
+  const pipelineRoles = STATE.pipeline.filter(r => r.stage !== INBOX_STAGE);
+  if (!pipelineRoles.length) {
     tbody.innerHTML = `<tr><td colspan="9" style="padding:24px;text-align:center;font-family:var(--mono);font-size:11px;color:var(--text3);">No roles in pipeline. Click + Add role to get started.</td></tr>`;
     return;
   }
   const oneWeekAgo = Date.now() - 7 * 86400000;
-  const visible = STATE.pipeline
+  const visible = pipelineRoles
     .filter(r => {
       if (!CLOSED_STAGES.includes(r.stage)) return true;
       if (!r.closedAt) return true; // legacy: no closedAt, show it
@@ -1987,7 +2040,7 @@ function renderPipeline() {
       </td>
       <td>
         <select onchange="updatePipelineStage(${r.id},this.value)" style="background:transparent;border:1px solid var(--border2);font-family:var(--mono);font-size:9px;padding:3px 6px;border-radius:4px;cursor:pointer;color:var(--text2);">
-          ${['Monitoring','Applied','Recruiter screen','HM round','Panel','Offer','Withdrawn','Rejected','Closed'].map(s=>`<option value="${s}" ${r.stage===s?'selected':''}>${s}</option>`).join('')}
+          ${['To Review','Monitoring','Applied','Recruiter screen','HM round','Panel','Offer','Withdrawn','Rejected','Closed'].map(s=>`<option value="${s}" ${r.stage===s?'selected':''}>${s}</option>`).join('')}
         </select>
       </td>
       <td><button class="btn" style="font-size:10px;padding:4px 8px;" onclick="removeRole(${r.id})">×</button></td>
@@ -1998,7 +2051,7 @@ function renderPipeline() {
 function renderPipelineMini() {
   const el = document.getElementById('pipeline-mini');
   if (!el) return;
-  el.innerHTML = STATE.pipeline.map(r => {
+  el.innerHTML = STATE.pipeline.filter(r => r.stage !== INBOX_STAGE).map(r => {
     const healthCls = { green:'health-green', amber:'health-amber', red:'health-red' }[r.health] || 'health-amber';
     const companyEl = r.url ? `<a href="${r.url}" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;">${r.company}</a>` : r.company;
     return `<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);">
@@ -2010,14 +2063,16 @@ function renderPipelineMini() {
       <span style="font-family:var(--mono);font-size:9px;color:var(--text3);white-space:nowrap;">${r.stage}</span>
     </div>`;
   }).join('');
-  document.getElementById('badge-pipeline').textContent = STATE.pipeline.length;
+  const activePipelineCount = STATE.pipeline.filter(r => r.stage !== INBOX_STAGE).length;
+  document.getElementById('badge-pipeline').textContent = activePipelineCount;
+  updateInboxBadge();
 }
 
 function buildPipelinePrompt() {
   const el = document.getElementById('prompt-pipeline');
   if (!el) return;
-  const active = STATE.pipeline.filter(r => !['Withdrawn','Rejected','Closed'].includes(r.stage));
-  const closed = STATE.pipeline.filter(r => ['Withdrawn','Rejected','Closed'].includes(r.stage));
+  const active = STATE.pipeline.filter(r => r.stage !== INBOX_STAGE && !CLOSED_STAGES.includes(r.stage));
+  const closed = STATE.pipeline.filter(r => CLOSED_STAGES.includes(r.stage));
   const pipelineLines = active.map(r =>
     `  ${r.company} - ${r.role} - ${r.stage} [${r.health}] - Last action: ${r.lastAction} - Next: ${r.nextStep}`
   ).join('\n');
@@ -2035,6 +2090,84 @@ Tell me: (1) What is at risk of going cold? (2) What has momentum?
   btn.textContent = 'copy';
   btn.onclick = () => copyPrompt('prompt-pipeline');
   el.appendChild(btn);
+}
+
+// ==================== INBOX ====================
+function updateInboxBadge() {
+  const count = STATE.pipeline.filter(r => r.stage === INBOX_STAGE).length;
+  const badge = document.getElementById('badge-inbox');
+  if (!badge) return;
+  if (count > 0) {
+    badge.textContent = count;
+    badge.style.display = '';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+function renderInbox() {
+  const list = document.getElementById('inbox-list');
+  const empty = document.getElementById('inbox-empty');
+  if (!list) return;
+  const roles = STATE.pipeline.filter(r => r.stage === INBOX_STAGE);
+  if (!roles.length) {
+    list.innerHTML = '';
+    if (empty) empty.style.display = '';
+    return;
+  }
+  if (empty) empty.style.display = 'none';
+  list.innerHTML = roles.map(r => {
+    const score = r.scoreFromExt ? `<span style="font-family:var(--mono);font-size:10px;color:var(--accent);background:var(--accent-dim);padding:2px 7px;border-radius:10px;">${r.scoreFromExt}%</span>` : '';
+    const added = r.addedAt ? new Date(r.addedAt).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '';
+    const companyLabel = r.url
+      ? `<a href="${r.url}" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;" title="Open job listing">${r.company} ↗</a>`
+      : r.company;
+    return `<div class="inbox-card">
+      <div class="inbox-card-body">
+        <div class="inbox-card-company">${companyLabel}</div>
+        <div class="inbox-card-role">${r.role || '—'}</div>
+        <div class="inbox-card-meta">
+          ${score}
+          ${added ? `<span style="font-family:var(--mono);font-size:9px;color:var(--text3);">Added ${added}</span>` : ''}
+        </div>
+      </div>
+      <div class="inbox-card-actions">
+        <button class="btn" style="font-size:10px;padding:5px 10px;font-family:var(--mono);" onclick="inboxResume(${r.id})" title="Load into resume builder">Resume</button>
+        <button class="btn btn-primary" style="font-size:10px;padding:5px 10px;font-family:var(--mono);" onclick="inboxApply(${r.id})">Apply →</button>
+        <button class="btn" style="font-size:10px;padding:5px 10px;color:var(--text3);font-family:var(--mono);" onclick="inboxPass(${r.id})" title="Remove from inbox">Pass</button>
+      </div>
+    </div>`;
+  }).join('');
+  updateInboxBadge();
+}
+
+function inboxApply(id) {
+  const r = STATE.pipeline.find(x => x.id === id);
+  if (!r) return;
+  r.stage = 'Applied';
+  r.lastAction = new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  saveState();
+  renderInbox();
+  renderPipelineMini();
+  toast(`${r.company} moved to Applied`);
+}
+
+function inboxResume(id) {
+  const r = STATE.pipeline.find(x => x.id === id);
+  if (!r) return;
+  rvLoadFromScore(r.company, r.role, r.jd || '');
+  toast(`${r.company} loaded into /resume`);
+}
+
+function inboxPass(id) {
+  const r = STATE.pipeline.find(x => x.id === id);
+  if (!r) return;
+  const name = r.company;
+  STATE.pipeline = STATE.pipeline.filter(x => x.id !== id);
+  saveState();
+  renderInbox();
+  renderPipelineMini();
+  toast(`${name} removed`);
 }
 
 function openAddRole() {
@@ -2075,6 +2208,7 @@ function removeRole(id) {
 }
 
 const CLOSED_STAGES = ['Withdrawn','Rejected','Closed'];
+const INBOX_STAGE = 'To Review';
 function updatePipelineStage(id, stage) {
   const r = STATE.pipeline.find(x => x.id === id);
   if (!r) return;
@@ -4034,6 +4168,57 @@ function importFullExport(jsonString) {
 
 // ==================== END WEEKLY EXPORT ====================
 
+// ==================== DAILY AFFIRMATION ====================
+const AFFIRMATIONS = [
+  { text: "The secret of getting ahead is getting started.", author: "Mark Twain" },
+  { text: "Your network is your net worth. Every conversation is an asset.", author: "Porter Gale" },
+  { text: "You are not the product of your circumstances. You are the product of your decisions.", author: "Stephen Covey" },
+  { text: "The best time to plant a tree was 20 years ago. The second best time is now.", author: "Chinese proverb" },
+  { text: "Opportunities don't happen. You create them.", author: "Chris Grosser" },
+  { text: "It always seems impossible until it's done.", author: "Nelson Mandela" },
+  { text: "Don't watch the clock. Do what it does - keep going.", author: "Sam Levenson" },
+  { text: "Confidence is not they will like me. Confidence is I'll be fine if they don't.", author: "Christina Grimmie" },
+  { text: "The harder I work, the more luck I seem to have.", author: "Thomas Jefferson" },
+  { text: "Success is where preparation and opportunity meet.", author: "Bobby Unser" },
+  { text: "Do not go where the path may lead. Go instead where there is no path and leave a trail.", author: "Ralph Waldo Emerson" },
+  { text: "You miss 100% of the shots you don't take.", author: "Wayne Gretzky" },
+  { text: "The people who are crazy enough to think they can change the world are the ones who do.", author: "Steve Jobs" },
+  { text: "Great things are not done by impulse, but by a series of small things brought together.", author: "Vincent Van Gogh" },
+  { text: "A year from now you may wish you had started today.", author: "Karen Lamb" },
+  { text: "I am not a product of my circumstances. I am a product of my decisions.", author: "Stephen Covey" },
+  { text: "What you do speaks so loudly that I cannot hear what you say.", author: "Ralph Waldo Emerson" },
+  { text: "The only way to do great work is to love what you do.", author: "Steve Jobs" },
+  { text: "In the middle of every difficulty lies opportunity.", author: "Albert Einstein" },
+  { text: "Your time is limited, so don't waste it living someone else's life.", author: "Steve Jobs" },
+  { text: "The question isn't who is going to let me; it's who is going to stop me.", author: "Ayn Rand" },
+  { text: "Strength doesn't come from what you can do. It comes from overcoming the things you once thought you couldn't.", author: "Rikki Rogers" },
+  { text: "You have brains in your head. You have feet in your shoes. You can steer yourself any direction you choose.", author: "Dr. Seuss" },
+  { text: "Act as if what you do makes a difference. It does.", author: "William James" },
+  { text: "Success is not final, failure is not fatal. It is the courage to continue that counts.", author: "Winston Churchill" },
+  { text: "Believe you can and you're halfway there.", author: "Theodore Roosevelt" },
+  { text: "Everything you've ever wanted is on the other side of fear.", author: "George Addair" },
+  { text: "The only limit to our realization of tomorrow will be our doubts of today.", author: "Franklin D. Roosevelt" },
+  { text: "We generate fears while we sit. We overcome them by action.", author: "Dr. Henry Link" },
+  { text: "Whether you think you can or think you can't, you're right.", author: "Henry Ford" },
+  { text: "The man who has confidence in himself gains the confidence of others.", author: "Hasidic proverb" },
+  { text: "Inaction breeds doubt and fear. Action breeds confidence and courage.", author: "Dale Carnegie" },
+  { text: "It does not matter how slowly you go as long as you do not stop.", author: "Confucius" },
+  { text: "Each morning we are born again. What we do today is what matters most.", author: "Buddha" },
+  { text: "You don't have to be great to start, but you have to start to be great.", author: "Zig Ziglar" },
+];
+
+function renderDailyAffirmation() {
+  const now = new Date();
+  // Use day-of-year so the quote is stable all day and changes each morning
+  const start = new Date(now.getFullYear(), 0, 0);
+  const dayOfYear = Math.floor((now - start) / 86400000);
+  const q = AFFIRMATIONS[dayOfYear % AFFIRMATIONS.length];
+  const textEl = document.getElementById('affirmation-text');
+  const authEl = document.getElementById('affirmation-author');
+  if (textEl) textEl.textContent = q.text;
+  if (authEl) authEl.textContent = '- ' + q.author;
+}
+
 function init() {
   // Live date - updates every time the file is opened
   const now = new Date();
@@ -4046,8 +4231,10 @@ function init() {
   if (eyebrow) eyebrow.textContent = `${dateStr} · ${greeting}`;
   const digestDate = document.getElementById('digest-date-heading');
   if (digestDate) digestDate.textContent = `Today's digest - ${months[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
+  renderDailyAffirmation();
   renderDashboardCalendar();
   renderPipelineMini();
+  updateInboxBadge();
   renderActivityGrid();
   updateSidebarStats();
   renderScoreHistory();
@@ -4476,6 +4663,7 @@ function renderExtSyncStatus() {
 // ── EXTENSION AUTO-SYNC ───────────────────────────────
 // On every dashboard load, if the Job Search OS extension is installed,
 // pull any queued pipeline/outreach items and import them automatically.
+// Also restores full state from the extension backup when localStorage was cleared.
 function checkExtensionSync() {
   const extId = window.JOBOS_EXT_ID || document.documentElement.dataset.jobosExtId;
   const el = document.getElementById('ext-sync-status');
@@ -4487,6 +4675,34 @@ function checkExtensionSync() {
     if (el) { el.textContent = '○ Extension messaging unavailable (open via https)'; el.style.color = 'var(--text3)'; }
     return;
   }
+  try {
+    // If localStorage was cleared (browser restart / privacy settings), restore from
+    // the extension's chrome.storage.local backup before pulling pending sync items.
+    if (window._jobosLocalStorageWasEmpty) {
+      chrome.runtime.sendMessage(extId, { action: 'loadStateBackup' }, backupResp => {
+        if (!chrome.runtime.lastError && backupResp?.state?.pipeline?.length) {
+          STATE = backupResp.state;
+          saveState(); // re-populate localStorage from the backup
+          window._jobosLocalStorageWasEmpty = false;
+          // Re-render the dashboard with restored data
+          renderPipelineMini();
+          renderActivityGrid();
+          if (document.getElementById('panel-pipeline')?.classList.contains('active')) {
+            renderPipeline();
+            buildPipelinePrompt();
+          }
+          toast('Pipeline restored from extension backup');
+        }
+        // Proceed with normal pending-sync check
+        doPendingSync(extId, el);
+      });
+    } else {
+      doPendingSync(extId, el);
+    }
+  } catch(e) { /* extension not installed or not reachable */ }
+}
+
+function doPendingSync(extId, el) {
   try {
     chrome.runtime.sendMessage(extId, { action: 'getPendingSync' }, resp => {
       if (chrome.runtime.lastError) {
@@ -4531,11 +4747,13 @@ function checkExtensionSync() {
             company: r.company,
             role: r.role || 'BD Role',
             url: r.url || '',
-            stage: r.stage || 'Applied',
+            stage: INBOX_STAGE,
             health: r.health || 'green',
             addedAt: r.addedAt || new Date().toISOString(),
             lastAction: r.lastAction || new Date().toLocaleDateString('en-US', { month:'short', day:'numeric' }),
-            nextStep: r.nextStep || 'Awaiting response'
+            nextStep: r.nextStep || 'Review and decide',
+            scoreFromExt: r.scoreFromExt || null,
+            jd: r.jd || ''
           });
           pipelineAdded++;
         }
@@ -4552,6 +4770,7 @@ function checkExtensionSync() {
         renderPipelineMini();
         renderOutreachTable();
         updateOutreachMetrics();
+        if (pipelineAdded > 0) { renderInbox(); updateInboxBadge(); }
         toast(`Auto-synced ${total} item${total === 1 ? '' : 's'} from extension`);
         setExtSyncStatus(`Synced ${total} item${total === 1 ? '' : 's'} from extension`, true);
       } else {

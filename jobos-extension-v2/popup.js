@@ -55,6 +55,7 @@ function wireButtons() {
   on('btn-score-manual',    scoreManual);
   on('btn-sync-tracker',    syncToTracker);
   on('btn-sync-pipeline',   syncToPipeline);
+  on('btn-fill-resume',     fillResume);
   on('btn-open-claude-score', () => openClaude('score'));
   on('btn-copy-score',        () => copyP('score'));
 
@@ -367,17 +368,34 @@ function syncToPipeline() {
   const company = document.getElementById('sync-company').value.trim() || jobData.company || 'Unknown';
   const role = document.getElementById('sync-role').value.trim() || jobData.title || '';
   const total = parseInt(document.getElementById('p-total').textContent) || 0;
-  chrome.runtime.sendMessage({ action: 'syncPipeline', data: { company, role, score: total, url: jobData.url || '' } }, resp => {
+  chrome.runtime.sendMessage({ action: 'syncPipeline', data: { company, role, score: total, url: jobData.url || '', jd: jobData.jobText || '' } }, resp => {
     if (chrome.runtime.lastError) { toast('Sync error - try again'); return; }
     const btn = document.getElementById('btn-sync-pipeline');
     if (resp?.added) {
-      toast(resp.liveSynced ? `${company} added to pipeline - live ✓` : `${company} queued - open dashboard to sync`);
-      if (btn) { btn.textContent = resp.liveSynced ? '✓ Live synced' : '✓ Queued'; btn.disabled = true; }
+      toast(resp.liveSynced ? `${company} → inbox live ✓` : `${company} queued for inbox`);
+      if (btn) { btn.textContent = resp.liveSynced ? '✓ In inbox' : '✓ Queued'; btn.disabled = true; }
       loadExportCount();
       logUsage('/pipeline-sync', company);
     } else {
       toast(`${company} already in pipeline`);
       if (btn) { btn.textContent = '✓ Already tracked'; btn.disabled = true; }
+    }
+  });
+}
+
+function fillResume() {
+  if (!jobData) { toast('No job data - navigate to a job page first'); return; }
+  const company = document.getElementById('sync-company').value.trim() || jobData.company || '';
+  const role    = document.getElementById('sync-role').value.trim()    || jobData.title   || '';
+  const jd      = jobData.jobText || '';
+  chrome.runtime.sendMessage({ action: 'fillResume', data: { company, role, jd } }, resp => {
+    if (chrome.runtime.lastError) { toast('Dashboard not open - open it first'); return; }
+    const btn = document.getElementById('btn-fill-resume');
+    if (resp?.filled) {
+      toast('Filled /resume - check dashboard');
+      if (btn) { btn.textContent = '✓ Filled'; btn.disabled = true; }
+    } else {
+      toast('Dashboard not found - open it first');
     }
   });
 }
