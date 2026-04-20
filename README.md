@@ -9,13 +9,13 @@ A personal job search operating system built on Claude. Not a prompt library. No
 
 | File | What it is |
 |---|---|
-| `index.html` | Full dashboard v4.6 - all workflows + resume generator + 5 Tools panels + Inbox triage. |
+| `index.html` | Full dashboard v4.7 - all workflows + resume generator + 5 Tools panels + Inbox triage. |
 | `jobos-extension-v2/` | Chrome extension v2 source - MV3 compliant, nudge alerts, state backup, inbox queuing, resume fill. |
 | `CLAUDE.md` | Master context file (The Brain) - your identity and non-negotiable metrics. |
 | `BULLET_LIBRARY.md` | Complete bullet library - raw text for all resume bullets (token-optimized). |
 | `WORKFLOW_GUIDE.md` | Workflow instructions - houses the logic for all slash commands (token-optimized). |
 | `DEV_CONTEXT.md` | Developer reference - full system architecture for LLMs and engineers. |
-| `PERSISTENCE_FIX.md` | Explains the localStorage-clearing bug and the chrome.storage.local backup fix introduced in v4.5. |
+| `PERSISTENCE_FIX.md` | Explains the localStorage-clearing bug and the chrome.storage.local backup fix (v4.5 pipeline, v4.7 outreach tracker). |
 
 ---
 
@@ -78,6 +78,7 @@ The system is engineered for **extreme token efficiency** through architectural 
 
 | Version | Date | What changed |
 |---|---|---|
+| v4.7 | April 20, 2026 | **Outreach backup**: clearing browser cookies no longer wipes the outreach tracker. `saveOutreach()` mirrors to `chrome.storage.local['jobos_outreach_backup']`; `checkExtensionSync()` restores it in parallel with the pipeline backup on next load. |
 | v4.6 | April 20, 2026 | **Role inbox**: new triage stage "To Review" and dedicated Inbox panel with per-role Apply/Resume/Pass actions. Extension "Queue for review" button routes scored roles to inbox (not directly to Applied) and passes JD text through. **Daily affirmation**: rotating quote at the top of the dashboard, stable all day, changes each morning. **Resume fill from extension**: "→ Fill /resume" button pre-populates all Step 1 fields from a job page. |
 | v4.5 | April 16, 2026 | **Persistence fix**: pipeline state now backed up to `chrome.storage.local` on every save and auto-restored on load if `localStorage` was cleared by browser privacy settings. Silent fallback to `defaultState()` replaced with a toast-notified restore. See `PERSISTENCE_FIX.md` for full details. |
 | v4.4 | April 13, 2026 | **Auto-sync**: extension items now appear in the dashboard automatically on every page load - no JSON export/paste required. Uses `externally_connectable` + `dashboard_bridge.js` content script so the dashboard can pull queued items from the extension on open. |

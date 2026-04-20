@@ -4,6 +4,10 @@ This document tracks proposed enhancements for future versions of the Job Search
 
 ---
 
+## Shipped in v4.7
+
+- **Outreach tracker backup** ✓ — Clearing browser cookies no longer wipes the outreach tracker. Backed up to `chrome.storage.local` on every save, auto-restored on next load.
+
 ## Shipped in v4.6
 
 - **Role inbox / triage queue** ✓ — "To Review" stage, Inbox panel, Apply/Resume/Pass actions, extension routes to inbox by default.
@@ -65,4 +69,4 @@ This document tracks proposed enhancements for future versions of the Job Search
 
 ---
 
-*Last updated: April 20, 2026*
+*Last updated: April 20, 2026 · v4.7*
