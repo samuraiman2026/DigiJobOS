@@ -323,10 +323,7 @@ function calcPenalties(jd) {
   }
 
   // IC-only signal when management experience is a differentiator
-  if (/(no\s+direct\s+reports|individual\s+contributor\s+only|non.managerial|ic\s+role)/i.test(jd)) {
-    flags.push('IC-only role — management track is a differentiator here (-5)');
-    pts += 5;
-  }
+
 
   return { pts: Math.min(pts, 40), flags };
 }

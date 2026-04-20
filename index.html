@@ -2956,9 +2956,7 @@ function calcPenalties(jd) {
   if (/(salesforce\s+certified|salesforce\s+admin|sap\s+certif|oracle\s+certif|servicenow\s+certif)/i.test(jd)) {
     flags.push('Platform certification required — not held (-12)'); pts += 12;
   }
-  if (/(no\s+direct\s+reports|individual\s+contributor\s+only|non.managerial|ic\s+role)/i.test(jd)) {
-    flags.push('IC-only role — management track is a differentiator here (-5)'); pts += 5;
-  }
+
   return { pts: Math.min(pts, 40), flags };
 }
 
