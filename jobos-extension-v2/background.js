@@ -338,4 +338,14 @@ chrome.runtime.onMessageExternal.addListener((msg, sender, sendResponse) => {
     });
     return true;
   }
+  if (msg.action === 'saveOutreachBackup') {
+    chrome.storage.local.set({ jobos_outreach_backup: msg.state }, () => sendResponse({ saved: true }));
+    return true;
+  }
+  if (msg.action === 'loadOutreachBackup') {
+    chrome.storage.local.get('jobos_outreach_backup', data => {
+      sendResponse({ state: data.jobos_outreach_backup || null });
+    });
+    return true;
+  }
 });

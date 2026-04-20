@@ -109,6 +109,7 @@ The dashboard is a single-file web app optimized for deployment to **GitHub Page
 | `jobos_dashboard_url` | Dashboard URL string for live sync targeting | Extension popup Nudges tab |
 | `jobos_gist_url` | Gist URL for profile sync in extension popup | Extension popup |
 | `jobos_v3_backup` | **Full mirror of `jobos_v3`** - updated on every `saveState()` call; used to restore when `localStorage` is cleared (v4.5) | `background.js` `saveStateBackup` handler |
+| `jobos_outreach_backup` | **Full mirror of `jobos_outreach_v1`** - updated on every `saveOutreach()` call; used to restore outreach tracker when `localStorage` is cleared (v4.7) | `background.js` `saveOutreachBackup` handler |
 
 ---
 

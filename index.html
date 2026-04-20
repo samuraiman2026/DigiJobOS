@@ -4369,11 +4369,21 @@ function loadOutreach() {
     const raw = localStorage.getItem(OT_KEY);
     if (raw) return JSON.parse(raw);
   } catch(e) {}
+  window._jobosOutreachWasEmpty = true;
   return { contacts: JSON.parse(JSON.stringify(OUTREACH_SEED)), dailyLog: {} };
 }
 
 function saveOutreach() {
   try { localStorage.setItem(OT_KEY, JSON.stringify(OT_STATE)); } catch(e) {}
+  // Mirror to extension backup so clearing cookies doesn't wipe the tracker
+  try {
+    const extId = window.JOBOS_EXT_ID || document.documentElement.dataset.jobosExtId;
+    if (extId && typeof chrome !== 'undefined' && chrome.runtime?.sendMessage) {
+      chrome.runtime.sendMessage(extId, { action: 'saveOutreachBackup', state: OT_STATE }, () => {
+        if (chrome.runtime.lastError) {}
+      });
+    }
+  } catch(e) {}
 }
 
 let OT_STATE = loadOutreach();
@@ -4723,15 +4733,29 @@ function checkExtensionSync() {
     return;
   }
   try {
-    // If localStorage was cleared (browser restart / privacy settings), restore from
-    // the extension's chrome.storage.local backup before pulling pending sync items.
-    if (window._jobosLocalStorageWasEmpty) {
+    const needsStateRestore = !!window._jobosLocalStorageWasEmpty;
+    const needsOutreachRestore = !!window._jobosOutreachWasEmpty;
+
+    // No restores needed — go straight to pending sync
+    if (!needsStateRestore && !needsOutreachRestore) {
+      doPendingSync(extId, el);
+      return;
+    }
+
+    // Restore whichever backups are needed in parallel, then proceed with pending sync.
+    let stateRestored = !needsStateRestore;
+    let outreachRestored = !needsOutreachRestore;
+
+    function afterRestores() {
+      if (stateRestored && outreachRestored) doPendingSync(extId, el);
+    }
+
+    if (needsStateRestore) {
       chrome.runtime.sendMessage(extId, { action: 'loadStateBackup' }, backupResp => {
         if (!chrome.runtime.lastError && backupResp?.state?.pipeline?.length) {
           STATE = backupResp.state;
-          saveState(); // re-populate localStorage from the backup
+          saveState();
           window._jobosLocalStorageWasEmpty = false;
-          // Re-render the dashboard with restored data
           renderPipelineMini();
           renderActivityGrid();
           if (document.getElementById('panel-pipeline')?.classList.contains('active')) {
@@ -4740,11 +4764,24 @@ function checkExtensionSync() {
           }
           toast('Pipeline restored from extension backup');
         }
-        // Proceed with normal pending-sync check
-        doPendingSync(extId, el);
+        stateRestored = true;
+        afterRestores();
       });
-    } else {
-      doPendingSync(extId, el);
+    }
+
+    if (needsOutreachRestore) {
+      chrome.runtime.sendMessage(extId, { action: 'loadOutreachBackup' }, backupResp => {
+        if (!chrome.runtime.lastError && backupResp?.state?.contacts?.length) {
+          OT_STATE = backupResp.state;
+          saveOutreach();
+          window._jobosOutreachWasEmpty = false;
+          renderOutreachTable();
+          updateOutreachMetrics();
+          toast('Outreach tracker restored from extension backup');
+        }
+        outreachRestored = true;
+        afterRestores();
+      });
     }
   } catch(e) { /* extension not installed or not reachable */ }
 }
