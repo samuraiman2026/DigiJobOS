@@ -242,7 +242,9 @@ function runScoreEngine(jdText, title, company) {
   const s3 = kw(jdText, ['technical','engineering','api','integration','sdk','architecture','infrastructure','protocol','developer','product','saas']);
   const s4 = kw(jdText, ['ai','artificial intelligence','ml','machine learning','llm','edge','on-device','genai','model','intelligent','deep learning','neural']);
   const s5 = kw(jdText, ['director','senior manager','vp','vice president','lead','head of','strategic','executive','global','principal']);
-  const total = Math.round(s1*.25 + s2*.25 + s3*.20 + s4*.20 + s5*.10);
+  const base = Math.round(s1*.25 + s2*.25 + s3*.20 + s4*.20 + s5*.10);
+  const { pts: penaltyPts, flags: penaltyFlags } = calcPenalties(jdText);
+  const total = Math.max(0, base - penaltyPts);
 
   document.getElementById('score-no-job').style.display = 'none';
   document.getElementById('score-content').style.display = 'block';
@@ -255,7 +257,7 @@ function runScoreEngine(jdText, title, company) {
     te.className = 'score-num ' + (total>=75?'strong':total>=50?'mid':'weak');
     const ve = document.getElementById('p-verdict');
     ve.innerHTML = total>=75 ? '<span class="vtag v-apply">✓ Apply now</span>' : total>=50 ? '<span class="vtag v-consider">○ Consider</span>' : '<span class="vtag v-skip">✗ Skip</span>';
-    document.getElementById('p-angles').innerHTML = buildAngles(jdText);
+    document.getElementById('p-angles').innerHTML = buildAngles(jdText, penaltyFlags);
     document.getElementById('sync-row').style.display = 'flex';
     document.getElementById('sync-company').value = company || '';
     document.getElementById('sync-role').value = title || '';
@@ -270,12 +272,71 @@ function kw(text, words) {
   return Math.round(50 + Math.min(hits / Math.max(words.length * 0.35, 1), 1) * 50);
 }
 
+// Detect must-have requirements that are genuine gaps and return a penalty + flags.
+// Applied AFTER the weighted score so gaps actively pull the number down.
+function calcPenalties(jd) {
+  const flags = [];
+  let pts = 0;
+
+  // Hyperscaler-specific must-have (AWS/Azure/GCP as primary requirement, not just mentioned)
+  const hyperscalerReq =
+    /hyperscaler/i.test(jd) ||
+    /(must.have|required|mandatory|essential|minimum).{0,80}(aws|azure|gcp|google cloud|cloud partner)/i.test(jd) ||
+    /(aws|azure|gcp|google cloud).{0,50}(required|must.have|mandatory|essential|certification)/i.test(jd) ||
+    /\d\+?\s*years?.{0,40}(aws|azure|gcp|hyperscaler|google cloud)/i.test(jd);
+  if (hyperscalerReq) {
+    flags.push('Hyperscaler must-have (AWS/Azure/GCP) — not a primary credential (-18)');
+    pts += 18;
+  }
+
+  // Unusually high year requirements for specific skills (8+, 10+, 12+)
+  const highYearMatch = jd.match(/\b(8|9|10|11|12|15|20)\+?\s*years?\b/i);
+  if (highYearMatch) {
+    flags.push(`${highYearMatch[0].trim()} minimum detected — verify this is the seniority bar, not a domain req (-8)`);
+    pts += 8;
+  }
+
+  // Quota-carrying AE role, not a BD/partnerships role
+  if (/(carry\s+a\s+quota|quota.carrier|sales\s+quota|revenue\s+quota|closed.{0,20}\$[\d]+M?\s+arr|close\s+rate)/i.test(jd) &&
+      !/(partner|ecosystem|alliance|channel|platform)/i.test(jd)) {
+    flags.push('Quota-carrying sales role — not a BD/partnerships structure (-15)');
+    pts += 15;
+  }
+
+  // Federal / government / clearance — hard block
+  if (/(federal|department\s+of\s+defense|\bdod\b|security\s+clearance|clearance\s+required|top\s+secret|ts\/sci)/i.test(jd)) {
+    flags.push('Clearance or federal requirement — not applicable (-22)');
+    pts += 22;
+  }
+
+  // Healthcare domain without a tech/platform angle
+  if (/(healthcare|hipaa|\behr\b|medical\s+device|life\s+sciences|pharmaceutical|clinical\s+trials)/i.test(jd) &&
+      !/(ai|platform|api|developer|partner)/i.test(jd)) {
+    flags.push('Healthcare-specific domain — no direct credential (-10)');
+    pts += 10;
+  }
+
+  // Specific platform certifications that are hard requirements
+  if (/(salesforce\s+certified|salesforce\s+admin|sap\s+certif|oracle\s+certif|servicenow\s+certif)/i.test(jd)) {
+    flags.push('Platform certification required — not held (-12)');
+    pts += 12;
+  }
+
+  // IC-only signal when management experience is a differentiator
+  if (/(no\s+direct\s+reports|individual\s+contributor\s+only|non.managerial|ic\s+role)/i.test(jd)) {
+    flags.push('IC-only role — management track is a differentiator here (-5)');
+    pts += 5;
+  }
+
+  return { pts: Math.min(pts, 40), flags };
+}
+
 function anim(fId, pId, val) {
   document.getElementById(fId).style.width = val + '%';
   document.getElementById(pId).textContent = val + '%';
 }
 
-function buildAngles(jd) {
+function buildAngles(jd, penaltyFlags = []) {
   const pos=[], neg=[];
   if (jd.includes('ecosystem')||jd.includes('isv')||jd.includes('platform')) pos.push('Ecosystem builder match - Huawei ISV program is direct proof');
   if (jd.includes('0 to 1')||jd.includes('from scratch')||jd.includes('founding')||jd.includes('build')) pos.push('0-to-1 builder signal - Qualia first BD hire maps perfectly');
@@ -284,8 +345,13 @@ function buildAngles(jd) {
   if (jd.includes('saas')&&!jd.includes('enterprise')) neg.push('SaaS-only framing - emphasize API-first BD (Qualia) over platform');
   if (jd.includes('sales')&&!jd.includes('partnership')) neg.push('Sales-heavy JD - reframe as partner-assisted and ecosystem revenue');
   if (!jd.includes('partner')&&!jd.includes('ecosystem')) neg.push('Light partnership language - verify role type before applying');
-  return (pos.length?'<span class="a-pos">+ </span>'+pos.join('<br><span class="a-pos">+ </span>'):'') +
-    (neg.length?'<br><span class="a-neg">− </span>'+neg.join('<br><span class="a-neg">− </span>'):'');
+  const posHtml = pos.length ? '<span class="a-pos">+ </span>'+pos.join('<br><span class="a-pos">+ </span>') : '';
+  const negHtml = neg.length ? '<br><span class="a-neg">− </span>'+neg.join('<br><span class="a-neg">− </span>') : '';
+  const penHtml = penaltyFlags.length
+    ? '<br><span style="color:#e05a4a;font-size:9px;font-family:var(--mono);">▼ </span>'
+      + penaltyFlags.join('<br><span style="color:#e05a4a;font-size:9px;font-family:var(--mono);">▼ </span>')
+    : '';
+  return posHtml + negHtml + penHtml;
 }
 
 // ── PROMPT BUILDERS ───────────────────────────────────

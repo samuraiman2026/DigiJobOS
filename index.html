@@ -1338,6 +1338,7 @@ select { appearance: none; cursor: pointer; }
             <div class="score-row"><span class="score-label">Technical BD depth</span><span class="score-weight">20%</span><div class="score-track"><div class="score-fill" id="rvf3" style="width:0"></div></div><span class="score-pct" id="rvp3s">-</span></div>
             <div class="score-row"><span class="score-label">AI-native / Edge AI</span><span class="score-weight">20%</span><div class="score-track"><div class="score-fill" id="rvf4" style="width:0"></div></div><span class="score-pct" id="rvp4s">-</span></div>
             <div class="score-row"><span class="score-label">Seniority / scope</span><span class="score-weight">10%</span><div class="score-track"><div class="score-fill" id="rvf5" style="width:0"></div></div><span class="score-pct" id="rvp5s">-</span></div>
+            <div id="rv-sc-penalties" style="display:none;margin-top:8px;padding-top:8px;border-top:1px solid var(--border);"></div>
           </div>
         </div>
         <div class="btn-row"><button class="btn btn-primary" onclick="rvGoStep(2)">Continue → choose template</button></div>
@@ -2433,7 +2434,9 @@ function runScore() {
     s5: scoreKeywords(jdLower, ['director','senior manager','vp','lead','head of','strategic','executive','global'], 10)
   };
 
-  const total = Math.round(scores.s1*0.25 + scores.s2*0.25 + scores.s3*0.20 + scores.s4*0.20 + scores.s5*0.10);
+  const base = Math.round(scores.s1*0.25 + scores.s2*0.25 + scores.s3*0.20 + scores.s4*0.20 + scores.s5*0.10);
+  const { pts: penPts, flags: penFlags } = calcPenalties(jdLower);
+  const total = Math.max(0, base - penPts);
 
   animateScore('sf1','sp1', scores.s1);
   animateScore('sf2','sp2', scores.s2);
@@ -2453,7 +2456,7 @@ function runScore() {
     } else {
       verdictEl.innerHTML = '<span class="verdict-pill verdict-skip">✗ Skip - better opportunities exist</span>';
     }
-    document.getElementById('score-angles').innerHTML = buildScoreAngles(jdLower, total);
+    document.getElementById('score-angles').innerHTML = buildScoreAngles(jdLower, total, penFlags);
     buildScorePrompt(company, jd);
     saveScoreToHistory(company || 'Unknown role', total);
     // Show "build resume" button after scoring
@@ -2475,7 +2478,7 @@ function animateScore(fillId, pctId, val) {
   document.getElementById(pctId).textContent = val + '%';
 }
 
-function buildScoreAngles(jd, total) {
+function buildScoreAngles(jd, total, penFlags = []) {
   const angles = [];
   if (jd.includes('ecosystem') || jd.includes('isv') || jd.includes('platform')) angles.push('Partner ecosystem experience maps directly');
   if (jd.includes('0 to 1') || jd.includes('build') || jd.includes('launch')) angles.push('0-to-1 builder requirement - Qualia + Huawei are the proof');
@@ -2484,7 +2487,10 @@ function buildScoreAngles(jd, total) {
   const gaps = [];
   if (!jd.includes('api') && !jd.includes('sdk')) gaps.push('No API/SDK integration language - technical BD depth less visible');
   if (jd.includes('sales') && !jd.includes('partner')) gaps.push('Sales-forward JD - reframe as partner-assisted revenue, not direct sales');
-  return `<strong style="color:var(--text);">Strongest angles:</strong><br>${(angles.length ? angles : ['Review JD for specific angle mapping']).map(a=>'+ '+a).join('<br>')}<br><br><strong style="color:var(--text);">Watch for:</strong><br>${(gaps.length ? gaps : ['No major gaps detected']).map(g=>'− '+g).join('<br>')}`;
+  const penHtml = penFlags.length
+    ? `<br><br><strong style="color:var(--red);">Must-have gaps (score penalized):</strong><br>${penFlags.map(f=>'▼ '+f).join('<br>')}`
+    : '';
+  return `<strong style="color:var(--text);">Strongest angles:</strong><br>${(angles.length ? angles : ['Review JD for specific angle mapping']).map(a=>'+ '+a).join('<br>')}<br><br><strong style="color:var(--text);">Watch for:</strong><br>${(gaps.length ? gaps : ['No major gaps detected']).map(g=>'− '+g).join('<br>')}${penHtml}`;
 }
 
 function buildScorePrompt(company, jd) {
@@ -2893,7 +2899,9 @@ function rvLiveScore() {
     const s3=rvKw(tx,['technical','engineering','api','integration','sdk','architecture','soc','npu','on-device','edge','silicon','risc-v']);
     const s4=rvKw(tx,['ai','machine learning','llm','edge ai','on-device','genai','model','intelligent','neural','inference']);
     const s5=rvKw(tx,['director','senior manager','vp','head of','strategic','executive','global','principal','lead']);
-    const tot=Math.round(s1*.25+s2*.25+s3*.20+s4*.20+s5*.10);
+    const base=Math.round(s1*.25+s2*.25+s3*.20+s4*.20+s5*.10);
+    const {pts:penPts,flags:penFlags}=calcPenalties(RV.jd.toLowerCase());
+    const tot=Math.max(0,base-penPts);
     document.getElementById('rv-score-wrap').style.display='block';
     [[1,s1],[2,s2],[3,s3],[4,s4],[5,s5]].forEach(([n,v])=>{
       document.getElementById('rvf'+n).style.width=v+'%';
@@ -2904,6 +2912,16 @@ function rvLiveScore() {
     te.style.color=tot>=75?'var(--accent)':tot>=50?'var(--amber)':'var(--red)';
     const vEl=document.getElementById('rv-sc-verdict');
     vEl.innerHTML=tot>=75?'<span style="font-family:var(--mono);font-size:10px;padding:3px 10px;border-radius:10px;background:var(--accent-dim);color:var(--accent);border:1px solid rgba(184,224,74,.25)">✓ Apply now</span>':tot>=50?'<span style="font-family:var(--mono);font-size:10px;padding:3px 10px;border-radius:10px;background:rgba(224,168,74,.1);color:var(--amber);border:1px solid rgba(224,168,74,.2)">○ Consider</span>':'<span style="font-family:var(--mono);font-size:10px;padding:3px 10px;border-radius:10px;background:rgba(224,90,74,.1);color:var(--red);border:1px solid rgba(224,90,74,.2)">✗ Skip</span>';
+    // Penalty flags — shown below the verdict
+    const penEl=document.getElementById('rv-sc-penalties');
+    if(penEl){
+      if(penFlags.length){
+        penEl.innerHTML=penFlags.map(f=>`<div style="font-family:var(--mono);font-size:9px;color:var(--red);margin-top:4px;">▼ ${f}</div>`).join('');
+        penEl.style.display='block';
+      } else {
+        penEl.innerHTML=''; penEl.style.display='none';
+      }
+    }
     const isEdge=s3>68||s4>70||tx.includes('soc')||tx.includes('npu')||tx.includes('edge ai')||tx.includes('silicon');
     const isStart=s2>72||tx.includes('founding')||tx.includes('first hire')||tx.includes('0 to 1');
     const sg=isEdge?'edgeai':isStart?'startup':'enterprise';
@@ -2912,6 +2930,37 @@ function rvLiveScore() {
   }, 500);
 }
 function rvKw(tx,ws){ return Math.round(50+Math.min(ws.filter(w=>tx.includes(w)).length/Math.max(ws.length*.35,1),1)*50); }
+
+function calcPenalties(jd) {
+  const flags = [];
+  let pts = 0;
+  const hyperscalerReq =
+    /hyperscaler/i.test(jd) ||
+    /(must.have|required|mandatory|essential|minimum).{0,80}(aws|azure|gcp|google cloud|cloud partner)/i.test(jd) ||
+    /(aws|azure|gcp|google cloud).{0,50}(required|must.have|mandatory|essential|certification)/i.test(jd) ||
+    /\d\+?\s*years?.{0,40}(aws|azure|gcp|hyperscaler|google cloud)/i.test(jd);
+  if (hyperscalerReq) { flags.push('Hyperscaler must-have (AWS/Azure/GCP) — not a primary credential (-18)'); pts += 18; }
+  const highYearMatch = jd.match(/\b(8|9|10|11|12|15|20)\+?\s*years?\b/i);
+  if (highYearMatch) { flags.push(highYearMatch[0].trim()+' minimum detected — verify alignment (-8)'); pts += 8; }
+  if (/(carry\s+a\s+quota|quota.carrier|sales\s+quota|revenue\s+quota|closed.{0,20}\$[\d]+M?\s+arr|close\s+rate)/i.test(jd) &&
+      !/(partner|ecosystem|alliance|channel|platform)/i.test(jd)) {
+    flags.push('Quota-carrying sales role — not a BD/partnerships structure (-15)'); pts += 15;
+  }
+  if (/(federal|department\s+of\s+defense|\bdod\b|security\s+clearance|clearance\s+required|top\s+secret|ts\/sci)/i.test(jd)) {
+    flags.push('Clearance or federal requirement — not applicable (-22)'); pts += 22;
+  }
+  if (/(healthcare|hipaa|\behr\b|medical\s+device|life\s+sciences|pharmaceutical|clinical\s+trials)/i.test(jd) &&
+      !/(ai|platform|api|developer|partner)/i.test(jd)) {
+    flags.push('Healthcare-specific domain — no direct credential (-10)'); pts += 10;
+  }
+  if (/(salesforce\s+certified|salesforce\s+admin|sap\s+certif|oracle\s+certif|servicenow\s+certif)/i.test(jd)) {
+    flags.push('Platform certification required — not held (-12)'); pts += 12;
+  }
+  if (/(no\s+direct\s+reports|individual\s+contributor\s+only|non.managerial|ic\s+role)/i.test(jd)) {
+    flags.push('IC-only role — management track is a differentiator here (-5)'); pts += 5;
+  }
+  return { pts: Math.min(pts, 40), flags };
+}
 
 function rvSelTmpl(t) {
   RV.tmpl=t;
