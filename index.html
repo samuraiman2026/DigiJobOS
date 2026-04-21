@@ -744,6 +744,17 @@ select { appearance: none; cursor: pointer; }
 
       <div id="brief-calendar"></div>
 
+      <div id="brief-yesterday-wrap" style="display:none;margin-bottom:14px;">
+        <div class="card" style="border-left:2px solid var(--amber);">
+          <div class="card-title" style="margin-bottom:6px;color:var(--amber);">Yesterday's top 3 actions</div>
+          <div id="brief-yesterday-actions" style="font-family:var(--mono);font-size:11px;color:var(--text2);line-height:1.8;margin-bottom:10px;white-space:pre-wrap;"></div>
+          <div class="input-row" style="margin-bottom:0;">
+            <label class="input-label">What got done? (optional — included in today's brief)</label>
+            <textarea id="brief-yesterday-done" rows="2" placeholder="e.g. Sent Microsoft referral DM, scored Roku role - 72%"></textarea>
+          </div>
+        </div>
+      </div>
+
       <div class="input-row">
         <label class="input-label">Any extra context for today? (optional)</label>
         <textarea id="brief-followups" rows="2" placeholder="e.g. Following up with Microsoft contact - no reply since Tuesday. Interview with Tenstorrent at 3pm."></textarea>
@@ -897,6 +908,10 @@ select { appearance: none; cursor: pointer; }
       <div style="margin-top:16px;">
         <div class="prompt-block" id="apply-prompt-out"><span class="output-placeholder">Your tailored application prompt will appear here...</span>
 <button class="prompt-copy-btn" onclick="copyPrompt('apply-prompt-out')">copy</button></div>
+      </div>
+
+      <div id="apply-mark-sent-wrap" style="display:none;margin-top:10px;">
+        <button class="btn" style="font-family:var(--mono);font-size:11px;border-color:var(--accent);color:var(--accent);" onclick="markApplicationSent()">✓ Mark as sent — update pipeline</button>
       </div>
     </div>
 
@@ -1914,7 +1929,8 @@ function defaultState() {
     scores: [],
     debriefs: [],
     activityMap: {},
-    stats: { totalCmds: 0, totalApps: 0, totalInterviews: 0, streak: 0, lastActive: null }
+    stats: { totalCmds: 0, totalApps: 0, totalInterviews: 0, streak: 0, lastActive: null },
+    lastBrief: null
   };
 }
 
@@ -1942,7 +1958,7 @@ function nav(id) {
   const navBtn = document.getElementById('nav-' + id);
   if (panel) panel.classList.add('active');
   if (navBtn) navBtn.classList.add('active');
-  if (id === 'brief') loadCalendarForBrief();
+  if (id === 'brief') { loadCalendarForBrief(); loadBriefYesterday(); }
   if (id === 'inbox') renderInbox();
   if (id === 'pipeline') { renderPipeline(); buildPipelinePrompt(); }
   if (id === 'resume') renderResumePipelineQL();
@@ -2542,8 +2558,19 @@ function scoreToResume() {
 }
 
 // ==================== WORKFLOW GENERATORS ====================
+function loadBriefYesterday() {
+  const lb = STATE.lastBrief;
+  const wrap = document.getElementById('brief-yesterday-wrap');
+  if (!lb || !lb.actions) { wrap.style.display = 'none'; return; }
+  const today = new Date().toDateString();
+  if (lb.date === today) { wrap.style.display = 'none'; return; }
+  document.getElementById('brief-yesterday-actions').textContent = lb.actions;
+  wrap.style.display = 'block';
+}
+
 function runBrief() {
   const followups = document.getElementById('brief-followups').value.trim();
+  const yesterdayDone = document.getElementById('brief-yesterday-done')?.value.trim() || '';
   const active = STATE.pipeline.filter(r => !['Withdrawn','Rejected','Closed'].includes(r.stage));
   const pipelineSummary = active.length
     ? active.map(r => '  ' + r.company + ' - ' + r.role + ' - ' + r.stage + ' [' + r.health + '] - Next: ' + r.nextStep).join('\n')
@@ -2576,13 +2603,16 @@ Also search Gmail for emails from these senders and include any new role opportu
 - help@welcometothejungle.com (job board alerts)
 - donotreply@email.careers.microsoft.com (Microsoft Careers)
 Limit to last 48–72 hours. Summarize subject + any role/location mentioned.
-</gmail_sources>`;
+</gmail_sources>${yesterdayDone ? `\n\n<yesterday_update>\nFrom yesterday's top 3 actions, here is what got done:\n${yesterdayDone}\nFactor this into today's priorities and flag anything still outstanding.\n</yesterday_update>` : ''}`;
   const el = document.getElementById('brief-output');
   el.textContent = prompt + '\n';
   const btn = document.createElement('button');
   btn.className = 'prompt-copy-btn'; btn.textContent = 'copy';
   btn.onclick = () => copyPrompt('brief-output');
   el.appendChild(btn);
+  // Save for tomorrow's brief memory
+  STATE.lastBrief = { date: new Date().toDateString(), actions: pipelineSummary ? `Top actions generated ${new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'})}:\n- Review pipeline: ${active.map(r=>r.company).join(', ')}\n- Address overdue follow-ups\n- Score any new roles from Gmail alerts` : '', prompt };
+  saveState();
   logUsage('/brief', 'Morning briefing generated');
   toast('Brief prompt ready - copy and paste into Claude');
 }
@@ -2616,8 +2646,32 @@ ${jd || '[paste JD here]'}
   btn.className = 'prompt-copy-btn'; btn.textContent = 'copy';
   btn.onclick = () => copyPrompt('apply-prompt-out');
   document.getElementById('apply-prompt-out').appendChild(btn);
+  document.getElementById('apply-mark-sent-wrap').style.display = 'block';
   logUsage('/apply', role || 'Application package');
   toast('Application prompt ready');
+}
+
+function markApplicationSent() {
+  const roleField = document.getElementById('apply-role').value.trim();
+  const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  const companyGuess = roleField.split('-')[0].trim();
+  const r = STATE.pipeline.find(x =>
+    x.company.toLowerCase().includes(companyGuess.toLowerCase()) ||
+    companyGuess.toLowerCase().includes(x.company.toLowerCase())
+  );
+  if (r) {
+    r.appliedAt = new Date().toISOString();
+    r.lastAction = today;
+    r.stage = r.stage === 'To Review' || r.stage === 'Monitoring' ? 'Applied' : r.stage;
+    r.nextStep = r.nextStep || 'Wait for recruiter response';
+    saveState();
+    renderPipeline();
+    renderPipelineMini();
+    toast(`${r.company} stamped as sent — ${today}`);
+  } else {
+    toast(`No pipeline match for "${companyGuess}" — update manually`);
+  }
+  document.getElementById('apply-mark-sent-wrap').style.display = 'none';
 }
 
 function runReferral() {

@@ -1,0 +1,16 @@
+# Job Search OS - Next Steps & Improvement Backlog
+
+## 1. JD Persistence in the Pipeline
+Most roles in the pipeline have no saved JD. The Apply dropdown and Resume quick-load only work when a JD is attached. Roles scored via the extension save a JD automatically, but roles added manually through the dashboard do not. A "paste JD" field on the pipeline card would fix the dropdown gap for all roles.
+
+## 2. Brief → Score Loop
+The brief surfaces roles but requires manually finding and scoring them. A "Score this role" button inline in the brief output — or a paste-JD field in the brief panel — would close that loop without leaving the dashboard.
+
+## 3. Apply Panel Disconnected from Pipeline ✓ IN PROGRESS
+After clicking "Apply →" from the inbox, the role moves to Applied but there is no feedback loop back. Did the application get sent? When? The pipeline card does not know. Fix: lightweight "Mark sent" + date stamp on the Apply panel that writes back to the pipeline card.
+
+## 4. Scoring Rules Live in Two Places
+WORKFLOW_GUIDE.md (Claude's rules) and the extension's calcPenalties() engine can drift. The seniority rule added to WORKFLOW_GUIDE.md is not reflected in the extension score. These should agree.
+
+## 5. Brief Has No Memory ✓ IN PROGRESS
+Every morning brief starts cold. If a brief was run yesterday, Claude has no record of what the top 3 actions were or whether they were completed. Fix: a lightweight "yesterday's actions" field that auto-populates from the prior brief, adding accountability to the daily loop.
