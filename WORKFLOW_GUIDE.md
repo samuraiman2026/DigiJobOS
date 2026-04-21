@@ -18,6 +18,7 @@
 - Referral outreach to send today.
 - One-line status on each active pipeline role.
 **Constraint:** 90-second read. Game plan, not a report.
+**Seniority rule:** Do not flag Senior Manager or Manager roles as "below target" unless the stated or estimated salary is below $150K. A strong skill match overrides title level.
 
 ## /score - JD Fit Analysis
 **Purpose:** Analyze JD fit against profile dimensions.
@@ -29,6 +30,7 @@
    - AI-native / Edge AI angle (20%)
    - Seniority and scope match (10%)
 2. Calculate overall weighted score + verdict: Apply Now / Apply with Bridge / Pass.
+3. **Seniority rule:** Do NOT penalize Senior Manager or Manager titles. Score seniority on scope, ownership, and team size - not title alone. Only flag a seniority gap if the role is clearly IC-only (no team, no budget ownership) or if stated compensation is below $150K.
 **Deliver:**
 - Weighted score + Verdict.
 - 2 strongest angles + biggest gap for this specific role.
