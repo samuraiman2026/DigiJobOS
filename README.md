@@ -1,5 +1,5 @@
 # Job Search OS - BD/Partnerships Edition
-**Version 4.6 · April 2026**
+**Version 4.8 · April 2026**
 
 A personal job search operating system built on Claude. Not a prompt library. Not a chatbot. A persistent, connected workspace that knows who you are, reads your calendar and email, tracks your outreach, generates tailored resumes, maps your referral network, and runs structured interactive workflows on command.
 
@@ -9,7 +9,8 @@ A personal job search operating system built on Claude. Not a prompt library. No
 
 | File | What it is |
 |---|---|
-| `index.html` | Full dashboard v4.7 - all workflows + resume generator + 5 Tools panels + Inbox triage. |
+| `index.html` | Full dashboard v4.8 - all workflows + resume generator + 5 Tools panels + Inbox triage. |
+| `NEXT_STEPS.md` | Improvement backlog - 5 items tracked, 2 completed (Apply feedback loop, Brief memory). |
 | `jobos-extension-v2/` | Chrome extension v2 source - MV3 compliant, nudge alerts, state backup, inbox queuing, resume fill. |
 | `CLAUDE.md` | Master context file (The Brain) - your identity and non-negotiable metrics. |
 | `BULLET_LIBRARY.md` | Complete bullet library - raw text for all resume bullets (token-optimized). |
@@ -70,7 +71,7 @@ The system is engineered for **extreme token efficiency** through architectural 
 1. **Score the JD**: Use the extension or `/score` in the dashboard.
 2. **Network Map**: Dashboard → `/network`. Check for warm referral paths before submitting cold.
 3. **Build Application**: Dashboard → `/apply`. Get a tailored resume restructure, gap bridge, and cover note.
-4. **Generate Resume**: Dashboard → `/resume`. Walk through the 5-step builder. Download the Node.js script to get a perfectly formatted `.docx`.
+4. **Generate Resume**: Dashboard → `/resume`. Walk through the 5-step builder. In Step 1, expand **Company research** to generate a Claude prompt that searches for recent news, strategic priorities, and ecosystem signals — paste the summary back and it flows into the bullet rewrite at Step 4. Download the Node.js script to get a perfectly formatted `.docx`.
 
 ---
 
@@ -78,7 +79,7 @@ The system is engineered for **extreme token efficiency** through architectural 
 
 | Version | Date | What changed |
 |---|---|---|
-| v4.8 | April 21, 2026 | **Apply feedback loop**: "Mark as sent" button appears after generating an apply prompt — stamps `appliedAt` date on the matching pipeline role and updates stage/last action automatically. **Brief memory**: brief now saves top actions to `STATE.lastBrief`; next morning the brief panel shows yesterday's actions with a "what got done?" field that feeds into the new prompt as `<yesterday_update>`. **Seniority rule**: Senior Manager / Manager titles no longer flagged as below target unless stated comp is under $150K — scoring is on scope and ownership, not title. **Gmail sources**: Welcome to the Jungle and Microsoft Careers emails added to brief, scoped to last 48–72 hours. **Apply pipeline dropdown**: /apply tab in extension now shows pipeline roles from both the extension queue and dashboard state backup. **Inbox Apply flow**: "Apply →" in inbox now navigates to /apply panel with JD pre-filled instead of silently marking Applied. **Resume quick-load**: step 1 buttons now driven by live STATE.pipeline instead of hardcoded names. |
+| v4.8 | April 21, 2026 | **Company research in resume builder**: collapsible card in Step 1 generates a structured Claude research prompt (news, strategic priorities, ecosystem signals, hiring signals, competitive position). Paste summary back — injected as `<company_research>` into bullet rewrite at Step 4. Clears on new role load, persists through back-navigation. **Apply feedback loop**: "Mark as sent" stamps `appliedAt` on the pipeline role after apply prompt generates. **Brief memory**: `STATE.lastBrief` persists top actions; next morning shows yesterday recap + "what got done?" field injected as `<yesterday_update>`. **Contact tiers**: Weak 1st degree added to apply dropdowns. **Seniority rule**: SM/Manager titles not penalized unless comp under $150K. **Gmail sources**: Welcome to the Jungle + Microsoft Careers, 48–72h window. **Apply pipeline dropdown**: merges extension queue + dashboard backup. **Inbox Apply flow**: navigates to /apply with JD pre-filled. **Resume quick-load**: driven by live pipeline. |
 | v4.7 | April 20, 2026 | **Outreach backup**: clearing browser cookies no longer wipes the outreach tracker. `saveOutreach()` mirrors to `chrome.storage.local['jobos_outreach_backup']`; `checkExtensionSync()` restores it in parallel with the pipeline backup on next load. |
 | v4.6 | April 20, 2026 | **Role inbox**: new triage stage "To Review" and dedicated Inbox panel with per-role Apply/Resume/Pass actions. Extension "Queue for review" button routes scored roles to inbox (not directly to Applied) and passes JD text through. **Daily affirmation**: rotating quote at the top of the dashboard, stable all day, changes each morning. **Resume fill from extension**: "→ Fill /resume" button pre-populates all Step 1 fields from a job page. |
 | v4.5 | April 16, 2026 | **Persistence fix**: pipeline state now backed up to `chrome.storage.local` on every save and auto-restored on load if `localStorage` was cleared by browser privacy settings. Silent fallback to `defaultState()` replaced with a toast-notified restore. See `PERSISTENCE_FIX.md` for full details. |

@@ -1,5 +1,5 @@
 # Job Search OS - Developer & LLM Context File
-**Version 4.6 · April 2026 · BD/Partnerships Edition**
+**Version 4.8 · April 2026 · BD/Partnerships Edition**
 
 This file is the authoritative reference for any LLM or developer working on the Job Search OS. Read this before touching any file in the system.
 
@@ -24,7 +24,8 @@ A personal job search operating system built on Claude for a senior BD/Partnersh
 
 ```
 / (root)
-├── index.html                          ← Main dashboard v4.6 (GitHub Pages)
+├── index.html                          ← Main dashboard v4.8 (GitHub Pages)
+├── NEXT_STEPS.md                       ← Improvement backlog (5 items, 2 in progress)
 ├── CLAUDE.md                           ← Master context (Identity & Metrics) - Load into Claude
 ├── BULLET_LIBRARY.md                   ← Resume bullet raw text + Relevance Mapping - Load into Claude
 ├── WORKFLOW_GUIDE.md                   ← Slash command logic & constraints - Load into Claude
@@ -135,6 +136,7 @@ The dashboard is a single-file web app optimized for deployment to **GitHub Page
 
 | Version | Date | What changed |
 |---|---|---|
+| v4.8 | April 21, 2026 | **Company research in resume builder**: collapsible card at bottom of Step 1 generates a structured Claude prompt (recent news, strategic priorities, ecosystem signals, hiring signals, competitive position scoped to the JD). Paste-back textarea stores summary in `RV.research`; injected as `<company_research>` into `rvMkPrompt()` at Step 4. `rvClearResearch()` resets on new role load. **Apply feedback loop**: `markApplicationSent()` stamps `appliedAt` + updates `lastAction`/stage on the matching pipeline role after apply prompt generates. **Brief memory**: `STATE.lastBrief` persists top actions; next-day `loadBriefYesterday()` shows recap + `<yesterday_update>` block in prompt. **Contact tiers**: added `weak1` (Weak 1st degree) to apply dropdowns in dashboard and extension. **Seniority rule**: SM/Manager titles not penalized unless comp under $150K — rule in `WORKFLOW_GUIDE.md`. **Gmail sources**: Welcome to the Jungle + Microsoft Careers added to brief, 48–72h window. |
 | v4.7 | April 20, 2026 | **Outreach backup**: `saveOutreach()` now mirrors OT_STATE to `chrome.storage.local['jobos_outreach_backup']` via `saveOutreachBackup` message. `loadOutreach()` flags `_jobosOutreachWasEmpty`; `checkExtensionSync()` restores OT_STATE in parallel with STATE when that flag is set, re-renders outreach panel, shows toast. `background.js` gains `saveOutreachBackup`/`loadOutreachBackup` handlers. |
 | v4.6 | April 20, 2026 | **Role inbox**: `INBOX_STAGE = 'To Review'` constant. New `panel-inbox` with `renderInbox()`, `updateInboxBadge()`, `inboxApply()`, `inboxPass()`, `inboxResume()`. Inbox nav item with green badge. Extension `syncPipeline` now routes to `'To Review'` (not `'Applied'`) and passes `jd` field. `popup.html` button renamed "Queue for review". Pipeline table, mini-pipeline, and Claude prompts all filter out inbox stage. **Daily affirmation**: `AFFIRMATIONS` array + `renderDailyAffirmation()` rotates by day-of-year, renders above dashboard header. **Resume fill from extension**: `fillResume` handler in `background.js` + `popup.js` calls `rvLoadFromScore()` in open dashboard tab. |
 | v4.5 | April 16, 2026 | **Persistence fix**: `localStorage` is cleared by browser privacy settings on restart. `saveState()` now mirrors STATE to `chrome.storage.local['jobos_v3_backup']` via `saveStateBackup` message. `loadState()` flags `_jobosLocalStorageWasEmpty`; `checkExtensionSync()` restores from backup if flag is set, re-renders, and shows a toast. `doPendingSync()` extracted as separate function. `chrome.storage.local` is never cleared by browser settings. Requires HTTPS (GitHub Pages). See `PERSISTENCE_FIX.md`. |
@@ -146,4 +148,4 @@ The dashboard is a single-file web app optimized for deployment to **GitHub Page
 
 ---
 
-*Last updated: April 20, 2026 · Job Search OS v4.7 · file: index.html*
+*Last updated: April 21, 2026 · Job Search OS v4.8 · file: index.html*
