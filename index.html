@@ -735,7 +735,7 @@ select { appearance: none; cursor: pointer; }
         <div class="card-body" style="line-height:1.8;font-size:12px;color:var(--text2);">
           When you paste the generated prompt into your <strong style="color:var(--text);">Job Search OS Claude Project</strong>, Claude will:<br>
           · Read today's Google Calendar via MCP<br>
-          · Search your Gmail for new LinkedIn alerts + recruiter replies<br>
+          · Search your Gmail for new LinkedIn alerts, recruiter replies, Welcome to the Jungle + Microsoft Careers emails<br>
           · Pull your live pipeline (auto-included below - no need to type it)<br>
           · Flag overdue follow-ups from your outreach tracker<br>
           · Give you your top 3 actions for the day
@@ -2569,7 +2569,14 @@ ${pipelineSummary}
 
 <overdue_followups>
 ${nudgeSummary}
-</overdue_followups>`;
+</overdue_followups>
+
+<gmail_sources>
+Also search Gmail for emails from these senders and include any new role opportunities, status updates, or recruiter messages in the briefing:
+- help@welcometothejungle.com (job board alerts)
+- donotreply@email.careers.microsoft.com (Microsoft Careers)
+Limit to last 7 days. Summarize subject + any role/location mentioned.
+</gmail_sources>`;
   const el = document.getElementById('brief-output');
   el.textContent = prompt + '\n';
   const btn = document.createElement('button');

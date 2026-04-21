@@ -437,7 +437,14 @@ ${pipeline || 'Reference my current pipeline in CLAUDE.md if not provided here.'
 
 <overdue_followups>
 ${followups || 'None flagged.'}
-</overdue_followups>`;
+</overdue_followups>
+
+<gmail_sources>
+Also search Gmail for emails from these senders and include any new role opportunities, status updates, or recruiter messages in the briefing:
+- help@welcometothejungle.com (job board alerts)
+- donotreply@email.careers.microsoft.com (Microsoft Careers)
+Limit to last 7 days. Summarize subject + any role/location mentioned.
+</gmail_sources>`;
 
   const el = document.getElementById('brief-out');
   el.textContent = prompts.brief; el.style.display = 'block';
