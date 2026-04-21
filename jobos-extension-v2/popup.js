@@ -417,7 +417,7 @@ function generateApply() {
 ${jd}
 </jd>
 <bullet_guidance>${bm}</bullet_guidance>
-<contact_context>${contact==='none'?'No warm contact - cold referral strategy needed':contact==='weak'?'Weak 2nd-degree - warm outreach angle needed':'Strong 1st-degree contact - referral path available'}</contact_context>`;
+<contact_context>${contact==='none'?'No warm contact - cold referral strategy needed':contact==='weak'?'Weak 2nd-degree - warm outreach angle needed':contact==='weak1'?'Weak 1st-degree - know them but not closely, use a specific angle to re-engage before applying':'Strong 1st-degree contact - referral path available, activate directly'}</contact_context>`;
 
   const el = document.getElementById('apply-out');
   el.textContent = prompts.apply; el.style.display = 'block';

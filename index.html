@@ -885,6 +885,7 @@ select { appearance: none; cursor: pointer; }
           <select id="apply-contact">
             <option value="none">No contact</option>
             <option value="weak">Weak connection (2nd degree)</option>
+            <option value="weak1">Weak connection (1st degree)</option>
             <option value="strong">Strong contact (1st degree)</option>
           </select>
         </div>
@@ -2640,7 +2641,7 @@ function runApply() {
 ${jd || '[paste JD here]'}
 </jd>
 <bullet_guidance>${bulletGuidance}</bullet_guidance>
-<contact_context>${contact === 'none' ? 'No warm contact - cold referral strategy needed' : contact === 'weak' ? 'Weak 2nd-degree connection - warm outreach angle needed' : 'Strong 1st-degree contact - referral path available'}</contact_context>`;
+<contact_context>${contact === 'none' ? 'No warm contact - cold referral strategy needed' : contact === 'weak' ? 'Weak 2nd-degree connection - warm outreach angle needed' : contact === 'weak1' ? 'Weak 1st-degree connection - know them but not closely, use a specific angle to re-engage before applying' : 'Strong 1st-degree contact - referral path available, activate directly'}</contact_context>`;
   document.getElementById('apply-prompt-out').textContent = prompt + '\n';
   const btn = document.createElement('button');
   btn.className = 'prompt-copy-btn'; btn.textContent = 'copy';
