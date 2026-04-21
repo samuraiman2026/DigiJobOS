@@ -1348,6 +1348,27 @@ select { appearance: none; cursor: pointer; }
             <div id="rv-sc-penalties" style="display:none;margin-top:8px;padding-top:8px;border-top:1px solid var(--border);"></div>
           </div>
         </div>
+        <!-- COMPANY RESEARCH -->
+        <div class="card" style="margin-top:14px;border-left:2px solid var(--accent2);">
+          <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;margin-bottom:0;" onclick="rvToggleResearch()">
+            <div>
+              <div class="card-title" style="margin-bottom:2px;">Company research <span style="font-family:var(--mono);font-size:9px;color:var(--text3);font-weight:400;margin-left:6px;">optional but recommended</span></div>
+              <div style="font-size:11px;color:var(--text3);">Generate a research prompt → paste back Claude's summary → bullets align to what the company cares about now</div>
+            </div>
+            <span id="rv-research-chevron" style="font-family:var(--mono);font-size:14px;color:var(--text3);margin-left:12px;">›</span>
+          </div>
+          <div id="rv-research-body" style="display:none;margin-top:14px;">
+            <button class="btn" style="font-family:var(--mono);font-size:11px;border-color:var(--accent2);color:var(--accent2);margin-bottom:10px;" onclick="rvGenResearch()">Generate research prompt →</button>
+            <div id="rv-research-prompt-wrap" style="display:none;">
+              <div class="prompt-block" id="rv-research-prompt" style="margin-bottom:10px;max-height:140px;"><span class="output-placeholder">Research prompt will appear here — copy and paste into Claude...</span><button class="prompt-copy-btn" onclick="copyPrompt('rv-research-prompt')">copy</button></div>
+              <div class="input-row" style="margin-bottom:0;">
+                <label class="input-label">Paste Claude's research summary back here</label>
+                <textarea id="rv-research-input" rows="4" placeholder="e.g. Tenstorrent raised $693M Series C in Feb 2025, focused on open-source AI stack and ISV developer ecosystem. CEO Jim Keller pushing hardware-agnostic GTM. Key hiring signal: scaling partner team to drive SDK adoption across AI inference workloads..." oninput="RV.research=this.value.trim()"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="btn-row"><button class="btn btn-primary" onclick="rvGoStep(2)">Continue → choose template</button></div>
       </div>
 
@@ -2905,7 +2926,7 @@ const RV_LIB={pmsv:{label:'PMSV Tech and Strategy',te:'Advisor - Enterprise Serv
 
 const RV_SEL={enterprise:{pmsv:['p1','p2','p4','p3'],qualia:['q1','q2','q3','q4','q8'],huawei:['h1','h2','h3','h4','h5','h6'],pandora:['pa1','pa4','pa5'],mobclix:['m1'],sony:['s1','s2']},edgeai:{pmsv:['p2','p5','p3','p4'],qualia:['q5','q6','q7','q1'],huawei:['h7','h8','h9','h10','h4'],pandora:['pa2','pa3','pa4'],mobclix:['m1'],sony:['s1','s2']},hardware:{pmsv:['p2','p3','p4'],qualia:['q5','q6','q7','q1'],huawei:['h7','h8','h9','h10','h4'],pandora:['pa2','pa3'],mobclix:['m1'],sony:['s1','s2']},startup:{pmsv:['p3','p1','p2','p4'],qualia:['q1','q7','q3'],huawei:['h3','h4','h1','h2'],pandora:['pa1','pa5'],mobclix:['m1'],sony:['s1']},alliances:{pmsv:['p1','p2','p3'],qualia:['q1','q2','q4','q8'],huawei:['h1','h3','h5','h4','h9'],pandora:['pa1','pa5','pa3'],mobclix:['m1'],sony:['s1','s2']},supply:{pmsv:['p2','p4'],qualia:['q1','q2'],huawei:['h3','h4','h1'],pandora:['pa4','pa1','pa2'],mobclix:['m1'],sony:['s1']}};
 
-let RV = {company:'',role:'',jd:'',tmpl:'',rt:'',active:{},rewritten:null,timer:null};
+let RV = {company:'',role:'',jd:'',tmpl:'',rt:'',active:{},rewritten:null,research:'',timer:null};
 let RV_STEP = 1;
 
 function rvGoStep(n) {
@@ -2914,6 +2935,13 @@ function rvGoStep(n) {
   if (n===3) rvBuildBullets();
   if (n===4) rvBuildManualPrompt();
   if (n===5) rvBuildStep5();
+  if (n===1) {
+    RV.research = '';
+    const inp = document.getElementById('rv-research-input'); if (inp) inp.value = '';
+    const wrap = document.getElementById('rv-research-prompt-wrap'); if (wrap) wrap.style.display = 'none';
+    const body = document.getElementById('rv-research-body'); if (body) body.style.display = 'none';
+    const chev = document.getElementById('rv-research-chevron'); if (chev) chev.textContent = '›';
+  }
   for (let i=1;i<=5;i++) {
     const p=document.getElementById('rvp'+i); if(p) p.style.display=i===n?'block':'none';
     const t=document.getElementById('rvst'+i); if(!t) continue;
@@ -3078,8 +3106,44 @@ function rvGetActive() {
   return out;
 }
 
+function rvToggleResearch() {
+  const body = document.getElementById('rv-research-body');
+  const chevron = document.getElementById('rv-research-chevron');
+  const open = body.style.display === 'block';
+  body.style.display = open ? 'none' : 'block';
+  chevron.textContent = open ? '›' : '⌄';
+}
+
+function rvGenResearch() {
+  const company = RV.company || document.getElementById('rv-company').value.trim();
+  const role = RV.role || document.getElementById('rv-role').value.trim();
+  const jd = RV.jd || document.getElementById('rv-jd').value.trim();
+  if (!company) { toast('Enter a company name first'); return; }
+  const prompt = `Research ${company} for a BD/Partnerships resume tailoring exercise. I am preparing to apply for: ${role || 'a BD/Partnerships role'}.
+
+Search the web and return a structured summary covering:
+1. **Recent news** (last 6 months) — funding rounds, product launches, partnerships announced, leadership changes
+2. **Strategic priorities** — what is the company trying to accomplish right now? What problems are they solving?
+3. **Partnership/ecosystem signals** — any ISV programs, developer ecosystem pushes, co-sell motions, or platform bets
+4. **Hiring signals** — what does the BD/Partnerships team look like? What roles are they hiring for?
+5. **Competitive position** — who are they up against and what is their differentiation?
+${jd ? `\nJD context (use this to sharpen relevance):\n${jd.slice(0,800)}` : ''}
+
+Keep the summary under 300 words. Be specific — name the partnerships, the dollar amounts, the product names. I will paste this back into my resume builder to align bullet selection.`;
+
+  const el = document.getElementById('rv-research-prompt');
+  el.textContent = prompt + '\n';
+  const btn = document.createElement('button');
+  btn.className = 'prompt-copy-btn'; btn.textContent = 'copy';
+  btn.onclick = () => copyPrompt('rv-research-prompt');
+  el.appendChild(btn);
+  document.getElementById('rv-research-prompt-wrap').style.display = 'block';
+  toast('Research prompt ready — copy into Claude');
+}
+
 function rvMkPrompt(bs,ctx) {
-  return `Rewrite these resume bullets for: ${RV.role||'[role]'} at ${RV.company||'[company]'}.\n\n${RV.jd?'JD:\n'+RV.jd+'\n\n':''}${ctx?'Extra context: '+ctx+'\n\n':''}Bullets:\n${bs.map(b=>'['+b.role+'] '+b.text).join('\n')}\n\nRules: Match JD language exactly where authentic. Preserve every metric unchanged ($20M, 120%, 1,000+, etc). Lead each bullet with impact not activity. Under 40 words per bullet. Output: [Role Label] • rewritten text, one per line.`;
+  const research = RV.research ? `\n\n<company_research>\n${RV.research}\n</company_research>` : '';
+  return `Rewrite these resume bullets for: ${RV.role||'[role]'} at ${RV.company||'[company]'}.\n\n${RV.jd?'JD:\n'+RV.jd+'\n\n':''}${ctx?'Extra context: '+ctx+'\n\n':''}${research ? research+'\n\nUse the company research above to sharpen language — mirror their product terms, ecosystem language, and current strategic priorities where authentic.\n\n' : ''}Bullets:\n${bs.map(b=>'['+b.role+'] '+b.text).join('\n')}\n\nRules: Match JD language exactly where authentic. Preserve every metric unchanged ($20M, 120%, 1,000+, etc). Lead each bullet with impact not activity. Under 40 words per bullet. Output: [Role Label] • rewritten text, one per line.`;
 }
 function rvBuildManualPrompt() {
   const bs=rvGetActive(); const ctx=document.getElementById('rv-ctx')?.value?.trim()||'';
