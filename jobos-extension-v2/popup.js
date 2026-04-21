@@ -443,7 +443,7 @@ ${followups || 'None flagged.'}
 Also search Gmail for emails from these senders and include any new role opportunities, status updates, or recruiter messages in the briefing:
 - help@welcometothejungle.com (job board alerts)
 - donotreply@email.careers.microsoft.com (Microsoft Careers)
-Limit to last 7 days. Summarize subject + any role/location mentioned.
+Limit to last 48–72 hours. Summarize subject + any role/location mentioned.
 </gmail_sources>`;
 
   const el = document.getElementById('brief-out');
