@@ -2891,8 +2891,12 @@ function renderResumePipelineQL() {
 function rvLoadFromPipeline(id) {
   const r = STATE.pipeline.find(x => x.id === id);
   if (!r) return;
-  rvLoadFromScore(r.company, r.role || '', r.jd || '');
-  toast(`${r.company} loaded into /resume`);
+  RV.company = r.company; RV.role = r.role || ''; RV.jd = r.jd || '';
+  document.getElementById('rv-company').value = r.company;
+  document.getElementById('rv-role').value = r.role || '';
+  document.getElementById('rv-jd').value = r.jd || '';
+  rvLiveScore();
+  toast(`${r.company} loaded — continue to step 2`);
 }
 
 function rvQL(co,ro,tm,rt) {

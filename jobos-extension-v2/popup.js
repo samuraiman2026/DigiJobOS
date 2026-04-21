@@ -9,6 +9,7 @@ const DASHBOARD_KEY  = 'jobos_dashboard_url';
 const NUDGE_DAYS     = 10;
 
 let jobData = null;
+let jobDataFromPage = null; // preserved original page scrape
 let prompts = {};
 let profile = null;
 
@@ -201,6 +202,7 @@ async function detectJobPage() {
     document.getElementById('score-loading').style.display = 'none';
     if (resp && (resp.title || resp.jobText)) {
       jobData = resp;
+      jobDataFromPage = resp;
       showJobDetected(resp);
       autoScore(resp);
     } else { showNoJob(); }
@@ -393,7 +395,7 @@ function populateApplyPipeline() {
 function onApplyPipelineSelect() {
   const sel = document.getElementById('p-apply-pipeline');
   const idx = sel.value;
-  if (idx === '') { jobData = null; return; }
+  if (idx === '') { jobData = jobDataFromPage; return; }
   const r = applyPipelineItems[parseInt(idx)];
   if (!r) return;
   jobData = { company: r.company, title: r.role, jobText: r.jd, url: r.url || '' };
