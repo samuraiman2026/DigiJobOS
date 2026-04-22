@@ -264,6 +264,8 @@ select { appearance: none; cursor: pointer; }
 /* LOADING */
 @keyframes pulse { 0%,100% { opacity: 0.4; } 50% { opacity: 1; } }
 .loading { animation: pulse 1.4s ease-in-out infinite; }
+.jd-stats { font-family: var(--mono); font-size: 9px; color: var(--text3); margin-top: 5px; min-height: 13px; letter-spacing: 0.02em; }
+.jd-stats.trimmed { color: var(--accent); }
 </style>
 </head>
 <body>
@@ -787,7 +789,8 @@ select { appearance: none; cursor: pointer; }
           </div>
           <div class="input-row">
             <label class="input-label">Job description</label>
-            <textarea id="score-jd" rows="8" placeholder="Paste the full JD here..."></textarea>
+            <textarea id="score-jd" rows="8" placeholder="Paste the full JD here..." oninput="updateJdStats('score-jd','score-jd-stats')"></textarea>
+            <div id="score-jd-stats" class="jd-stats"></div>
           </div>
           <div class="btn-row">
             <button class="btn btn-primary" onclick="runScore()">Score this role →</button>
@@ -877,7 +880,8 @@ select { appearance: none; cursor: pointer; }
       </div>
       <div class="input-row">
         <label class="input-label">Job description</label>
-        <textarea id="apply-jd" rows="6" placeholder="Paste full JD..."></textarea>
+        <textarea id="apply-jd" rows="6" placeholder="Paste full JD..." oninput="updateJdStats('apply-jd','apply-jd-stats')"></textarea>
+        <div id="apply-jd-stats" class="jd-stats"></div>
       </div>
       <div class="two-col">
         <div class="input-row">
@@ -1329,7 +1333,8 @@ select { appearance: none; cursor: pointer; }
           </div>
           <div class="input-row">
             <label class="input-label">Job description - paste full text for best results</label>
-            <textarea id="rv-jd" rows="6" placeholder="Paste the full JD here. The system analyzes it to pick the right template and bullets..." oninput="rvLiveScore()"></textarea>
+            <textarea id="rv-jd" rows="6" placeholder="Paste the full JD here. The system analyzes it to pick the right template and bullets..." oninput="rvLiveScore(); updateJdStats('rv-jd','rv-jd-stats')"></textarea>
+            <div id="rv-jd-stats" class="jd-stats"></div>
           </div>
           <!-- LIVE SCORE -->
           <div id="rv-score-wrap" style="display:none;">
@@ -2452,6 +2457,75 @@ function renderActivityGrid() {
   el.innerHTML = cells.join('');
 }
 
+// ==================== JD PREPROCESSOR ====================
+// Strips boilerplate (EEO, benefits, culture sections) before sending to Claude.
+// The local score engine always gets the full raw JD — only Claude prompts use this.
+function preprocessJD(raw) {
+  if (!raw) return '';
+  const words = raw.trim().split(/\s+/);
+  if (words.length <= 450) return raw; // short enough, no benefit
+
+  const DROP_PHRASES = [
+    // EEO / legal
+    'equal opportunity employer', 'affirmative action', 'regardless of race',
+    'regardless of gender', 'protected characteristic', 'applicants will receive consideration',
+    'disability or veteran', 'we do not discriminate',
+    // Benefits
+    '401(k)', '401k matching', 'dental insurance', 'vision insurance', 'health insurance',
+    'life insurance', 'paid time off', 'unlimited pto', 'vacation days', 'parental leave',
+    'maternity leave', 'paternity leave', 'mental health benefit', 'wellness program',
+    'gym reimbursement', 'commuter benefit', 'free snack', 'free lunch', 'catered meal',
+    'ping pong', 'game room', 'company events', 'team retreats',
+    // Company pitch / about us
+    'our culture', 'our values', 'our mission is to', 'our story', 'who we are',
+    'about us', 'about the company', 'company overview', 'our team of',
+    'we believe in', 'we are proud', 'we strive to', 'we are committed to building',
+    'we are an innovative', 'we are a fast-growing', 'we are a leading',
+    'founded in', 'headquartered in', 'offices across',
+    // Apply boilerplate
+    'apply now', 'submit your application', 'click here to apply', 'to apply, please',
+    'background check', 'drug screen', 'work authorization',
+    // Comp disclosure
+    'salary range is', 'compensation range', 'total compensation package',
+    'base salary range', 'pay range',
+  ];
+
+  // Split on blank lines (section breaks) — works for most formatted JDs
+  const blocks = raw.split(/\n{2,}/).map(b => b.trim()).filter(Boolean);
+
+  const kept = blocks.filter(block => {
+    const lower = block.toLowerCase();
+    return !DROP_PHRASES.some(p => lower.includes(p));
+  });
+
+  // If we barely dropped anything, just word-cap
+  const droppedRatio = (blocks.length - kept.length) / blocks.length;
+  const cleaned = droppedRatio > 0.1 ? kept.join('\n\n') : raw;
+
+  const cleanedWords = cleaned.split(/\s+/);
+  if (cleanedWords.length <= 700) return cleaned;
+  return cleanedWords.slice(0, 700).join(' ') + ' [...]';
+}
+
+function updateJdStats(textareaId, statsId) {
+  const ta = document.getElementById(textareaId);
+  const el = document.getElementById(statsId);
+  if (!ta || !el) return;
+  const raw = ta.value.trim();
+  if (!raw) { el.textContent = ''; el.className = 'jd-stats'; return; }
+  const rawWords = raw.split(/\s+/).length;
+  const processed = preprocessJD(raw);
+  const procWords = processed.split(/\s+/).filter(Boolean).length;
+  if (procWords < rawWords) {
+    const pct = Math.round((1 - procWords / rawWords) * 100);
+    el.textContent = `${rawWords.toLocaleString()} words → ${procWords} sent to Claude · ${pct}% boilerplate trimmed`;
+    el.className = 'jd-stats trimmed';
+  } else {
+    el.textContent = `${rawWords.toLocaleString()} words`;
+    el.className = 'jd-stats';
+  }
+}
+
 // ==================== SCORE ENGINE ====================
 function runScore() {
   const company = document.getElementById('score-company').value.trim();
@@ -2528,11 +2602,12 @@ function buildScoreAngles(jd, total, penFlags = []) {
 }
 
 function buildScorePrompt(company, jd) {
+  const promptJd = preprocessJD(jd);
   const prompt = `Run /score for this role using the rules in WORKFLOW_GUIDE.md.
 
 <role>${company || '[company name]'}</role>
 <jd>
-${jd || '[paste JD here]'}
+${promptJd || '[paste JD here]'}
 </jd>`;
   document.getElementById('score-prompt-out').textContent = prompt + '\n';
   const btn = document.createElement('button');
@@ -2641,7 +2716,7 @@ Limit to last 48–72 hours. Summarize subject + any role/location mentioned.
 
 function runApply() {
   const role = document.getElementById('apply-role').value.trim();
-  const jd = document.getElementById('apply-jd').value.trim();
+  const jd = preprocessJD(document.getElementById('apply-jd').value.trim());
   const contact = document.getElementById('apply-contact').value;
   const type = document.getElementById('apply-type').value;
   if (!role && !jd) { toast('Enter a role or paste a JD'); return; }
@@ -3147,7 +3222,8 @@ Keep the summary under 300 words. Be specific — name the partnerships, the dol
 
 function rvMkPrompt(bs,ctx) {
   const research = RV.research ? `\n\n<company_research>\n${RV.research}\n</company_research>` : '';
-  return `Rewrite these resume bullets for: ${RV.role||'[role]'} at ${RV.company||'[company]'}.\n\n${RV.jd?'JD:\n'+RV.jd+'\n\n':''}${ctx?'Extra context: '+ctx+'\n\n':''}${research ? research+'\n\nUse the company research above to sharpen language — mirror their product terms, ecosystem language, and current strategic priorities where authentic.\n\n' : ''}Bullets:\n${bs.map(b=>'['+b.role+'] '+b.text).join('\n')}\n\nRules: Match JD language exactly where authentic. Preserve every metric unchanged ($20M, 120%, 1,000+, etc). Lead each bullet with impact not activity. Under 40 words per bullet. Output: [Role Label] • rewritten text, one per line.`;
+  const jd = preprocessJD(RV.jd || document.getElementById('rv-jd').value.trim());
+  return `Rewrite these resume bullets for: ${RV.role||'[role]'} at ${RV.company||'[company]'}.\n\n${jd?'JD:\n'+jd+'\n\n':''}${ctx?'Extra context: '+ctx+'\n\n':''}${research ? research+'\n\nUse the company research above to sharpen language — mirror their product terms, ecosystem language, and current strategic priorities where authentic.\n\n' : ''}Bullets:\n${bs.map(b=>'['+b.role+'] '+b.text).join('\n')}\n\nRules: Match JD language exactly where authentic. Preserve every metric unchanged ($20M, 120%, 1,000+, etc). Lead each bullet with impact not activity. Under 40 words per bullet. Output: [Role Label] • rewritten text, one per line.`;
 }
 function rvBuildManualPrompt() {
   const bs=rvGetActive(); const ctx=document.getElementById('rv-ctx')?.value?.trim()||'';
@@ -3320,12 +3396,14 @@ function importFromExtension() {
     const incomingContacts = data.contacts || (Array.isArray(data) ? data : []);
     const incomingPipeline = data.pipeline || [];
     
+    const importBase = Date.now() * 1000;
+    let importSeq = 0;
     let contactsAdded = 0;
     incomingContacts.forEach(c => {
       const exists = OT_STATE.contacts.some(x => x.company?.toLowerCase() === c.company?.toLowerCase());
       if (!exists && c.company) {
         OT_STATE.contacts.push({
-          id: Date.now() + Math.random(),
+          id: importBase + importSeq++,
           company: c.company,
           tier: c.tier || (c.scoreFromExt >= 75 ? '1' : '2'),
           role: c.role || '',
@@ -3345,7 +3423,7 @@ function importFromExtension() {
       const exists = STATE.pipeline.some(x => x.company?.toLowerCase() === r.company?.toLowerCase() && x.role?.toLowerCase() === r.role?.toLowerCase());
       if (!exists && r.company) {
         STATE.pipeline.push({
-          id: Date.now() + Math.random(),
+          id: importBase + importSeq++,
           company: r.company,
           role: r.role || 'BD Role',
           url: r.url || '',
@@ -4842,6 +4920,40 @@ function addContact() {
   ['ac-company','ac-role','ac-contact','ac-pov','ac-date'].forEach(id => document.getElementById(id).value = '');
 }
 
+// ── LIVE SYNC HELPERS (called by chrome.scripting.executeScript world:MAIN) ──
+// Exposed on window so the injected function can reach them.
+// Closures here give access to STATE, OT_STATE, and all render functions.
+window._jobosLiveSyncPipeline = function(item) {
+  try {
+    const exists = STATE.pipeline.some(r =>
+      r.company?.toLowerCase() === item.company?.toLowerCase() &&
+      r.role?.toLowerCase() === item.role?.toLowerCase()
+    );
+    if (exists) return false;
+    STATE.pipeline.push(item);
+    saveState();
+    renderPipelineMini();
+    buildPipelinePrompt();
+    renderInbox();
+    updateInboxBadge();
+    return true;
+  } catch(e) { return false; }
+};
+
+window._jobosLiveSyncOutreach = function(item) {
+  try {
+    const exists = OT_STATE.contacts.some(c =>
+      c.company?.toLowerCase() === item.company?.toLowerCase()
+    );
+    if (exists) return false;
+    OT_STATE.contacts.push(item);
+    saveOutreach();
+    renderOutreachTable();
+    updateOutreachMetrics();
+    return true;
+  } catch(e) { return false; }
+};
+
 // ── EXTENSION SYNC STATUS ────────────────────────────
 const EXT_SYNC_KEY = 'jobos_ext_sync_ts';
 
@@ -4951,12 +5063,15 @@ function doPendingSync(extId, el) {
       const incomingContacts = resp.contacts || [];
       const incomingPipeline = resp.pipeline || [];
       let contactsAdded = 0, pipelineAdded = 0;
+      // Use ms*1000+seq so all IDs in a batch are unique safe integers (no float precision collision)
+      const batchBase = Date.now() * 1000;
+      let batchSeq = 0;
 
       incomingContacts.forEach(c => {
         const exists = OT_STATE.contacts.some(x => x.company?.toLowerCase() === c.company?.toLowerCase());
         if (!exists && c.company) {
           OT_STATE.contacts.push({
-            id: Date.now() + Math.random(),
+            id: batchBase + batchSeq++,
             company: c.company,
             tier: c.tier || (c.scoreFromExt >= 75 ? '1' : '2'),
             role: c.role || '',
@@ -4978,7 +5093,7 @@ function doPendingSync(extId, el) {
         );
         if (!exists && r.company) {
           STATE.pipeline.push({
-            id: Date.now() + Math.random(),
+            id: batchBase + batchSeq++,
             company: r.company,
             role: r.role || 'BD Role',
             url: r.url || '',
