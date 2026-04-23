@@ -325,8 +325,11 @@ function calcPenalties(jd) {
     pts += 12;
   }
 
-  // IC-only signal when management experience is a differentiator
-
+  // User speaks Hindi and English only — penalize hard foreign-language requirements
+  if (/(fluent\s+in|native\s+(speaker|proficiency)|full\s+professional\s+proficiency\s+in|business\s+proficiency\s+in|must\s+(speak|be\s+fluent)|bilingual|proficiency\s+in)\s+(french|german|spanish|mandarin|chinese|japanese|korean|portuguese|italian|dutch|arabic|russian|turkish|polish|hebrew|thai|vietnamese)/i.test(jd)) {
+    flags.push('Non-English/Hindi language required — not a primary language (-18)');
+    pts += 18;
+  }
 
   return { pts: Math.min(pts, 40), flags };
 }

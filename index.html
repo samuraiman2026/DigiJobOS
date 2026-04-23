@@ -3167,6 +3167,10 @@ function calcPenalties(jd) {
   if (/(salesforce\s+certified|salesforce\s+admin|sap\s+certif|oracle\s+certif|servicenow\s+certif)/i.test(jd)) {
     flags.push('Platform certification required — not held (-12)'); pts += 12;
   }
+  // User speaks Hindi and English only — penalize hard foreign-language requirements
+  if (/(fluent\s+in|native\s+(speaker|proficiency)|full\s+professional\s+proficiency\s+in|business\s+proficiency\s+in|must\s+(speak|be\s+fluent)|bilingual|proficiency\s+in)\s+(french|german|spanish|mandarin|chinese|japanese|korean|portuguese|italian|dutch|arabic|russian|turkish|polish|hebrew|thai|vietnamese)/i.test(jd)) {
+    flags.push('Non-English/Hindi language required — not a primary language (-18)'); pts += 18;
+  }
 
   return { pts: Math.min(pts, 40), flags };
 }
@@ -4681,7 +4685,13 @@ function renderOutreachTable() {
       <td style="padding:9px 8px;font-weight:500;font-size:13px;${_done?'color:var(--text3);text-decoration:line-through;text-decoration-color:var(--text3);':'color:var(--text);'}">${c.company}</td>
       <td style="padding:9px 8px;font-family:var(--mono);font-size:10px;color:var(--text3);">${c.tier ? 'T'+c.tier : '-'}</td>
       <td style="padding:9px 8px;font-size:12px;color:var(--text2);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${c.role||'-'}</td>
-      <td style="padding:9px 8px;font-size:12px;color:var(--text2);">${c.contact||'-'}</td>
+      <td style="padding:5px 8px;">
+        <input type="text" value="${(c.contact||'').replace(/"/g,'&quot;')}" placeholder="Add contact…"
+          onchange="updateOTContact(${c.id},this.value)"
+          style="background:transparent;border:none;border-bottom:1px dashed transparent;font-size:12px;color:var(--text2);font-family:var(--sans);width:115px;cursor:text;outline:none;"
+          onfocus="this.style.borderBottomColor='var(--border2)'"
+          onblur="this.style.borderBottomColor='transparent'">
+      </td>
       <td style="padding:9px 8px;">
         <select onchange="updateOTStatus(${c.id},this.value)" style="background:transparent;border:none;font-family:var(--mono);font-size:10px;padding:3px 6px;border-radius:10px;cursor:pointer;${sc}">
           ${['Not Started','Reached Out','Follow-up Sent','Replied','Interviewing','Researching','Not Interested'].map(s=>`<option value="${s}" ${c.status===s?'selected':''}>${s}</option>`).join('')}
@@ -4722,6 +4732,11 @@ function updateOTStatus(id, status) {
   updateOutreachMetrics();
   renderStatusBreakdown();
   logUsage('/outreach', `${c.company} → ${status}`);
+}
+
+function updateOTContact(id, value) {
+  const c = OT_STATE.contacts.find(x => x.id === id);
+  if (c) { c.contact = value.trim(); saveOutreach(); }
 }
 
 function logOutreachToday(id) {
