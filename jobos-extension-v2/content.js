@@ -84,9 +84,10 @@
       if (h1) data.title = h1.innerText.trim();
     }
 
-    // Last title fallback: parse from document.title ("Job Title at Company | LinkedIn")
+    // Last title fallback: parse from document.title
+    // Handles: "Title at Company | LinkedIn", "Title | Company | LinkedIn", "Title · Company | LinkedIn"
     if (!data.title) {
-      const m = document.title.match(/^(.+?)\s+(?:at\s+.+?\s+)?\|/i);
+      const m = document.title.match(/^(.+?)(?:\s+at\s+|\s*[|·\-])/i);
       if (m) data.title = m[1].trim();
     }
 
@@ -110,17 +111,18 @@
       if (companyLink) data.company = companyLink;
     }
 
-    // Parse from document.title: "Job Title at Company | LinkedIn"
+    // Parse company from document.title — handles all common LinkedIn formats:
+    //   "Title at Company | LinkedIn"       → "Company"
+    //   "Title | Company | LinkedIn"        → "Company"
+    //   "Title · Company | LinkedIn"        → "Company"
     if (!data.company) {
-      const m = document.title.match(/\bat\s+([^|·\-]+?)(?:\s*[|·\-]|$)/i);
-      if (m) data.company = m[1].trim();
+      data.company = parseCompanyFromTitle(document.title);
     }
 
-    // Parse from og:title meta
+    // Same parse against og:title meta as final fallback
     if (!data.company) {
       const ogTitle = document.querySelector('meta[property="og:title"]')?.content || '';
-      const m = ogTitle.match(/\bat\s+([^|·\-]+?)(?:\s*[|·\-]|$)/i);
-      if (m) data.company = m[1].trim();
+      if (ogTitle) data.company = parseCompanyFromTitle(ogTitle);
     }
 
     // ── LOCATION ─────────────────────────────────────────
@@ -148,6 +150,26 @@
     }
 
     return data;
+  }
+
+  // Parse company name from LinkedIn-style page titles
+  // Handles: "Title at Company | LinkedIn", "Title | Company | LinkedIn", "Title · Company | LinkedIn"
+  function parseCompanyFromTitle(title) {
+    // "at Company" format (most common)
+    const atMatch = title.match(/\bat\s+([^|·\-]+?)(?:\s*[|·\-]|$)/i);
+    if (atMatch) return atMatch[1].trim();
+    // "Title | Company | LinkedIn" or "Title · Company | LinkedIn" format
+    const parts = title.split(/[|·]/).map(p => p.trim()).filter(Boolean);
+    if (parts.length >= 2) {
+      // Last non-"LinkedIn" segment before the end is the company
+      const candidate = parts[parts.length - 1].toLowerCase() === 'linkedin'
+        ? parts[parts.length - 2]
+        : parts[parts.length - 1];
+      if (candidate && candidate.toLowerCase() !== 'linkedin' && candidate.length < 60) {
+        return candidate;
+      }
+    }
+    return '';
   }
 
   // Find the company name via /company/ anchor — LinkedIn always uses this URL pattern
