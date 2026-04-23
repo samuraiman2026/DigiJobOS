@@ -1938,7 +1938,25 @@ const STORAGE_KEY = 'jobos_v3';
 function loadState() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw);
+    if (raw) {
+      const state = JSON.parse(raw);
+      // Migration: ensure every pipeline item has a unique ID (fixes pre-v4.9 float-collision IDs)
+      const seenIds = new Set();
+      let needsSave = false;
+      const migBase = Date.now() * 1000;
+      let migSeq = 0;
+      (state.pipeline || []).forEach(r => {
+        if (!r.id || seenIds.has(r.id)) {
+          r.id = migBase + ++migSeq;
+          needsSave = true;
+        }
+        seenIds.add(r.id);
+      });
+      if (needsSave) {
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {}
+      }
+      return state;
+    }
   } catch(e) {}
   window._jobosLocalStorageWasEmpty = true;
   return defaultState();
@@ -3042,9 +3060,12 @@ function renderResumePipelineQL() {
     el.innerHTML = '<span style="font-family:var(--mono);font-size:10px;color:var(--text3);">No active pipeline roles — add via /pipeline or the extension.</span>';
     return;
   }
-  el.innerHTML = roles.map(r =>
-    `<button class="btn" style="font-size:11px;font-family:var(--mono);" onclick="rvLoadFromPipeline(${r.id})">${r.company}</button>`
-  ).join('');
+  el.innerHTML = roles.map(r => {
+    const label = r.role ? `${r.company} · ${r.role.length > 28 ? r.role.slice(0,28)+'…' : r.role}` : r.company;
+    const hasJd = r.jd ? '' : ' style="opacity:0.65;"';
+    const tip = r.jd ? `${r.company} — ${r.role||''}` : `${r.company} — no JD stored`;
+    return `<button class="btn"${hasJd} style="font-size:11px;font-family:var(--mono);" onclick="rvLoadFromPipeline(${r.id})" title="${tip}">${label}</button>`;
+  }).join('');
 }
 
 function rvClearResearch() {
@@ -3064,7 +3085,7 @@ function rvLoadFromPipeline(id) {
   document.getElementById('rv-jd').value = r.jd || '';
   rvClearResearch();
   rvLiveScore();
-  toast(`${r.company} loaded — continue to step 2`);
+  toast(r.jd ? `${r.company} loaded — continue to step 2` : `${r.company} loaded — paste the JD below before continuing`);
 }
 
 function rvQL(co,ro,tm,rt) {
