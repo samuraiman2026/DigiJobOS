@@ -277,7 +277,7 @@ select { appearance: none; cursor: pointer; }
     <input type="password" id="pw-input" autofocus style="width:100%;background:#1e1f1c;border:1px solid #363730;border-radius:8px;color:#e8e6de;padding:12px;text-align:center;font-size:16px;outline:none;border-color:#b8e04a;">
     <div id="pw-error" style="color:#e05a4a;font-size:11px;margin-top:12px;display:none;font-family:'DM Mono',monospace;">INVALID ACCESS KEY</div>
   </div>
-  <div style="margin-top:24px;font-size:10px;color:#5a5952;">v4.4 · Secure Instance</div>
+  <div style="margin-top:24px;font-size:10px;color:#5a5952;">v4.10 · Secure Instance</div>
 </div>
 
 <script>
@@ -429,6 +429,7 @@ select { appearance: none; cursor: pointer; }
         <div class="panel-sub">Your full job search at a glance. Pick a workflow to start.</div>
         <div style="display:flex;align-items:center;gap:10px;margin-top:8px;">
           <div id="ext-sync-status" style="font-family:var(--mono);font-size:10px;color:var(--text3);flex:1;"></div>
+          <span id="storage-bar" style="display:none;font-family:var(--mono);font-size:9px;letter-spacing:0.03em;" title="localStorage usage vs 5MB browser limit"></span>
           <button onclick="checkExtensionSync()" style="font-family:var(--mono);font-size:9px;padding:2px 8px;background:transparent;border:1px solid var(--border2);border-radius:4px;color:var(--text3);cursor:pointer;white-space:nowrap;" title="Pull latest from extension">↻ Sync</button>
         </div>
       </div>
@@ -736,8 +737,9 @@ select { appearance: none; cursor: pointer; }
         <div class="card-title" style="margin-bottom:6px;">What this does</div>
         <div class="card-body" style="line-height:1.8;font-size:12px;color:var(--text2);">
           When you paste the generated prompt into your <strong style="color:var(--text);">Job Search OS Claude Project</strong>, Claude will:<br>
+          · Verify Gmail + Calendar MCP are connected (surfaces auth errors immediately if not)<br>
           · Read today's Google Calendar via MCP<br>
-          · Search your Gmail for new LinkedIn alerts, recruiter replies, Welcome to the Jungle + Microsoft Careers emails<br>
+          · Search Gmail using your full sender list from SOURCES.md<br>
           · Pull your live pipeline (auto-included below - no need to type it)<br>
           · Flag overdue follow-ups from your outreach tracker<br>
           · Give you your top 3 actions for the day
@@ -1979,8 +1981,43 @@ function defaultState() {
   };
 }
 
+function checkStorageQuota() {
+  const MAX_BYTES = 5 * 1024 * 1024;
+  let total = 0;
+  try {
+    for (let key in localStorage) {
+      if (localStorage.hasOwnProperty(key)) {
+        total += (key.length + (localStorage.getItem(key) || '').length) * 2;
+      }
+    }
+  } catch(e) { return; }
+  const pct = total / MAX_BYTES;
+  const el = document.getElementById('storage-bar');
+  if (el) {
+    if (pct >= 0.70) {
+      el.textContent = 'storage: ' + Math.round(pct * 100) + '%';
+      el.style.color = pct >= 0.90 ? '#e05252' : pct >= 0.80 ? '#d4a843' : 'var(--text3)';
+      el.style.display = 'inline';
+    } else {
+      el.style.display = 'none';
+    }
+  }
+  if (pct >= 0.95) {
+    toast('CRITICAL: Storage at ' + Math.round(pct * 100) + '% — export now or data will stop saving');
+  } else if (pct >= 0.80) {
+    toast('Storage at ' + Math.round(pct * 100) + '% of 5MB — prune closed roles in /sync');
+  }
+}
+
 function saveState() {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(STATE)); } catch(e) {}
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(STATE));
+    checkStorageQuota();
+  } catch(e) {
+    if (e && e.name === 'QuotaExceededError') {
+      toast('Storage full — export and delete old roles in /sync to free space');
+    }
+  }
   // Mirror to extension's chrome.storage.local so state survives browser restarts
   // that clear localStorage (e.g. "Clear cookies on exit" browser settings).
   try {
@@ -2008,7 +2045,7 @@ function nav(id) {
   if (id === 'pipeline') { renderPipeline(); buildPipelinePrompt(); }
   if (id === 'resume') renderResumePipelineQL();
   if (id === 'history') renderHistory();
-  if (id === 'dashboard') { renderPipelineMini(); renderActivityGrid(); }
+  if (id === 'dashboard') { renderPipelineMini(); renderActivityGrid(); checkStorageQuota(); }
   if (id === 'outreach') { renderOutreachTable(); updateOutreachMetrics(); renderVelocityChart(); renderStatusBreakdown(); }
   if (id === 'network') renderNetworkMap();
   if (id === 'sync') renderSyncPanel();
@@ -2705,6 +2742,10 @@ function runBrief() {
     : (followups || 'None flagged');
   const prompt = `Run /brief using the rules in WORKFLOW_GUIDE.md.
 
+<mcp_health>
+Before anything else: verify Gmail MCP and Google Calendar MCP are reachable. If either returns an auth error or is unavailable, state it at the top of your response as [MCP ERROR] with the tool name and error type. Do not silently skip sections — if Gmail is down, say so and proceed with calendar + pipeline only.
+</mcp_health>
+
 <pipeline>
 ${pipelineSummary}
 </pipeline>
@@ -2714,10 +2755,12 @@ ${nudgeSummary}
 </overdue_followups>
 
 <gmail_sources>
-Also search Gmail for emails from these senders and include any new role opportunities, status updates, or recruiter messages in the briefing:
-- help@welcometothejungle.com (job board alerts)
-- donotreply@email.careers.microsoft.com (Microsoft Careers)
-Limit to last 48–72 hours. Summarize subject + any role/location mentioned.
+Read SOURCES.md from the project directory. Parse all non-commented lines (not starting with #) to get the full Gmail scan list grouped by section:
+- Job Alerts & Recruiters: search last 48-72 hours for new postings or status updates.
+- Target Company Domains: flag ANY email from these domains as HIGH PRIORITY regardless of sender.
+- Networking & Warm Intro Threads: scan last 5 days for replies from listed contacts.
+- Newsletters: scan last 48 hours for BD/AI market signals worth noting.
+Summarize subject + role/company/location for each match. Skip any sender that has no new email.
 </gmail_sources>${yesterdayDone ? `\n\n<yesterday_update>\nFrom yesterday's top 3 actions, here is what got done:\n${yesterdayDone}\nFactor this into today's priorities and flag anything still outstanding.\n</yesterday_update>` : ''}`;
   const el = document.getElementById('brief-output');
   el.textContent = prompt + '\n';
@@ -4628,7 +4671,14 @@ function loadOutreach() {
 }
 
 function saveOutreach() {
-  try { localStorage.setItem(OT_KEY, JSON.stringify(OT_STATE)); } catch(e) {}
+  try {
+    localStorage.setItem(OT_KEY, JSON.stringify(OT_STATE));
+    checkStorageQuota();
+  } catch(e) {
+    if (e && e.name === 'QuotaExceededError') {
+      toast('Storage full — export and prune contacts in /sync to free space');
+    }
+  }
   // Mirror to extension backup so clearing cookies doesn't wipe the tracker
   try {
     const extId = window.JOBOS_EXT_ID || document.documentElement.dataset.jobosExtId;

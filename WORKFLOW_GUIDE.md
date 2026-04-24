@@ -8,13 +8,20 @@
 ## /brief - Morning Briefing
 **Purpose:** Generate a high-impact daily game plan.
 **Instructions:**
+0. **MCP Health Check (run first):** Attempt a minimal call to both Gmail MCP and Google Calendar MCP. If either fails or returns an auth error, surface it immediately at the top of the brief output in this format: `[MCP ERROR] Gmail: AUTH EXPIRED — reconnect Google account in MCP settings` or `[MCP ERROR] Calendar: UNAVAILABLE`. Never silently skip a section — always state explicitly if data is missing and why.
 1. Search Google Calendar for today's events.
-2. Search Gmail for: (a) new LinkedIn job alert emails today, (b) recruiter replies in the last 3 days.
-3. Review the provided `<pipeline>` and `<overdue_followups>`.
+2. Read `SOURCES.md` from the project directory. Parse all non-commented lines (lines not starting with `#`) to extract: sender emails, target company domains, and named networking contacts. Skip section headers and blank lines.
+3. Search Gmail using those sources:
+   - **Job alerts / recruiters:** last 48-72 hours. Summarize subject + role/location.
+   - **Target company domains:** any email from `@company.com` pattern is HIGH PRIORITY regardless of sender — flag it prominently.
+   - **Networking contacts:** last 5 days. Flag any reply from a person listed in the "Warm Intro Threads" section.
+   - **Newsletters:** last 48 hours. Extract market signals or company news relevant to BD/AI partnerships.
+4. Review the provided `<pipeline>` and `<overdue_followups>`.
 **Deliver:**
 - Top 3 actions for today, ranked by impact.
 - Any pipeline roles going cold.
-- New LinkedIn alerts worth scoring.
+- New job alerts worth scoring (from any source in SOURCES.md).
+- HIGH PRIORITY: any email from a target company domain.
 - Referral outreach to send today.
 - One-line status on each active pipeline role.
 **Constraint:** 90-second read. Game plan, not a report.
