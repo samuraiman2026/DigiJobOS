@@ -2636,6 +2636,17 @@ function scoreKeywords(text, keywords, weight) {
   return Math.round(50 + ratio * 50);
 }
 
+const ACRONYM_MAP = {
+  'bd': 'Business Development', 'gtm': 'Go-To-Market', 'isv': 'Independent Software Vendor',
+  'gsi': 'Global Systems Integrator', 'si': 'Systems Integrator', 'ai': 'Artificial Intelligence',
+  'ml': 'Machine Learning', 'llm': 'Large Language Model', 'api': 'Application Programming Interface',
+  'sdk': 'Software Development Kit', 'saas': 'Software as a Service', 'oem': 'Original Equipment Manufacturer',
+  'npu': 'Neural Processing Unit', 'soc': 'System on Chip', 'arr': 'Annual Recurring Revenue',
+  'mrr': 'Monthly Recurring Revenue', 'qbr': 'Quarterly Business Review', 'plg': 'Product-Led Growth',
+  'crm': 'Customer Relationship Management', 'erp': 'Enterprise Resource Planning',
+  'mcp': 'Model Context Protocol', 'a2a': 'Agent-to-Agent', 'kpi': 'Key Performance Indicator',
+};
+
 function extractJDKeywords(jdText) {
   if (!jdText || jdText.length < 50) return [];
   const lower = jdText.toLowerCase();
@@ -2686,7 +2697,26 @@ function extractJDKeywords(jdText) {
     .slice(0, 12)
     .forEach(([w]) => found.add(w));
 
-  return [...found].slice(0, 22);
+  // Acronym expansion: if JD uses an acronym, add both the short and full forms
+  // so Claude is forced to write both — ATS parsers treat them as separate tokens
+  const acronymRe = /\b([A-Z]{2,5})\b/g;
+  while ((m = acronymRe.exec(jdText)) !== null) {
+    const abbr = m[1].toLowerCase();
+    if (ACRONYM_MAP[abbr]) {
+      found.add(abbr.toUpperCase() + ' (' + ACRONYM_MAP[abbr] + ')');
+    }
+  }
+
+  return [...found].slice(0, 24);
+}
+
+// Returns JD keywords formatted as a Core Competencies list for the resume skills section
+function buildSkillsSection(keywords) {
+  const clean = keywords
+    .map(k => k.replace(/\(.*?\)/g, '').trim()) // strip acronym expansion for display
+    .filter(k => k.length > 3 && k.length < 35)
+    .map(k => k.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '));
+  return [...new Set(clean)].slice(0, 12);
 }
 
 function animateScore(fillId, pctId, val) {
@@ -3354,7 +3384,11 @@ function rvMkPrompt(bs,ctx) {
   const kwBlock = keywords.length
     ? `\n\n<jd_keywords>\nThese terms were extracted from the JD. Every keyword must appear at least once across the rewritten bullets — use the exact phrasing from the JD, not synonyms:\n${keywords.map(k => '• ' + k).join('\n')}\nAfter rewriting, do a coverage check: list any keyword you could not authentically place and why.\n</jd_keywords>`
     : '';
-  return `Rewrite these resume bullets for: ${RV.role||'[role]'} at ${RV.company||'[company]'}.\n\n${jd?'JD:\n'+jd+'\n\n':''}${ctx?'Extra context: '+ctx+'\n\n':''}${research ? research+'\n\nUse the company research above to sharpen language — mirror their product terms, ecosystem language, and current strategic priorities where authentic.\n\n' : ''}${kwBlock ? kwBlock+'\n\n' : ''}Bullets:\n${bs.map(b=>'['+b.role+'] '+b.text).join('\n')}\n\nRules: Match JD language exactly — use their exact terms, not synonyms. Every keyword in <jd_keywords> must appear at least once. Preserve every metric unchanged ($20M, 120%, 1,000+, etc). Lead each bullet with impact not activity. Under 40 words per bullet. Output: [Role Label] • rewritten text, one per line. Then: Keywords not placed: [list or "all covered"].`;
+  const skills = buildSkillsSection(keywords);
+  const skillsBlock = skills.length
+    ? `\n\nAlso output a CORE COMPETENCIES section — 9-12 skills drawn from the JD keywords, written as noun phrases (not verbs), formatted exactly as:\nCORE COMPETENCIES\n[Skill 1]  |  [Skill 2]  |  [Skill 3]\n[Skill 4]  |  [Skill 5]  |  [Skill 6]\n[Skill 7]  |  [Skill 8]  |  [Skill 9]\nUse these as starting suggestions (add/replace with JD-specific terms): ${skills.join(', ')}.`
+    : '';
+  return `Rewrite these resume bullets for: ${RV.role||'[role]'} at ${RV.company||'[company]'}.\n\n${jd?'JD:\n'+jd+'\n\n':''}${ctx?'Extra context: '+ctx+'\n\n':''}${research ? research+'\n\nUse the company research above to sharpen language — mirror their product terms, ecosystem language, and current strategic priorities where authentic.\n\n' : ''}${kwBlock ? kwBlock+'\n\n' : ''}Bullets:\n${bs.map(b=>'['+b.role+'] '+b.text).join('\n')}\n\nRules:\n- Match JD language exactly — use their exact terms, not synonyms.\n- Every keyword in <jd_keywords> must appear at least once across all bullets.\n- Acronym rule: on first use of any acronym (BD, GTM, AI, API, SDK, ISV, etc.), write the full form followed by the abbreviation: "Business Development (BD)", "Go-To-Market (GTM)". This is required for ATS parsers that tokenize separately.\n- Preserve every metric unchanged ($20M, 120%, 1,000+, etc).\n- Lead each bullet with impact not activity.\n- Under 40 words per bullet.\nOutput:\n1. Rewritten bullets: [Role Label] • rewritten text, one per line.\n2. Keywords not placed: [list or "all covered"].\n3. ${skillsBlock ? 'Core Competencies section as described above.' : 'CORE COMPETENCIES section: 9-12 noun-phrase skills drawn from the JD, 3 per row separated by  |  .'}`;
 }
 function rvBuildManualPrompt() {
   const bs=rvGetActive(); const ctx=document.getElementById('rv-ctx')?.value?.trim()||'';
@@ -3420,8 +3454,22 @@ function rvBuildStep5() {
 
 function rvBuildPreview() {
   const co=RV.company||'Target'; const isEdge=RV.tmpl==='edgeai';
-  const TITLE=isEdge?'STRATEGIC BD & ECOSYSTEM PARTNERSHIPS  |  EDGE AI + PLATFORM GTM':'ENTERPRISE SERVICES & PARTNER ECOSYSTEM LEADER';
-  let html=`<div class="rv-name">PRANJAL MAHNA</div><div class="rv-title">${TITLE}</div><div class="rv-contact">pranjal.mahna@gmail.com  |  424.298.7516  |  linkedin.com/in/pranjalmahna</div>`;
+  const baseTitle=isEdge?'STRATEGIC BD & ECOSYSTEM PARTNERSHIPS  |  EDGE AI + PLATFORM GTM':'ENTERPRISE SERVICES & PARTNER ECOSYSTEM LEADER';
+  // Mirror JD role title if available — ATS parsers weight header title as a primary match signal
+  const jdRole = RV.role ? RV.role.toUpperCase() : null;
+  const TITLE = jdRole ? `${jdRole}  |  ${baseTitle}` : baseTitle;
+  let html=`<div class="rv-name">PRANJAL MAHNA</div><div class="rv-title" style="font-size:11px;">${TITLE}</div><div class="rv-contact">pranjal.mahna@gmail.com  |  424.298.7516  |  linkedin.com/in/pranjalmahna</div>`;
+
+  // Core Competencies — derived from JD keywords; ATS parsers weight this section heavily
+  const jdForSkills = RV.jd || document.getElementById('rv-jd')?.value || '';
+  const kws = extractJDKeywords(preprocessJD(jdForSkills));
+  const skills = buildSkillsSection(kws);
+  if (skills.length >= 3) {
+    const rows = [];
+    for (let i = 0; i < skills.length; i += 3) rows.push(skills.slice(i, i+3).join('  |  '));
+    html += `<div class="rv-sec">CORE COMPETENCIES</div><div class="rv-b" style="line-height:2;">${rows.join('<br>')}</div>`;
+  }
+
   if (isEdge) {
     html+=`<div class="rv-sec">SUMMARY</div><div class="rv-b">Strategic GTM and partnerships executive with 15+ years commercializing complex technologies at the intersection of Edge AI, high-performance silicon, and SaaS.</div><div class="rv-b">Proven track record building 0-to-1 partner ecosystems and scaling them to $100M+ in revenue.</div><div class="rv-b">Hands-on experience driving AI-on-SoC (Kirin 9000) partnerships - enabling edge-native intelligence for Pinterest, Porsche, Shazam, and Vivino.</div>`;
   }

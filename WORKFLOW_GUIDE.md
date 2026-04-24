@@ -49,13 +49,21 @@
 2. If `<jd_keywords>` is provided, treat it as a mandatory coverage checklist — every keyword must appear at least once in the resume bullets using the JD's exact phrasing (not synonyms). At the end of the Resume Restructure section, output a one-line coverage summary: "Keywords covered: X/Y" and list any that could not be authentically placed.
 3. If `<jd_keywords>` is NOT provided, extract the top 15 keywords yourself from the JD before writing bullets: required skills, product terms, action verbs specific to this role, ecosystem/GTM language the company uses. Apply the same coverage mandate.
 4. Perform JD analysis.
+**ATS Rules (apply to every resume output):**
+- **Acronym both-forms:** On first use of any acronym, write full form + abbreviation: "Business Development (BD)", "Go-To-Market (GTM)", "Artificial Intelligence (AI)", "Application Programming Interface (API)", "Software Development Kit (SDK)", "Independent Software Vendor (ISV)". ATS parsers tokenize these separately — using only one form loses half the matches.
+- **Exact phrasing:** Use the JD's exact terms, not synonyms. If they write "partner ecosystem" do not substitute "alliance network." If they write "co-sell" do not substitute "joint selling."
+- **Skills section:** Always include a CORE COMPETENCIES section with 9-12 noun-phrase skills drawn from the JD keywords, 3 per row separated by |. Place it above Work Experience. This is the highest-weight ATS signal.
+- **Title alignment:** The resume header title should include or mirror the target role title (e.g., "DIRECTOR, BUSINESS DEVELOPMENT | PARTNER ECOSYSTEM LEADER").
+- **No special characters:** No em-dashes, no smart quotes, no bullet symbols beyond standard hyphen (-) or dot (·). ATS parsers often strip or misread these.
+
 **Deliver:**
 - **JD Analysis:** What does this company actually care about? What 3 words describe their ideal hire?
-- **Resume Restructure:** 4-5 bullets per role, impact-first (use BULLET_LIBRARY.md). Every JD keyword must appear. Use the JD's exact phrasing — if they say "partner ecosystem" don't write "alliance network."
+- **CORE COMPETENCIES section:** 9-12 JD-sourced skills, formatted as 3-per-row with | separators.
+- **Resume Restructure:** 4-5 bullets per role, impact-first (use BULLET_LIBRARY.md). Every JD keyword must appear. Acronym both-forms on first use.
 - **Keyword Coverage:** `Keywords covered: X/Y — [any gaps + reason]`
 - **Gap & Bridge Analysis:** Frame missing requirements using existing strengths.
 - **Referral Strategy:** Who to reach and what angle to use.
-- **Cover Note:** One specific hook, not a resume summary. Must include at least 2 keywords from the JD in the first sentence.
+- **Cover Note:** One specific hook, not a resume summary. Must include at least 2 JD keywords (exact phrasing) in the first sentence.
 
 ## /referral - Referral Strategy
 **Purpose:** Build a referral-first approach for a role.
