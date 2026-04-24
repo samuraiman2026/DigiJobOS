@@ -2636,6 +2636,59 @@ function scoreKeywords(text, keywords, weight) {
   return Math.round(50 + ratio * 50);
 }
 
+function extractJDKeywords(jdText) {
+  if (!jdText || jdText.length < 50) return [];
+  const lower = jdText.toLowerCase();
+
+  // Curated BD/GTM/AI domain terms to surface when present
+  const domainTerms = [
+    'ecosystem','partner program','isvs','alliances','go-to-market','gtm',
+    'co-sell','co-marketing','reseller','channel','distribution','licensing',
+    'revenue share','monetization','developer ecosystem','platform strategy',
+    'api-first','sdk','integration','technical bd','solution architect',
+    'enterprise sales','land and expand','deal structure','negotiation',
+    'joint venture','oem','white-label','embedded partnership',
+    'ai-native','edge ai','on-device','npu','soc','inference','llm',
+    'foundation model','generative ai','machine learning','ml ops',
+    'mcp','a2a','agentic','multi-agent','model provider',
+    'aws','gcp','azure','hyperscaler','cloud partnership',
+    'series a','series b','early stage','scale-up','0-to-1',
+    'quota','arr','bookings','pipeline','win rate','deal velocity',
+    'cross-functional','stakeholder','executive sponsor','qbr',
+    'product-led growth','plg','sales-led','community-led',
+    'developer relations','devrel','developer advocacy',
+    'strategic alliances','global partnerships','bd strategy',
+  ];
+  const found = new Set();
+  for (const t of domainTerms) { if (lower.includes(t)) found.add(t); }
+
+  // Capitalized multi-word phrases from the original text (product/company names, named frameworks)
+  const capRe = /\b([A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)+)\b/g;
+  let m;
+  while ((m = capRe.exec(jdText)) !== null) {
+    const phrase = m[1].trim();
+    if (phrase.length > 5 && !/^(You |We |Our |The |This |That |In |At |For |With |And |Or )/.test(phrase)) {
+      found.add(phrase.toLowerCase());
+    }
+  }
+
+  // Frequently repeated meaningful words (appear 2+ times, 5+ chars, not stop words)
+  const stop = new Set(['about','after','against','also','although','always','another','application','apply','based','before','being','between','both','build','business','candidate','company','could','cross','during','each','either','experience','first','focus','from','have','help','high','include','into','join','just','lead','leadership','like','make','many','more','most','must','need','other','over','people','process','product','requirements','responsibilities','results','role','should','skills','some','such','support','team','than','that','their','them','then','there','these','they','this','those','through','time','under','using','what','when','where','which','while','will','with','within','work','working','would','years','your']);
+  const wordRe = /\b([a-z][a-z]{4,})\b/g;
+  const freq = {};
+  while ((m = wordRe.exec(lower)) !== null) {
+    const w = m[1];
+    if (!stop.has(w)) freq[w] = (freq[w] || 0) + 1;
+  }
+  Object.entries(freq)
+    .filter(([, c]) => c >= 2)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 12)
+    .forEach(([w]) => found.add(w));
+
+  return [...found].slice(0, 22);
+}
+
 function animateScore(fillId, pctId, val) {
   document.getElementById(fillId).style.width = val + '%';
   document.getElementById(pctId).textContent = val + '%';
@@ -2791,6 +2844,12 @@ function runApply() {
     privacy: 'Lead with: Huawei on-device AI (local inference vs cloud moat), Qualia compliance/legal complexity. Avoid: AdTech bullets.'
   }[type];
 
+  const rawJd = document.getElementById('apply-jd').value.trim();
+  const keywords = extractJDKeywords(rawJd);
+  const kwBlock = keywords.length
+    ? `\n\n<jd_keywords>\nExtracted from this JD. Every keyword must appear at least once in the resume bullets — use exact JD phrasing, not synonyms. Flag any you cannot authentically place.\n${keywords.map(k => '• ' + k).join('\n')}\n</jd_keywords>`
+    : '';
+
   const prompt = `Run /apply for this role using the rules in WORKFLOW_GUIDE.md.
 
 <role>${role || '[role name]'}</role>
@@ -2798,7 +2857,7 @@ function runApply() {
 ${jd || '[paste JD here]'}
 </jd>
 <bullet_guidance>${bulletGuidance}</bullet_guidance>
-<contact_context>${contact === 'none' ? 'No warm contact - cold referral strategy needed' : contact === 'weak' ? 'Weak 2nd-degree connection - warm outreach angle needed' : contact === 'weak1' ? 'Weak 1st-degree connection - know them but not closely, use a specific angle to re-engage before applying' : 'Strong 1st-degree contact - referral path available, activate directly'}</contact_context>`;
+<contact_context>${contact === 'none' ? 'No warm contact - cold referral strategy needed' : contact === 'weak' ? 'Weak 2nd-degree connection - warm outreach angle needed' : contact === 'weak1' ? 'Weak 1st-degree connection - know them but not closely, use a specific angle to re-engage before applying' : 'Strong 1st-degree contact - referral path available, activate directly'}</contact_context>${kwBlock}`;
   document.getElementById('apply-prompt-out').textContent = prompt + '\n';
   const btn = document.createElement('button');
   btn.className = 'prompt-copy-btn'; btn.textContent = 'copy';
@@ -3291,7 +3350,11 @@ Keep the summary under 300 words. Be specific — name the partnerships, the dol
 function rvMkPrompt(bs,ctx) {
   const research = RV.research ? `\n\n<company_research>\n${RV.research}\n</company_research>` : '';
   const jd = preprocessJD(RV.jd || document.getElementById('rv-jd').value.trim());
-  return `Rewrite these resume bullets for: ${RV.role||'[role]'} at ${RV.company||'[company]'}.\n\n${jd?'JD:\n'+jd+'\n\n':''}${ctx?'Extra context: '+ctx+'\n\n':''}${research ? research+'\n\nUse the company research above to sharpen language — mirror their product terms, ecosystem language, and current strategic priorities where authentic.\n\n' : ''}Bullets:\n${bs.map(b=>'['+b.role+'] '+b.text).join('\n')}\n\nRules: Match JD language exactly where authentic. Preserve every metric unchanged ($20M, 120%, 1,000+, etc). Lead each bullet with impact not activity. Under 40 words per bullet. Output: [Role Label] • rewritten text, one per line.`;
+  const keywords = extractJDKeywords(jd);
+  const kwBlock = keywords.length
+    ? `\n\n<jd_keywords>\nThese terms were extracted from the JD. Every keyword must appear at least once across the rewritten bullets — use the exact phrasing from the JD, not synonyms:\n${keywords.map(k => '• ' + k).join('\n')}\nAfter rewriting, do a coverage check: list any keyword you could not authentically place and why.\n</jd_keywords>`
+    : '';
+  return `Rewrite these resume bullets for: ${RV.role||'[role]'} at ${RV.company||'[company]'}.\n\n${jd?'JD:\n'+jd+'\n\n':''}${ctx?'Extra context: '+ctx+'\n\n':''}${research ? research+'\n\nUse the company research above to sharpen language — mirror their product terms, ecosystem language, and current strategic priorities where authentic.\n\n' : ''}${kwBlock ? kwBlock+'\n\n' : ''}Bullets:\n${bs.map(b=>'['+b.role+'] '+b.text).join('\n')}\n\nRules: Match JD language exactly — use their exact terms, not synonyms. Every keyword in <jd_keywords> must appear at least once. Preserve every metric unchanged ($20M, 120%, 1,000+, etc). Lead each bullet with impact not activity. Under 40 words per bullet. Output: [Role Label] • rewritten text, one per line. Then: Keywords not placed: [list or "all covered"].`;
 }
 function rvBuildManualPrompt() {
   const bs=rvGetActive(); const ctx=document.getElementById('rv-ctx')?.value?.trim()||'';

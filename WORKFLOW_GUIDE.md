@@ -46,13 +46,16 @@
 **Purpose:** Create a complete application package.
 **Instructions:**
 1. Use `<bullet_guidance>` and `<contact_context>` to tailor the output.
-2. Perform JD analysis.
+2. If `<jd_keywords>` is provided, treat it as a mandatory coverage checklist — every keyword must appear at least once in the resume bullets using the JD's exact phrasing (not synonyms). At the end of the Resume Restructure section, output a one-line coverage summary: "Keywords covered: X/Y" and list any that could not be authentically placed.
+3. If `<jd_keywords>` is NOT provided, extract the top 15 keywords yourself from the JD before writing bullets: required skills, product terms, action verbs specific to this role, ecosystem/GTM language the company uses. Apply the same coverage mandate.
+4. Perform JD analysis.
 **Deliver:**
-- **JD Analysis:** What does this company actually care about?
-- **Resume Restructure:** 4-5 bullets per role, impact-first (use BULLET_LIBRARY.md).
+- **JD Analysis:** What does this company actually care about? What 3 words describe their ideal hire?
+- **Resume Restructure:** 4-5 bullets per role, impact-first (use BULLET_LIBRARY.md). Every JD keyword must appear. Use the JD's exact phrasing — if they say "partner ecosystem" don't write "alliance network."
+- **Keyword Coverage:** `Keywords covered: X/Y — [any gaps + reason]`
 - **Gap & Bridge Analysis:** Frame missing requirements using existing strengths.
 - **Referral Strategy:** Who to reach and what angle to use.
-- **Cover Note:** One specific hook, not a resume summary.
+- **Cover Note:** One specific hook, not a resume summary. Must include at least 2 keywords from the JD in the first sentence.
 
 ## /referral - Referral Strategy
 **Purpose:** Build a referral-first approach for a role.
