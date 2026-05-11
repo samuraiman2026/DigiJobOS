@@ -17,6 +17,9 @@ no-reply@lever.co
 notifications@greenhouse.io
 no-reply@ashbyhq.com
 no-reply@smartrecruiters.com
+donotreply@email.careers.microsoft.com
+help@welcometothejungle.com
+
 ```
 
 ---

@@ -332,6 +332,7 @@ select { appearance: none; cursor: pointer; }
       <button class="nav-item" onclick="nav('outreach')" id="nav-outreach">
         <span class="ni-icon">◉</span> Outreach
         <span class="ni-badge" id="badge-outreach">56</span>
+        <span class="ni-badge" id="badge-seq-due" style="background:rgba(255,170,0,0.85);display:none;margin-left:2px;"></span>
       </button>
       <button class="nav-item" onclick="nav('history')" id="nav-history">
         <span class="ni-icon">◷</span> Usage history
@@ -583,12 +584,13 @@ select { appearance: none; cursor: pointer; }
         <div class="panel-sub">56 companies. Track daily reach-outs, follow-up counts, and outreach velocity.</div>
       </div>
 
-      <div class="metric-row" style="grid-template-columns:repeat(5,minmax(0,1fr));">
+      <div class="metric-row" style="grid-template-columns:repeat(6,minmax(0,1fr));">
         <div class="met"><div class="met-v" id="ot-today">0</div><div class="met-l">Reached out today</div></div>
         <div class="met"><div class="met-v" id="ot-week">0</div><div class="met-l">This week</div></div>
         <div class="met"><div class="met-v" id="ot-total">0</div><div class="met-l">Total reached</div></div>
         <div class="met"><div class="met-v" id="ot-pending">0</div><div class="met-l">Pending follow-up</div></div>
         <div class="met"><div class="met-v" id="ot-notstarted">0</div><div class="met-l">Not started</div></div>
+        <div class="met"><div class="met-v" id="ot-seq-due" style="color:#ffaa00;">0</div><div class="met-l">Touches due</div></div>
       </div>
 
       <div class="card" style="padding:14px 18px;margin-bottom:16px;">
@@ -639,7 +641,7 @@ select { appearance: none; cursor: pointer; }
             <th style="font-family:var(--mono);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);text-align:left;padding:10px 8px;">Role</th>
             <th style="font-family:var(--mono);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);text-align:left;padding:10px 8px;">Contact</th>
             <th style="font-family:var(--mono);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);text-align:left;padding:10px 8px;">Status</th>
-            <th style="font-family:var(--mono);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);text-align:left;padding:10px 8px;">Follow-ups</th>
+            <th style="font-family:var(--mono);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);text-align:left;padding:10px 8px;">Sequence</th>
             <th style="font-family:var(--mono);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);text-align:left;padding:10px 8px;">Last outreach</th>
             <th style="font-family:var(--mono);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);text-align:right;padding:10px 14px 10px 8px;">Actions</th>
           </tr></thead>
@@ -1924,6 +1926,17 @@ At the start of any session where I ask about my job search, pipeline, or outrea
     <div class="input-row"><label class="input-label">Internal contact</label><input type="text" id="ac-contact" placeholder="e.g. Jane Smith (Product Lead)"></div>
     <div class="input-row"><label class="input-label">Specific POV / value add</label><input type="text" id="ac-pov" placeholder="e.g. Huawei ISV ecosystem maps to their partner motion"></div>
     <div class="input-row"><label class="input-label">Last outreach date</label><input type="text" id="ac-date" placeholder="e.g. Apr 10"></div>
+    <div class="input-row" style="display:flex;align-items:center;gap:10px;margin-top:2px;">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;white-space:nowrap;">
+        <input type="checkbox" id="ac-start-seq" style="accent-color:var(--accent);">
+        <span class="input-label" style="margin:0;">Start sequence</span>
+      </label>
+      <select id="ac-seq-template" style="flex:1;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-family:var(--sans);font-size:12px;padding:7px 10px;">
+        <option value="warm_strong">Warm - strong tie (3 touches)</option>
+        <option value="warm_weak" selected>Warm - weak tie (4 touches)</option>
+        <option value="cold">Cold - no contact (3 touches)</option>
+      </select>
+    </div>
     <div class="btn-row">
       <button class="btn primary" onclick="addContact()">Add company</button>
       <button class="btn" onclick="closeModal('modal-addcontact')">Cancel</button>
@@ -3842,16 +3855,26 @@ function generateDigestPrompt() {
 
   const rangeLabel = { today:'today', '2days':'the last 2 days', week:'the last 7 days' }[range] || 'today';
 
-  // Build overdue list from outreach tracker
+  // Build overdue list from outreach tracker (sequence-aware)
+  const _briefTodayISO = new Date().toISOString().split('T')[0];
   const overdue = OT_STATE.contacts.filter(c => {
-    if (!c.lastOutreach || c.status === 'Replied' || c.status === 'Interviewing') return false;
+    if (c.status === 'Replied' || c.status === 'Interviewing' || c.status === 'Not Interested') return false;
+    if (c.sequence) return c.sequence.some(t => t.status === 'pending' && t.dueAt <= _briefTodayISO);
+    if (!c.lastOutreach) return false;
     const months = {Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
     const m = c.lastOutreach.match(/^([A-Za-z]+)\s+(\d+)/);
     if (!m) return false;
     const d = new Date(new Date().getFullYear(), months[m[1]], parseInt(m[2]));
     if (d > new Date()) d.setFullYear(d.getFullYear() - 1);
     return Math.floor((Date.now() - d.getTime()) / 86400000) >= cfg.nudgeDays;
-  }).map(c => `  - ${c.company}${c.contact ? ' (' + c.contact + ')' : ''}: last outreach ${c.lastOutreach}`).join('\n');
+  }).flatMap(c => {
+    if (c.sequence) {
+      return c.sequence
+        .filter(t => t.status === 'pending' && t.dueAt <= _briefTodayISO)
+        .map(t => `  - ${c.company}${c.contact ? ' (' + c.contact + ')' : ''}: T${t.touch} "${t.type}" due ${t.dueAt}`);
+    }
+    return [`  - ${c.company}${c.contact ? ' (' + c.contact + ')' : ''}: last outreach ${c.lastOutreach}`];
+  }).join('\n');
 
   const prompt = `Run my daily BD/Partnerships job search digest for ${rangeLabel}.
 
@@ -4770,6 +4793,90 @@ const OUTREACH_SEED = [
   {id:59,company:'Turing.com',tier:'2',role:'Client Partner, AI Startups',contact:'',pov:'Founder-trusted-advisor via PMSV',followups:0,lastOutreach:'Mar 28',status:'Researching',selected:false}
 ];
 
+// ── MULTI-TOUCH SEQUENCE ENGINE ──
+const SEQ_TEMPLATES = {
+  warm_strong: [
+    { touch: 1, type: 'Direct message / email', days: 0 },
+    { touch: 2, type: 'Follow-up email',         days: 3 },
+    { touch: 3, type: 'Ask for intro',            days: 6 }
+  ],
+  warm_weak: [
+    { touch: 1, type: 'LinkedIn DM',             days: 0 },
+    { touch: 2, type: 'Email nudge',              days: 5 },
+    { touch: 3, type: 'LinkedIn warm-up',         days: 12 },
+    { touch: 4, type: 'Try new contact',          days: 22 }
+  ],
+  cold: [
+    { touch: 1, type: 'Cold LinkedIn outreach',  days: 0 },
+    { touch: 2, type: 'Email (if findable)',      days: 7 },
+    { touch: 3, type: 'New person at company',   days: 17 }
+  ]
+};
+
+function buildSequence(template, startISO) {
+  const start = new Date(startISO + 'T00:00:00');
+  return (SEQ_TEMPLATES[template] || SEQ_TEMPLATES.warm_weak).map(t => {
+    const due = new Date(start);
+    due.setDate(due.getDate() + t.days);
+    return { touch: t.touch, type: t.type, dueAt: due.toISOString().split('T')[0], sentAt: null, status: 'pending' };
+  });
+}
+
+function startSequence(id, template) {
+  const c = OT_STATE.contacts.find(x => x.id === id);
+  if (!c) return;
+  const tmpl = template || (c.contact ? 'warm_weak' : 'cold');
+  const todayISO = new Date().toISOString().split('T')[0];
+  c.seqTemplate = tmpl;
+  c.sequence = buildSequence(tmpl, todayISO);
+  if (c.lastOutreach && c.status !== 'Not Started') {
+    c.sequence[0].sentAt = todayISO;
+    c.sequence[0].status = 'sent';
+  }
+  saveOutreach();
+  renderOutreachTable();
+  updateOutreachMetrics();
+  toast(c.company + ' - sequence started');
+}
+
+function logTouch(id, touchIdx) {
+  const c = OT_STATE.contacts.find(x => x.id === id);
+  if (!c || !c.sequence) return;
+  const t = c.sequence[touchIdx];
+  if (!t || t.status !== 'pending') return;
+  const todayISO = new Date().toISOString().split('T')[0];
+  t.sentAt = todayISO;
+  t.status = 'sent';
+  c.lastOutreach = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  if (touchIdx === 0 && (c.status === 'Not Started' || c.status === 'Researching')) c.status = 'Reached Out';
+  else if (touchIdx > 0) c.status = 'Follow-up Sent';
+  OT_STATE.dailyLog[todayISO] = (OT_STATE.dailyLog[todayISO] || 0) + 1;
+  saveOutreach();
+  renderOutreachTable();
+  updateOutreachMetrics();
+  updateGoalBar();
+  renderVelocityChart();
+  toast(`${c.company} - Touch ${t.touch} logged (${t.type})`);
+}
+
+function renderSeqCell(c) {
+  const todayISO = new Date().toISOString().split('T')[0];
+  if (!c.sequence) {
+    return `<button onclick="startSequence(${c.id})" style="font-family:var(--mono);font-size:9px;padding:2px 7px;border-radius:4px;border:1px solid var(--border2);background:var(--bg4);color:var(--text3);cursor:pointer;">▶ Sequence</button>`;
+  }
+  return '<div style="display:flex;gap:3px;align-items:center;">' +
+    c.sequence.map((t, i) => {
+      if (t.status === 'sent') {
+        return `<span title="T${t.touch}: ${t.type} - sent" style="font-family:var(--mono);font-size:9px;padding:2px 5px;border-radius:3px;background:rgba(109,195,109,0.15);color:#6dc36d;">T${t.touch}&#10003;</span>`;
+      }
+      const overdue = t.dueAt <= todayISO;
+      return overdue
+        ? `<span onclick="logTouch(${c.id},${i})" title="Click to log: ${t.type} &#8212; due ${t.dueAt}" style="font-family:var(--mono);font-size:9px;padding:2px 5px;border-radius:3px;background:rgba(255,170,0,0.12);color:#ffaa00;cursor:pointer;border:1px solid rgba(255,170,0,0.35);">T${t.touch}</span>`
+        : `<span title="${t.type} &#8212; due ${t.dueAt}" style="font-family:var(--mono);font-size:9px;padding:2px 5px;border-radius:3px;background:var(--bg4);color:var(--text3);">T${t.touch}</span>`;
+    }).join('') +
+  '</div>';
+}
+
 const OT_KEY = 'jobos_outreach_v1';
 
 function loadOutreach() {
@@ -4858,11 +4965,7 @@ function renderOutreachTable() {
           ${['Not Started','Reached Out','Follow-up Sent','Replied','Interviewing','Researching','Not Interested'].map(s=>`<option value="${s}" ${c.status===s?'selected':''}>${s}</option>`).join('')}
         </select>
       </td>
-      <td style="padding:9px 8px;font-family:var(--mono);font-size:11px;color:var(--text2);text-align:center;">
-        <button onclick="decrementFollowup(${c.id})" style="background:none;border:none;color:var(--text3);cursor:pointer;padding:0 3px;">−</button>
-        ${c.followups}
-        <button onclick="incrementFollowup(${c.id})" style="background:none;border:none;color:var(--accent);cursor:pointer;padding:0 3px;">+</button>
-      </td>
+      <td style="padding:6px 8px;min-width:120px;">${renderSeqCell(c)}</td>
       <td style="padding:9px 8px;font-family:var(--mono);font-size:10px;color:var(--text3);">${c.lastOutreach||'-'}</td>
       <td style="padding:9px 14px 9px 8px;text-align:right;">
         <button onclick="logOutreachToday(${c.id})" style="font-family:var(--mono);font-size:9px;padding:3px 8px;border-radius:4px;border:1px solid rgba(184,224,74,0.2);background:var(--accent-dim);color:var(--accent);cursor:pointer;" title="Log outreach today">↑ Today</button>
@@ -4909,6 +5012,10 @@ function logOutreachToday(id) {
   if (c.status === 'Not Started' || c.status === 'Researching') c.status = 'Reached Out';
   else if (c.status === 'Reached Out') c.status = 'Follow-up Sent';
   OT_STATE.dailyLog[todayKey] = (OT_STATE.dailyLog[todayKey] || 0) + 1;
+  if (c.sequence) {
+    const nextPending = c.sequence.find(t => t.status === 'pending');
+    if (nextPending) { nextPending.sentAt = todayKey; nextPending.status = 'sent'; }
+  }
   saveOutreach();
   renderOutreachTable();
   updateOutreachMetrics();
@@ -4951,6 +5058,13 @@ function updateOutreachMetrics() {
   setEl('ot-total', totalReached);
   setEl('ot-pending', pending);
   setEl('ot-notstarted', notStarted);
+  const todayISO = new Date().toISOString().split('T')[0];
+  const seqDue = OT_STATE.contacts.filter(c =>
+    c.sequence?.some(t => t.status === 'pending' && t.dueAt <= todayISO)
+  ).length;
+  setEl('ot-seq-due', seqDue);
+  const sdBadge = document.getElementById('badge-seq-due');
+  if (sdBadge) { sdBadge.textContent = seqDue; sdBadge.style.display = seqDue > 0 ? '' : 'none'; }
   updateGoalBar();
 }
 
@@ -5095,7 +5209,10 @@ function openAddContact() {
 function addContact() {
   const company = document.getElementById('ac-company').value.trim();
   if (!company) return;
-  OT_STATE.contacts.push({
+  const todayISO = new Date().toISOString().split('T')[0];
+  const startSeq = document.getElementById('ac-start-seq')?.checked;
+  const seqTemplate = document.getElementById('ac-seq-template')?.value || 'warm_weak';
+  const newContact = {
     id: Date.now(),
     company,
     tier: document.getElementById('ac-tier').value,
@@ -5106,15 +5223,22 @@ function addContact() {
     lastOutreach: document.getElementById('ac-date').value.trim(),
     status: document.getElementById('ac-status').value,
     selected: false
-  });
+  };
+  if (startSeq) {
+    newContact.seqTemplate = seqTemplate;
+    newContact.sequence = buildSequence(seqTemplate, todayISO);
+  }
+  OT_STATE.contacts.push(newContact);
   saveOutreach();
   renderOutreachTable();
   updateOutreachMetrics();
   renderStatusBreakdown();
   document.getElementById('badge-outreach').textContent = OT_STATE.contacts.length;
   closeModal('modal-addcontact');
-  toast(company + ' added');
+  toast(company + ' added' + (startSeq ? ' - sequence started' : ''));
   ['ac-company','ac-role','ac-contact','ac-pov','ac-date'].forEach(id => document.getElementById(id).value = '');
+  const seqCb = document.getElementById('ac-start-seq');
+  if (seqCb) seqCb.checked = false;
 }
 
 // ── LIVE SYNC HELPERS (called by chrome.scripting.executeScript world:MAIN) ──
