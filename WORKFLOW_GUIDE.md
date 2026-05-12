@@ -41,14 +41,16 @@
 2. Calculate overall weighted score (0-100) + verdict: **Apply Now** (75+) / **Apply with Bridge** (65-74) / **Pass** (<65).
 3. **Seniority rule:** Do NOT penalize Senior Manager or Manager titles. Score seniority on scope, ownership, and team size - not title alone. Only flag a seniority gap if the role is clearly IC-only (no team, no budget ownership) or if stated compensation is below $150K.
 4. If score is below 65, output only the score, verdict (Pass), and one-line reason. Do not generate the full card.
-5. For roles scoring 65+, do a brief web search to surface: funding stage, approximate comp range (from JD, Levels.fyi, or Glassdoor), and reports-to level if not stated in JD.
+5. For roles scoring 65+, do a brief web search to surface: funding stage, revenue + YoY growth (public companies) or total raised + last round date (private), approximate comp range (from JD, Levels.fyi, or Glassdoor), reports-to level if not stated in JD, and the specific product/market focus this BD role serves.
 **Deliver:**
 - Weighted score + Verdict.
 - **Role Card** (65+ only):
   - Funding stage (Seed / Series A-C / Public / PE-backed / Unknown)
+  - Revenue / Growth (public: e.g. "$290M FY25 - 29% YoY"; private: e.g. "$46M raised, Series C"; flag if unverified)
   - Approx comp range (from JD or web — flag if unverified)
   - Reports to (title level)
   - Location / remote policy
+  - Focus (what product, market, or team this BD role specifically serves — e.g. "Retail media APIs", "GenAI platform partnerships", "Edge AI device ecosystem")
 - **WHY IT'S:** 2-3 bullets on why this specific role fits Pranjal's profile and target motion.
 - **BIGGEST GAP + BRIDGE:** One sentence each.
 - **WATCH OUTS:** Red flags to investigate before committing time. Examples: comp not disclosed, IC-only structure, requires non-English language, equity uncertain (early stage), very small team (<20), role reports below VP, location mismatch, high churn signal, ATS-heavy company unlikely to move fast.
@@ -151,17 +153,44 @@
 2. Apply hard pass filters from `dream-job-criteria.md` immediately. Discard anything that fails a hard filter.
 3. Score each remaining role 0-100 using the weighted rubric from `dream-job-criteria.md`.
 4. Only include roles scoring 65+.
-5. For each qualifying role, do a brief research pass: funding stage, comp range (JD or Levels.fyi/Glassdoor), reports-to level.
+5. For each qualifying role, do a brief research pass: funding stage, revenue + YoY growth (public) or total raised + last round (private), comp range (JD or Levels.fyi/Glassdoor), reports-to level, and the specific product/market focus this role serves.
 **Deliver:**
 - **Ranked table:** Rank, Company, Role Title, Score/100, Verdict, Apply Link.
 - **Deep-dive cards for top 3-5 roles** (same format as /score):
-  - Funding stage, approx comp range, reports-to, location/remote
+  - Funding stage
+  - Revenue / Growth (public: revenue + YoY; private: total raised + last round date)
+  - Approx comp range (flag if unverified)
+  - Reports to
+  - Location / remote policy
+  - Focus (what product, market, or team this BD role specifically serves)
   - WHY IT'S: 2-3 bullets on fit
   - BIGGEST GAP + BRIDGE
   - WATCH OUTS
   - LINK TO APPLY
 - Footer line: `(X roles found, Y below threshold — not shown)`
 **Scheduling:** Can be set as a nightly scheduled task in Claude Cowork (desktop app). Set folder to this project directory so it reads `dream-job-criteria.md` and writes output to a dated file (e.g., `hunt-2026-05-13.md`).
+
+## /calibrate - Criteria Recalibration Interview
+**Purpose:** Interactively update `dream-job-criteria.md` through a structured 12-question interview. Run when search priorities shift, after seeing 20+ roles, or any time the current criteria feel misaligned with what's actually exciting. This keeps the scoring rubric fresh instead of static.
+**Constraint:** Ask ONE question at a time. Do not batch or pre-list questions. Wait for the full answer before proceeding. Do not proceed to synthesis until all 12 answers are received.
+**Instructions:**
+1. Open by telling Pranjal you're running a recalibration — 12 questions, one at a time. Ask if they're ready.
+2. Ask each question in order, waiting for a full answer each time:
+   - Q1: Of all the roles you've seen recently, which 1-2 felt most exciting — and what specifically made them feel right?
+   - Q2: Which roles did you pass on immediately — and what was the instant disqualifier?
+   - Q3: What company stage feels best right now: Seed, Series A-C, or public/PE-backed? Has this shifted since you started searching?
+   - Q4: What's your hard floor for base salary today? And what total comp would feel like a genuine win?
+   - Q5: What partner motion energizes you most: ISV ecosystem, channel/reseller, OEM/device, API integrations, hyperscaler co-sell, or something else?
+   - Q6: How important is AI-native vs. AI-adjacent vs. AI-enabled? Would you take a strong non-AI role if everything else was right?
+   - Q7: What does "good scope" look like — team to manage, revenue target, partner count, or some combination?
+   - Q8: Remote, hybrid, or open to relocating? Has this changed?
+   - Q9: Does the reports-to level matter (VP, CRO, CEO directly) — or is ownership more important than who you report to?
+   - Q10: What's one thing about the current search that feels like a waste of time? What to filter out harder?
+   - Q11: What company names came up that felt instinctively right, even if you didn't apply — and why?
+   - Q12: Has your thinking shifted at all about what this next role needs to set up the one after it?
+3. After all 12 answers, synthesize into an updated `dream-job-criteria.md`. Preserve all existing section headers and structure. Update only the fields where answers indicate a meaningful change. Do not remove any section.
+4. Show a change summary before writing: "Updated X fields: [list each field + what it changed from/to]." Ask for confirmation.
+5. On confirmation, write the updated file.
 
 ## /post - LinkedIn Post Generation
 **Purpose:** Practitioner-grade thought leadership.
