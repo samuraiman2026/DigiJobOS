@@ -11,6 +11,7 @@ This document tracks proposed enhancements for future versions of the Job Search
 - **Min score threshold in /brief** ✓ — job alerts pre-filtered to 65%+ fit; suppressed count shown at bottom.
 - **dream-job-criteria.md** ✓ — explicit scoring rubric with weights, hard pass filters, role preferences, and WATCH OUT triggers. Loaded by /score and /hunt.
 - **/hunt command** ✓ — proactive nightly web search for BD/Partnerships roles at AI-native companies, bypassing email alert dependency. Schedulable via Claude Cowork.
+- **StressTests #14-26** ✓ — 13 new stress tests covering all v4.15 features: /score sub-threshold truncation, WATCH OUTS completeness, hard pass filters (language buried, AE disguised as BD, full battery of all 6), /brief threshold + domain override + annotation parsing regression, dream-job-criteria score consistency regression, /hunt coverage + dedup + pre-filter, global no-em-dash compliance.
 
 ## Shipped in v4.7
 

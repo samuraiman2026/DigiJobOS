@@ -138,3 +138,163 @@
   │ 12  │ Score Drift        │ Data integrity                     │
   ├─────┼────────────────────┼────────────────────────────────────┤                       
   │ 13  │ Cache Lag          │ Cosmetic, low effort               │
+
+  #14 - /score Sub-Threshold Truncation
+  - Scenario: A JD scores exactly 64/100 — just below the 65 hard cutoff.
+  - Failure: Full Role Card, WHY IT'S, WATCH OUTS, and a web research call are
+    generated anyway, wasting tokens and implying more investigation is warranted
+    for a role that should be a clean Pass.
+  - Fix: /score must output ONLY score + "Pass" verdict + one-line reason for any
+    role scoring <65. No Role Card, no WHY IT'S, no WATCH OUTS, no web search.
+
+  #15 - WATCH OUTS Completeness Under Multiple Flags
+  - Scenario: A JD carries 5 simultaneous red flags: comp not disclosed, role
+    reports to Senior Manager (not VP), company has 14 employees, "business-level
+    German preferred" buried in paragraph 4 of requirements, equity range not
+    mentioned anywhere.
+  - Failure: Claude surfaces only the 2 most obvious flags (comp + early stage) and
+    silently drops the language requirement and reports-to issue — the ones most
+    likely to cause a late-stage disqualification after significant time invested.
+  - Fix: WATCH OUTS must enumerate ALL triggered flags from dream-job-criteria.md.
+    Each flag gets its own bullet. Partial surfacing is a silent failure.
+
+  #16 - Hard Pass Language Filter (Buried Requirement)
+  - Scenario: A high-scoring BD Director role at a Series B AI company ($220K base,
+    reports to VP, strong ecosystem motion) includes "business-level Japanese
+    proficiency required" in bullet 7 of the qualifications section.
+  - Failure: Role scores 84/100 and gets "Apply Now" because the language requirement
+    is buried and the overall profile is strong. The hard filter never fires.
+  - Fix: /score must scan the full JD for language requirements BEFORE running the
+    scoring rubric. Hard pass output: "Pass — requires Japanese proficiency
+    (hard filter: non-English language required)"
+
+  #17 - Hard Pass AE Disguised as BD
+  - Scenario: Title reads "Director of Business Development" but the JD body is
+    a pure quota-carrying AE role: $120K base + commission, "manage named accounts,"
+    "achieve quarterly revenue quota," no ecosystem or partnership language anywhere.
+  - Failure: Title match overrides substance check. Ecosystem dimension scores 3/10
+    ("some BD elements present") instead of triggering the hard pass filter.
+  - Fix: /score must check whether the role is substantially quota-carrying AE
+    (commission-first comp + no ecosystem/partnership language) before scoring.
+    Hard pass output: "Pass — pure quota AE, no ecosystem/partnership component
+    (hard filter)"
+
+  #18 - /brief All Low-Fit Batch
+  - Scenario: Every job alert in the inbox is clearly off-target: paralegal, FBI
+    Special Agent, radiology scheduler, Glassdoor community discussion post — the
+    exact Glassdoor noise observed in the real inbox this week.
+  - Failure: All 8 alerts surface in the brief. Pranjal must manually scan and
+    dismiss them, defeating the entire purpose of the 65% pre-filter.
+  - Fix: Zero alerts shown. Section reads "No qualifying job alerts today."
+    Footer line: "(8 roles below threshold — not shown)"
+
+  #19 - /brief Target Domain Override
+  - Scenario: An email arrives from careers@anthropic.com with subject "Head of
+    Partnerships" but the role content is BD-ops/PM-adjacent and would score
+    approximately 55/100 if evaluated against the rubric.
+  - Failure: The 65% threshold filter suppresses the email. An inbound from a
+    top-3 target company never reaches Pranjal's morning review.
+  - Fix: Emails from target company domains (@openai.com, @anthropic.com, etc.)
+    must ALWAYS surface as HIGH PRIORITY regardless of the 65% threshold.
+    Domain override is a separate, higher-priority signal than job alert quality.
+    Threshold filtering applies only to job board/aggregator emails.
+
+  #20 - SOURCES.md Inline Annotation Parsing (Regression on #8)
+  - Scenario: v4.14 added annotated lines to SOURCES.md using a dash separator,
+    e.g.: "hello@getro.com    — True Ventures portfolio job board (daily,
+    BD/partnerships signal)". The annotation text contains no @ symbol.
+  - Failure: Claude extracts the full line including the annotation as the email
+    address string and passes it to Gmail search, returning zero results or an
+    error — silently skipping the True Ventures and Niceboard alerts.
+  - Fix: The /brief parse rule from StressTest #8 must extract only the substring
+    before the first whitespace or — character on each line. Annotation text after
+    — is always ignored. Must be verified against the new v4.14 annotated lines.
+
+  #21 - Score Consistency With Rubric Loaded (Regression on #12)
+  - Scenario: The same mid-range JD (expected ~72/100) is scored in two separate
+    Claude sessions, both with dream-job-criteria.md loaded in context.
+  - Failure: Scores differ by more than 5 points (e.g., 70 in session 1 vs. 82
+    in session 2) because one session interprets a dimension differently.
+  - Fix: The explicit weights (25/25/20/20/10%) and score conversion table in
+    dream-job-criteria.md should anchor scores within +-3 points across sessions.
+    Drift greater than 5 points on the same JD signals the rubric language for that
+    dimension needs tightening, not that scoring is working correctly.
+
+  #22 - Hard Pass Battery (All 6 Filters)
+  - Scenario: Run /score against 6 purpose-built JDs, each failing exactly ONE of
+    the 6 hard pass filters in dream-job-criteria.md: (1) requires Japanese,
+    (2) pure AE quota, (3) stated OTE $140K, (4) relocation to Denver required,
+    (5) insurance company with no tech product, (6) reports to a Senior Manager.
+  - Failure: Any of the 6 roles produces a scored output rather than an immediate
+    hard Pass. A hard-filter role must never generate a Role Card or WATCH OUTS.
+  - Fix: Each filter is checked before the rubric runs. Output for any hard pass:
+    "Pass — [specific filter triggered] (hard filter)" — no score, no card.
+
+  #23 - /hunt Search Coverage Completeness
+  - Scenario: /hunt is invoked cold with no additional context.
+  - Failure: Claude runs only 1-2 of the 4 required search queries and skips
+    target company career pages, presenting partial results as a complete run.
+  - Fix: /hunt footer must explicitly state: "(4 queries run + 9 career pages
+    checked — X roles found, Y shown)". If any source was skipped, the footer
+    names it. Incomplete coverage must be traceable, not silent.
+
+  #24 - /hunt Deduplication
+  - Scenario: "Director of Partnerships at Cohere" appears in both the
+    Lever/Greenhouse query results AND the Cohere direct career page check.
+  - Failure: Role appears twice in the ranked table with slightly different scores
+    (e.g., 78 and 81) because it was scored in two separate search contexts.
+  - Fix: /hunt deduplicates by (company + role title) before building the ranked
+    table. Score used = from the more authoritative source (career page > aggregator).
+    Subsequent duplicates are silently discarded.
+
+  #25 - /hunt Pre-Filter Before Scoring
+  - Scenario: Search surfaces 12 roles: 3 fail hard pass (2 require non-English,
+    1 is pure AE), 4 score below 65, 5 score 65+.
+  - Failure: Hard pass roles get scored and appear in ranked table at low scores
+    (45, 52, 58). Footer reads "(12 found, 12 scored, 7 below threshold)" — implying
+    12 valid candidates when 3 should never have been evaluated.
+  - Fix: Hard pass filters applied BEFORE scoring. Correct footer: "(12 found —
+    3 hard pass discard, 4 below 65 — 5 shown)"
+
+  #26 - Global No-Em-Dash Compliance in v4.15 Output Blocks
+  - Scenario: Run /score on a 65+ role, /brief on a mixed alert batch, and /hunt.
+    Inspect all v4.15 output blocks: Role Card, WHY IT'S, WATCH OUTS, ranked table,
+    and deep-dive cards.
+  - Failure: An em-dash appears in any new output block — e.g., "WATCH OUTS —
+    comp not disclosed" using an em-dash as a visual separator.
+  - Fix: Global no-em-dash constraint (WORKFLOW_GUIDE.md Global Constraints) applies
+    to all new output formats. WATCH OUTS and WHY IT'S bullets use hyphens (-) or
+    colons (:). /hunt ranked table uses pipes (|) or colons. Zero tolerance.
+
+  ---
+  Suggested Fix Order (v4.15 additions)
+
+  ┌─────┬─────────────────────────────┬────────────────────────────────────────────┐
+  │  #  │          Scenario           │                  Why Now                   │
+  ├─────┼─────────────────────────────┼────────────────────────────────────────────┤
+  │ 16  │ Hard Pass Language Filter   │ Silent false positive — high score slips   │
+  ├─────┼─────────────────────────────┼────────────────────────────────────────────┤
+  │ 17  │ Hard Pass AE as BD          │ Title-substance mismatch is common         │
+  ├─────┼─────────────────────────────┼────────────────────────────────────────────┤
+  │ 22  │ Hard Pass Battery           │ Validates all 6 filters at once            │
+  ├─────┼─────────────────────────────┼────────────────────────────────────────────┤
+  │ 19  │ Brief Domain Override       │ Target company email must never be dropped │
+  ├─────┼─────────────────────────────┼────────────────────────────────────────────┤
+  │ 15  │ WATCH OUTS Completeness     │ Partial flags = silent miss at offer stage │
+  ├─────┼─────────────────────────────┼────────────────────────────────────────────┤
+  │ 25  │ /hunt Pre-Filter            │ Hard pass roles must not pollute output    │
+  ├─────┼─────────────────────────────┼────────────────────────────────────────────┤
+  │ 14  │ /score Sub-Threshold        │ Token waste + false signal on Pass roles   │
+  ├─────┼─────────────────────────────┼────────────────────────────────────────────┤
+  │ 18  │ Brief All Low-Fit Batch     │ Real Glassdoor noise — validates threshold │
+  ├─────┼─────────────────────────────┼────────────────────────────────────────────┤
+  │ 20  │ SOURCES.md Annotation Parse │ v4.14 new lines may break #8 parse rule    │
+  ├─────┼─────────────────────────────┼────────────────────────────────────────────┤
+  │ 23  │ /hunt Coverage              │ Partial search = missed roles, untraceable │
+  ├─────┼─────────────────────────────┼────────────────────────────────────────────┤
+  │ 24  │ /hunt Deduplication         │ Duplicate cards inflate table              │
+  ├─────┼─────────────────────────────┼────────────────────────────────────────────┤
+  │ 21  │ Score Consistency Regression│ Regression guard on StressTest #12         │
+  ├─────┼─────────────────────────────┼────────────────────────────────────────────┤
+  │ 26  │ No-Em-Dash Compliance       │ New output blocks untested against rule     │
+  └─────┴─────────────────────────────┴────────────────────────────────────────────┘
