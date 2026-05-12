@@ -1,4 +1,4 @@
-# Job Search OS - Workflow Guide (v4.2)
+# Job Search OS - Workflow Guide (v4.17)
 # Reference this file for all slash command instructions.
 
 ## Global Constraints (Non-Negotiable)
@@ -12,7 +12,7 @@
 1. Search Google Calendar for today's events.
 2. Read `SOURCES.md` from the project directory. Parse all non-commented lines (lines not starting with `#`) to extract: sender emails, target company domains, and named networking contacts. Skip section headers and blank lines.
 3. Search Gmail using those sources:
-   - **Job alerts / recruiters:** last 48-72 hours. Summarize subject + role/location.
+   - **Job alerts / recruiters:** last 72 hours, or since the previous /brief run if known (use whichever window captures more, max 5 days). Summarize subject + role/location.
    - **Target company domains:** any email from `@company.com` pattern is HIGH PRIORITY regardless of sender — flag it prominently.
    - **Networking contacts:** last 5 days. Flag any reply from a person listed in the "Warm Intro Threads" section.
    - **Newsletters:** last 48 hours. Extract market signals or company news relevant to BD/AI partnerships.
@@ -30,18 +30,15 @@
 
 ## /score - JD Fit Analysis
 **Purpose:** Analyze JD fit against profile dimensions and produce a structured role card.
-**Reference:** Load `dream-job-criteria.md` for scoring weights, hard pass filters, and WATCH OUT triggers.
+**Reference:** `dream-job-criteria.md` is the single source of truth for scoring weights, dimension calibrations, hard pass filters, WATCH OUT triggers, and Strongest Alignment Signals. Always read it fresh before scoring. Do not use any weights or thresholds hardcoded in this file.
 **Instructions:**
-1. Score 1-10 on each (show visual bars):
-   - Ecosystem/partner motion match (25%)
-   - 0-to-1 builder requirement (25%)
-   - Technical BD depth needed (20%)
-   - AI-native / Edge AI angle (20%)
-   - Seniority and scope match (10%)
-2. Calculate overall weighted score (0-100) + verdict: **Apply Now** (75+) / **Apply with Bridge** (65-74) / **Pass** (<65).
-3. **Seniority rule:** Do NOT penalize Senior Manager or Manager titles. Score seniority on scope, ownership, and team size - not title alone. Only flag a seniority gap if the role is clearly IC-only (no team, no budget ownership) or if stated compensation is below $150K.
-4. If score is below 65, output only the score, verdict (Pass), and one-line reason. Do not generate the full card.
-5. For roles scoring 65+, do a brief web search to surface: funding stage, revenue + YoY growth (public companies) or total raised + last round date (private), approximate comp range (from JD, Levels.fyi, or Glassdoor), reports-to level if not stated in JD, and the specific product/market focus this BD role serves.
+1. Load `dream-job-criteria.md`. Use its weights, midpoint calibrations, hard pass filters, WATCH OUT triggers, and Strongest Alignment Signals — not any values from this file.
+2. Score 1-10 on each dimension per the calibrations in `dream-job-criteria.md` (show visual bars).
+3. Check Strongest Alignment Signals: for each signal present in the JD or from research, add +0.5 to the applicable dimension (cap any dimension at 10). Note which signals fired in the role card.
+4. Calculate overall weighted score (0-100) + verdict: **Apply Now** (75+) / **Apply with Bridge** (65-74) / **Pass** (<65).
+5. **Seniority rule:** Do NOT penalize Senior Manager or Manager titles. Score seniority on scope, ownership, and team size - not title alone. Only flag a seniority gap if the role is clearly IC-only (no team, no budget ownership) or if stated compensation is below $150K.
+6. If score is below 65, output only the score, verdict (Pass), and one-line reason. Do not generate the full card.
+7. For roles scoring 65+, do a brief web search to surface: funding stage, revenue + YoY growth (public companies) or total raised + last round date (private), approximate comp range (from JD, Levels.fyi, or Glassdoor), reports-to level if not stated in JD, and the specific product/market focus this BD role serves.
 **Deliver:**
 - Weighted score + Verdict.
 - **Role Card** (65+ only):
@@ -58,10 +55,22 @@
 ## /apply - Application Workflow
 **Purpose:** Create a complete application package.
 **Instructions:**
-1. Use `<bullet_guidance>` and `<contact_context>` to tailor the output.
-2. If `<jd_keywords>` is provided, treat it as a mandatory coverage checklist — every keyword must appear at least once in the resume bullets using the JD's exact phrasing (not synonyms). At the end of the Resume Restructure section, output a one-line coverage summary: "Keywords covered: X/Y" and list any that could not be authentically placed.
-3. If `<jd_keywords>` is NOT provided, extract the top 15 keywords yourself from the JD before writing bullets: required skills, product terms, action verbs specific to this role, ecosystem/GTM language the company uses. Apply the same coverage mandate.
-4. Perform JD analysis.
+1. **Referral-first gate:** If the company domain matches a target in SOURCES.md, OR if `<score>` is provided and is 75+, output Referral Strategy FIRST before any other section.
+2. **Score verdict wiring:** If `<score>` is provided:
+   - **Apply Now (75+):** Open JD Analysis with "Strong alignment on [top 2 dimensions]." Resume Restructure leads with highest-impact alignment bullets.
+   - **Apply with Bridge (65-74):** Open JD Analysis with "Primary gap: [gap]. Bridge: [bridge narrative]." Promote Gap & Bridge Analysis to appear immediately after JD Analysis, before Resume Restructure.
+3. **Template type detection:** Classify the JD into one type: `enterprise`, `edgeai`, `hardware`, `startup`, `alliances`, or `supply`:
+   - enterprise: large established company, channel/partner ecosystem, enterprise SaaS
+   - edgeai: on-device AI, NPU, SoC, inference hardware, edge computing
+   - hardware: device OEM, connected hardware, IoT, component ecosystem
+   - startup: <200 employees, founding/first BD hire language, greenfield territory
+   - alliances: SI/GSI, VAR, reseller, co-sell, cloud marketplace
+   - supply: data partnerships, content licensing, supply-side platform, revenue share
+   Pull only the bullet IDs mapped to that template type from BULLET_LIBRARY.md's Resume Relevance Mapping.
+4. Use `<bullet_guidance>` and `<contact_context>` to tailor the output.
+5. If `<jd_keywords>` is provided, treat it as a mandatory coverage checklist — every keyword must appear at least once in the resume bullets using the JD's exact phrasing (not synonyms). At the end of the Resume Restructure section, output a one-line coverage summary: "Keywords covered: X/Y" and list any that could not be authentically placed.
+6. If `<jd_keywords>` is NOT provided, extract the top 15 keywords yourself from the JD before writing bullets: required skills, product terms, action verbs specific to this role, ecosystem/GTM language the company uses. Apply the same coverage mandate.
+7. Perform JD analysis.
 **ATS Rules (apply to every resume output):**
 - **Acronym both-forms:** On first use of any acronym, write full form + abbreviation: "Business Development (BD)", "Go-To-Market (GTM)", "Artificial Intelligence (AI)", "Application Programming Interface (API)", "Software Development Kit (SDK)", "Independent Software Vendor (ISV)". ATS parsers tokenize these separately — using only one form loses half the matches.
 - **Exact phrasing:** Use the JD's exact terms, not synonyms. If they write "partner ecosystem" do not substitute "alliance network." If they write "co-sell" do not substitute "joint selling."
@@ -69,21 +78,22 @@
 - **Title alignment:** The resume header title should include or mirror the target role title (e.g., "DIRECTOR, BUSINESS DEVELOPMENT | PARTNER ECOSYSTEM LEADER").
 - **No special characters:** No em-dashes, no smart quotes, no bullet symbols beyond standard hyphen (-) or dot (·). ATS parsers often strip or misread these.
 
-**Deliver:**
-- **JD Analysis:** What does this company actually care about? What 3 words describe their ideal hire?
-- **CORE COMPETENCIES section:** 9-12 JD-sourced skills, formatted as 3-per-row with | separators.
-- **Resume Restructure:** 4-5 bullets per role, impact-first (use BULLET_LIBRARY.md). Every JD keyword must appear. Acronym both-forms on first use.
-- **Keyword Coverage:** `Keywords covered: X/Y — [any gaps + reason]`
-- **Gap & Bridge Analysis:** Frame missing requirements using existing strengths.
-- **Referral Strategy:** Who to reach and what angle to use.
-- **Cover Note:** One specific hook, not a resume summary. Must include at least 2 JD keywords (exact phrasing) in the first sentence.
+**Deliver (output order matters — follow this sequence):**
+1. **Referral Strategy** — if target company domain OR score 75+ (always output first when triggered)
+2. **JD Analysis** — what this company cares about + 3-word hire profile (with score-verdict framing per instruction 2 above)
+3. **Gap & Bridge Analysis** — if Apply with Bridge: output here, before Resume Restructure. If Apply Now: output after Keyword Coverage.
+4. **CORE COMPETENCIES section** — 9-12 JD-sourced skills, 3-per-row with | separators.
+5. **Resume Restructure** — 4-5 bullets per role using template-type bullet IDs from BULLET_LIBRARY.md. Every JD keyword must appear. Acronym both-forms on first use.
+6. **Keyword Coverage** — `Keywords covered: X/Y — [any gaps + reason]`
+7. **Cover Note** — one specific hook, not a resume summary. Must include at least 2 JD keywords (exact phrasing) in the first sentence.
 
 ## /referral - Referral Strategy
 **Purpose:** Build a referral-first approach for a role.
+**Instructions:** Use the JD's specific language, the company's recent product news, and the role's Focus field (from /score if already run) to personalize every section. No generic templates — every output must be specific to this company and this role.
 **Deliver:**
-- **Who to reach:** Ideal (BD/Partnerships/GTM), second (HM's chain), third (2nd-degree).
-- **The Angle:** What earns a response (NOT "I'm applying").
-- **LinkedIn DM:** Under 80 words, specific, not a template.
+- **Who to reach:** Ideal (BD/Partnerships/GTM), second (HM's chain), third (2nd-degree). Named people where possible.
+- **The Angle:** What earns a response (NOT "I'm applying"). Ground it in the company's current product motion or a shared ecosystem signal.
+- **LinkedIn DM:** Under 80 words, specific to this role. Reference the company's work, not your resume.
 - **Timing:** Apply first or wait?
 - **Follow-up Plan:** If no reply in 5 days.
 
@@ -91,7 +101,7 @@
 **Purpose:** Full research and question bank for an interview.
 **Instructions:**
 1. Search the web for: (a) recent news about the company, (b) interviewer background (if provided).
-2. Map questions to best STAR stories (A-E) in CLAUDE.md.
+2. Map questions to best STAR stories (A-F) in CLAUDE.md. Story F covers conflict/setback/failure questions.
 **Deliver:**
 - What the company cares about right now.
 - 10 BD-specific questions (Partner motion, deal structure, ecosystem GTM, etc.).
@@ -102,7 +112,12 @@
 ## /mock - Mock Interview
 **Purpose:** Interactive practice with live scoring.
 **Instructions:**
-1. Ask questions based on `<mode>` (Hardest, Weak, Full, Specific).
+1. Ask questions based on `<mode>`:
+   - **Hardest:** 5 questions targeting historically lowest-scoring question types (or behavioral edge cases if no history available).
+   - **Weak:** 5 questions targeting dimensions where average Story Fit or Specificity is below 3/5.
+   - **Full:** 8-question representative mix: 2 ecosystem/GTM, 2 deal structure, 2 behavioral (conflict, failure), 1 vision/leadership, 1 "tell me about yourself."
+   - **Specific [topic]:** 5 questions focused on the named topic (e.g., "Specific: negotiation", "Specific: 0-to-1 build").
+   - **Default (no mode provided):** Run Full.
 2. Ask one question at a time. Wait for answer.
 3. After each answer, score: Relevance (1-5), Specificity (1-5), Impact Clarity (1-5), Story Fit (1-5).
 **Deliver:**
@@ -124,15 +139,19 @@
 **Instructions:**
 1. Search the web for current compensation benchmarks for the role/market.
 2. Use `<offer>` and `<leverage>` to build the strategy.
+3. If `<competing_offer>` is provided, incorporate multi-offer leverage: reference it as market validation (not an ultimatum), calculate the delta to match or exceed it, and integrate it into the negotiation script.
 **Deliver:**
 - Market benchmarks with sources.
 - 3 strongest leverage points for this specific offer.
 - Counter offer recommendation (Base, Equity, Signing).
+- Multi-offer bridge (if `<competing_offer>` provided): how to reference it without burning the relationship.
 - Exact script for the negotiation call (word for word).
 - "Best offer" pushback response.
+- Walk-away line: one sentence to use if they decline the counter entirely.
 
 ## /pattern - Pattern Analysis
 **Purpose:** Cross-interview weakness identification.
+**Data source:** Reads from `<mock_history>` tag provided by the user — paste the score lines from one or more /mock sessions. If no `<mock_history>` is provided, ask for it before proceeding.
 **Deliver:**
 - Question types I score low on (visual bars).
 - Question types I score high on (auto-pilot stories).
@@ -146,8 +165,8 @@
 **Reference:** Load `dream-job-criteria.md` for scoring weights, hard filters, and WATCH OUT triggers.
 **Instructions:**
 1. Search the web using these queries (run all, deduplicate results):
-   - `"Director of Business Development" OR "Director of Partnerships" AI site:jobs.lever.co OR site:boards.greenhouse.io OR site:ashby.com`
-   - `"Head of Partnerships" OR "VP Business Development" AI-native OR "AI platform" OR "LLM" -site:linkedin.com`
+   - `"Director of Business Development" OR "Director of Partnerships" OR "Head of BD" OR "Head of Business Development" AI site:jobs.lever.co OR site:boards.greenhouse.io OR site:ashby.com`
+   - `"Head of Partnerships" OR "VP Business Development" OR "VP Partnerships" OR "GM Partnerships" OR "Managing Director Business Development" AI-native OR "AI platform" OR "LLM" -site:linkedin.com`
    - `"BD" OR "partnerships" "0 to 1" OR "founding" AI startup 2026`
    - Check career pages of target companies in `CLAUDE.md` (OpenAI, Anthropic, Scale AI, Cohere, Mistral, Perplexity, Together AI, Anyscale, Databricks) for any open BD/Partnerships roles.
 2. Apply hard pass filters from `dream-job-criteria.md` immediately. Discard anything that fails a hard filter.

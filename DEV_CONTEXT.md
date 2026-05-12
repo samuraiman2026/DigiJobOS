@@ -1,5 +1,5 @@
 # Job Search OS - Developer & LLM Context File
-**Version 4.8 · April 2026 · BD/Partnerships Edition**
+**Version 4.17 · May 2026 · BD/Partnerships Edition**
 
 This file is the authoritative reference for any LLM or developer working on the Job Search OS. Read this before touching any file in the system.
 

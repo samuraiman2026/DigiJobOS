@@ -12,13 +12,13 @@ Target companies: AI-native, AI-platform, developer tools, edge computing, API-f
 
 ## Scoring Dimensions (weighted, 0-10 each)
 
-| Dimension | Weight | What "10" looks like |
-|---|---|---|
-| Ecosystem / partner motion | 25% | Build or scale an ISV/developer/channel ecosystem; co-sell, co-build, or API partner motion |
-| 0-to-1 builder requirement | 25% | Founding or near-founding BD hire; greenfield territory; no playbook handed to you |
-| Technical BD depth | 20% | Requires fluency in APIs, SDKs, integration architecture, or AI/ML stack |
-| AI-native / Edge AI angle | 20% | Company is AI-first or the role directly touches AI infrastructure, NPU, SoC, GenAI, MCP/A2A |
-| Seniority and scope | 10% | Owns a P&L, partner count, or team; reports to VP or above |
+| Dimension | Weight | What "5" looks like | What "10" looks like |
+|---|---|---|---|
+| Ecosystem / partner motion | 25% | Manages existing partners, some co-sell, some enablement work | Build or scale an ISV/developer/channel ecosystem from scratch; co-sell, co-build, or API partner motion |
+| 0-to-1 builder requirement | 25% | Some greenfield elements but established team and playbook exist | Founding or near-founding BD hire; greenfield territory; no playbook handed to you |
+| Technical BD depth | 20% | Requires working knowledge of APIs or SaaS architecture | Requires fluency in APIs, SDKs, integration architecture, or AI/ML stack; or hands-on AI infra knowledge |
+| AI-native / Edge AI angle | 20% | AI-adjacent company or AI feature within a broader product suite | Company is AI-first or the role directly touches AI infrastructure, NPU, SoC, GenAI, MCP/A2A |
+| Seniority and scope | 10% | IC with clear ownership of a specific partner segment or vertical | Owns a P&L, partner count, or team; reports to VP or above |
 
 **Score conversion:** multiply each dimension score by weight, sum to 0-100.
 - 75-100 → Apply Now
@@ -61,14 +61,16 @@ Target companies: AI-native, AI-platform, developer tools, edge computing, API-f
 
 ---
 
-## Strongest Alignment Signals (boost scoring if present)
+## Strongest Alignment Signals (score modifiers)
 
-- "Build our partner ecosystem from scratch" or "first BD hire"
-- AI infrastructure, GenAI platform, edge computing, NPU/SoC
-- ISV ecosystem, developer relations overlap, API monetization
-- MCP, A2A, agent-to-agent integration protocols
-- Global scale expectation (APAC, EMEA, strategic accounts)
-- Founding team with operator background (not purely VC-driven)
+When these signals are present in the JD or from research, add +0.5 to the most applicable dimension (cap any single dimension at 10). Note which signals fired in the role card output.
+
+- "Build our partner ecosystem from scratch" or "first BD hire" → +0.5 to 0-to-1 builder dimension
+- AI infrastructure, GenAI platform, edge computing, NPU/SoC → +0.5 to AI-native / Edge AI dimension
+- ISV ecosystem, developer relations overlap, API monetization → +0.5 to Ecosystem / partner motion dimension
+- MCP, A2A, agent-to-agent integration protocols → +0.5 to Technical BD depth AND AI-native / Edge AI dimensions
+- Global scale expectation (APAC, EMEA, strategic accounts) → +0.5 to Seniority and scope dimension
+- Founding team with operator background (not purely VC-driven) → +0.5 to 0-to-1 builder dimension
 
 ---
 

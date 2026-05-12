@@ -4,6 +4,22 @@ This document tracks proposed enhancements for future versions of the Job Search
 
 ---
 
+## Shipped in v4.17
+
+- **Single source of truth for scoring weights** ✓ — /score now loads all weights, calibrations, hard pass filters, WATCH OUTs, and Alignment Signals exclusively from `dream-job-criteria.md`. Inline weights removed from WORKFLOW_GUIDE.md.
+- **Midpoint calibration in scoring rubric** ✓ — `dream-job-criteria.md` now includes a "5/10" column for each of the 5 scoring dimensions, making partial-score judgment consistent.
+- **Strongest Alignment Signals wired as score modifiers** ✓ — each signal maps to a specific +0.5 dimension boost (capped at 10) and fires are noted in role card output.
+- **Template type detection in /apply** ✓ — JD is classified into one of 6 types (enterprise/edgeai/hardware/startup/alliances/supply), then only the corresponding bullet IDs from BULLET_LIBRARY.md are used in Resume Restructure.
+- **Score verdict wiring in /apply** ✓ — Apply Now leads with alignment framing; Apply with Bridge promotes Gap & Bridge Analysis before Resume Restructure.
+- **Referral-first gate in /apply** ✓ — target company domains and 75+ scored roles trigger Referral Strategy as the first section of /apply output.
+- **Dynamic /brief scan window** ✓ — uses max(72h, time since last /brief) instead of hardcoded 48-72h.
+- **/mock modes defined** ✓ — Hardest, Weak, Full, Specific [topic], and Default (=Full) are explicitly specified with question counts and composition.
+- **/pattern data source defined** ✓ — reads from `<mock_history>` tag; prompts user if missing.
+- **/referral JD context injection** ✓ — must use company's product news and /score Focus field; generic templates disallowed.
+- **/hunt title variants expanded** ✓ — added "Head of BD", "Head of Business Development", "VP Partnerships", "GM Partnerships", "Managing Director Business Development" to search queries.
+- **/negotiate multi-offer framework** ✓ — `<competing_offer>` tag triggers multi-offer leverage section + walk-away line.
+- **Story D strengthened + Story F added** ✓ — CLAUDE.md Story D now includes specific advisory companies and metrics; Story F added for conflict/setback/failure behavioral questions.
+
 ## Shipped in v4.16
 
 - **Focus field in role cards** ✓ — /score and /hunt deep-dive cards now include Focus: the specific product, market, or team this BD role serves (e.g. "Retail media APIs", "GenAI platform partnerships"). Derived from JD signals, not company description. Falls back to "Not specified in JD — confirm in screen" if unclear.

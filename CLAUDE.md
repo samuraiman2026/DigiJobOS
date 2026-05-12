@@ -1,5 +1,5 @@
-# Job Search OS - Optimized Master Context (v4.2)
-# Pranjal Mahna - April 2026
+# Job Search OS - Optimized Master Context (v4.17)
+# Pranjal Mahna - May 2026
 # This is the "Brain" of the OS. Read this first. 
 
 ## Identity & Positioning
@@ -14,12 +14,13 @@
 - **Pandora:** $200M+ new revenue channels (Sponsored Listening, OEM Sony/Honda).
 - **Mobclix:** $16M rev, 185% YoY growth.
 
-## Interview Stories (A-E)
+## Interview Stories (A-F)
 - **A: Huawei Ecosystem:** 0-to-1 build at scale (Pinterest, Meta, Adobe partners).
-- **B: Qualia API:** Founding GTM for technical API product.
-- **C: Pandora OEM:** Hardware/Device distribution (Sony, Honda, Microsoft).
-- **D: PMSV & AI Stack:** Current advisory & thought leadership framework.
-- **E: Sony/Mobclix:** Early mobile monetization & global market scale.
+- **B: Qualia API:** Founding GTM for technical API product — $9M at 120%, $20M pipeline.
+- **C: Pandora OEM:** Hardware/Device distribution (Sony, Honda, Microsoft) — $200M+ new revenue.
+- **D: PMSV Advisory:** 0-to-1 BD programs for 3 early-stage AI/tech companies: Adyogi (Meta + Shopify partnerships, 16% distribution growth), Wove (first 3 enterprise partners in 90 days), MobiOffice (API packaging for 200M+ download product, 7% conversion lift). Use for recent/current impact questions.
+- **E: Sony/Mobclix:** Early mobile monetization & global market scale — $16M, 185% YoY.
+- **F: Conflict / Setback:** Geopolitical-driven partner pivot (Huawei 2021 trade restrictions). Use for adversity, failure, or decision-under-uncertainty questions. Frame: constraint hit mid-motion, re-routed pipeline to EMEA/APAC, preserved relationships.
 
 ## Technical Depth
 - **Foundations:** BTech Computer Eng + MBA Marketing + Bell Labs (Software Eng).
