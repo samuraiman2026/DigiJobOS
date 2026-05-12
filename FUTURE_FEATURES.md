@@ -4,6 +4,13 @@ This document tracks proposed enhancements for future versions of the Job Search
 
 ---
 
+## Shipped in v4.16
+
+- **Focus field in role cards** ✓ — /score and /hunt deep-dive cards now include Focus: the specific product, market, or team this BD role serves (e.g. "Retail media APIs", "GenAI platform partnerships"). Derived from JD signals, not company description. Falls back to "Not specified in JD — confirm in screen" if unclear.
+- **Revenue/Growth field in role cards** ✓ — public companies: annual revenue + YoY growth rate, sourced and flagged if unverified; private companies: total raised + last round date only. Never estimates ARR for private companies.
+- **/calibrate command** ✓ — 12-question interactive interview (one question at a time) to update dream-job-criteria.md as search priorities evolve. Shows change diff and requires confirmation before writing. Skips unchanged fields to preserve exact phrasing.
+- **StressTests #27-36** ✓ — 10 new stress tests: /calibrate batching prevention, premature synthesis, no-confirmation write, unchanged field rewrite; Focus generic placeholder and sub-threshold bleed; Revenue/Growth public unverified assertion and private invented estimate; /hunt card field consistency; /calibrate + /score stale read regression.
+
 ## Shipped in v4.15
 
 - **WATCH OUTS in /score** ✓ — every role card now includes red flags (comp not disclosed, IC-only structure, equity uncertainty, language requirements, churn signals, reports-to level).

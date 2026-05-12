@@ -298,3 +298,145 @@
   ├─────┼─────────────────────────────┼────────────────────────────────────────────┤
   │ 26  │ No-Em-Dash Compliance       │ New output blocks untested against rule     │
   └─────┴─────────────────────────────┴────────────────────────────────────────────┘
+
+
+  #27 - /calibrate Question Batching Prevention
+  - Scenario: User invokes /calibrate. Claude pre-lists all 12 questions in a
+    numbered block in the first response.
+  - Failure: All questions appear at once. User answers are influenced by seeing
+    future questions, undermining the reflective intent of the interview. The
+    one-at-a-time constraint stated in WORKFLOW_GUIDE.md is violated on the
+    first turn.
+  - Fix: /calibrate must send exactly ONE question per turn and wait for a full
+    answer before proceeding. First message = intro + Q1 only. No pre-listing,
+    no "here's what we'll cover today."
+
+  #28 - /calibrate Premature Synthesis
+  - Scenario: Pranjal answers Q1-Q8 and then says "that's enough, update the
+    file."
+  - Failure: Claude synthesizes and writes dream-job-criteria.md based on 8/12
+    answers, silently omitting reports-to preference (Q9), what to filter harder
+    (Q10), instinctively right companies (Q11), and long-game thinking (Q12).
+    Criteria are partially updated with no indication of what was skipped.
+  - Fix: /calibrate must not synthesize until all 12 answers are received, OR the
+    user explicitly requests a partial update. On partial update, Claude must flag
+    which questions were skipped and which criteria dimensions remain unchanged
+    from the current file.
+
+  #29 - /calibrate No-Confirmation Write
+  - Scenario: After receiving all 12 answers, Claude immediately overwrites
+    dream-job-criteria.md without showing the change summary first.
+  - Failure: Pranjal cannot review what changed before the file is committed.
+    A misunderstood answer (e.g., "I'd consider Series A" logged as lowering the
+    stage threshold) silently corrupts the scoring rubric used by every future
+    /score and /hunt run.
+  - Fix: /calibrate must always show "Updated X fields: [list each field +
+    from/to values]" and ask for explicit confirmation before any file write.
+    No write without confirmation. Required by steps 4-5 of /calibrate
+    instructions in WORKFLOW_GUIDE.md.
+
+  #30 - /calibrate Rewrites Unchanged Fields
+  - Scenario: Q4 answer is "same floor, $180K base still feels right." Current
+    dream-job-criteria.md already says "$180K+". Claude lists this as a changed
+    field in the summary and rewords the sentence.
+  - Failure: Unchanged fields get rewritten with different phrasing, breaking
+    exact-match references in /score and /hunt prompts that load this file.
+    Change summary becomes noise — Pranjal cannot identify what actually shifted.
+  - Fix: Fields where the answer confirms the current value must be left exactly
+    as-is (no rewording). Only fields with a genuine change appear in the summary.
+    "No change" answers produce zero edits to that field.
+
+  #31 - Focus Field Generic Placeholder
+  - Scenario: A BD Director role at a company that broadly does "AI platform."
+    The JD does not explicitly name what product/market this BD role serves —
+    it just says "drive strategic partnerships."
+  - Failure: Claude writes Focus as "AI platform partnerships" — a generic
+    restatement of the company description. Two roles at similar companies will
+    have identical Focus fields, making the card useless for comparison.
+  - Fix: /score must derive Focus from specific signals in the JD: which product
+    lines, markets, customer segments, or internal teams the BD hire will partner
+    with. If genuinely unclear, mark as "Focus: Not specified in JD — confirm in
+    screen." Generic company-description placeholders are a failure.
+
+  #32 - Focus Field Bleeds Into Sub-Threshold Output
+  - Scenario: A role scores 64/100. Output should be score + Pass + one-line
+    reason only (per the <65 truncation rule established in #14).
+  - Failure: Claude generates Focus, Revenue/Growth, and a partial Role Card
+    before the truncation rule applies, producing a half-formed output that
+    implies more investigation than warranted.
+  - Fix: The <65 truncation rule applies to ALL Role Card fields including Focus
+    and Revenue/Growth. Sub-threshold output = score + "Pass" + one-line reason.
+    Nothing else. No new v4.16 fields exempt this constraint.
+
+  #33 - Revenue Field Public Company — Unverified Assertion
+  - Scenario: BD Director role at a public company. JD doesn't mention revenue.
+    Claude states a revenue figure as fact with no source attribution.
+  - Failure: Revenue stated as "~$800M FY25" with no sourcing. If the figure is
+    wrong (stale, quarterly not annual, wrong ticker), it will be used in
+    /negotiate and /prep without scrutiny.
+  - Fix: Revenue/Growth for public companies must be web-searched and flagged:
+    "unverified — sourced from [source name]" if not from an official filing.
+    Format = annual revenue + YoY growth rate, not quarterly. Example:
+    "$290M FY25 - 29% YoY (Crunchbase)". Never state as fact without a source.
+
+  #34 - Revenue Field Private Company — Invented Estimate
+  - Scenario: BD role at a Series B AI startup that has announced funding but
+    never disclosed revenue. Claude estimates ARR based on employee count or
+    stage heuristics and presents it as data.
+  - Failure: Claude writes "~$15-20M ARR (estimated)" in the role card. This
+    figure propagates into /negotiate and /prep, anchoring decisions on invented
+    data.
+  - Fix: For private companies, Revenue/Growth must show ONLY total raised + last
+    round date (e.g., "$46M raised, Series C Jan '26"). Never estimate ARR or
+    revenue for private companies. If no funding announcement is findable, mark
+    as "Funding: Not publicly disclosed." No estimates, no heuristics, no
+    employee-count extrapolation.
+
+  #35 - /hunt Card Field Consistency Across Mixed Company Types
+  - Scenario: /hunt surfaces 5 qualifying roles: 2 public companies, 2 Series B
+    startups, 1 stealth Series A with no public funding info.
+  - Failure: Revenue/Growth and Focus are inconsistently present — some cards
+    have them, others skip them silently. Card-to-card comparison breaks when
+    fields appear on some cards but not others.
+  - Fix: Every deep-dive card must include ALL fields regardless of data
+    availability. Use explicit placeholders for unknown data: "Revenue: Not
+    publicly disclosed", "Focus: Not specified in JD — confirm in screen."
+    No silent omissions. Consistent structure across all cards is non-negotiable.
+
+  #36 - /calibrate + /score Criteria Sync (Stale Read)
+  - Scenario: /calibrate completes and updates dream-job-criteria.md (comp floor
+    raised from $180K to $200K, Series A now flagged as pass unless founding hire).
+    User immediately runs /score on a new JD in the same session.
+  - Failure: /score uses the old criteria loaded at session start, before
+    /calibrate ran. The comp floor and stage filter are still at the old values.
+    A Series A role that should now be a Pass surfaces as "Apply with Bridge."
+  - Fix: /score must always read dream-job-criteria.md fresh at scoring time —
+    not from a cached in-session copy. If the file was updated by /calibrate
+    during the session, /score picks up the new version automatically.
+
+  ---
+  Suggested Fix Order (v4.16 additions)
+
+  ┌─────┬──────────────────────────────────┬──────────────────────────────────────────┐
+  │  #  │           Scenario               │               Why Now                    │
+  ├─────┼──────────────────────────────────┼──────────────────────────────────────────┤
+  │ 29  │ Calibrate No-Confirmation Write  │ Silent overwrite = corrupted criteria    │
+  ├─────┼──────────────────────────────────┼──────────────────────────────────────────┤
+  │ 36  │ Calibrate + Score Stale Read     │ Calibrate update invisible to /score     │
+  ├─────┼──────────────────────────────────┼──────────────────────────────────────────┤
+  │ 27  │ Question Batching Prevention     │ Violates core /calibrate constraint      │
+  ├─────┼──────────────────────────────────┼──────────────────────────────────────────┤
+  │ 28  │ Premature Synthesis              │ Partial update = silent rubric gaps      │
+  ├─────┼──────────────────────────────────┼──────────────────────────────────────────┤
+  │ 33  │ Revenue Public Unverified Assert │ Unsourced figures propagate downstream   │
+  ├─────┼──────────────────────────────────┼──────────────────────────────────────────┤
+  │ 34  │ Revenue Private Invented Estimate│ Fabricated ARR corrupts /negotiate       │
+  ├─────┼──────────────────────────────────┼──────────────────────────────────────────┤
+  │ 31  │ Focus Generic Placeholder        │ Generic field = no role differentiation  │
+  ├─────┼──────────────────────────────────┼──────────────────────────────────────────┤
+  │ 35  │ /hunt Card Field Consistency     │ Inconsistent cards break comparison      │
+  ├─────┼──────────────────────────────────┼──────────────────────────────────────────┤
+  │ 30  │ Calibrate Unchanged Field Rewrite│ Phrasing drift breaks exact-match refs   │
+  ├─────┼──────────────────────────────────┼──────────────────────────────────────────┤
+  │ 32  │ Focus Bleeds Into Sub-Threshold  │ Truncation rule must cover new fields    │
+  └─────┴──────────────────────────────────┴──────────────────────────────────────────┘

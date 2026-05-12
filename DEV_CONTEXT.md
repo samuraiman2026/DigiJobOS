@@ -28,7 +28,7 @@ A personal job search operating system built on Claude for a senior BD/Partnersh
 ├── NEXT_STEPS.md                       ← Improvement backlog (5 items, 2 in progress)
 ├── CLAUDE.md                           ← Master context (Identity & Metrics) - Load into Claude
 ├── BULLET_LIBRARY.md                   ← Resume bullet raw text + Relevance Mapping - Load into Claude
-├── WORKFLOW_GUIDE.md                   ← Slash command logic & constraints - Load into Claude (v4.15: /score deep-dive card + WATCH OUTS, /brief threshold, /hunt added; StressTests #14-26)
+├── WORKFLOW_GUIDE.md                   ← Slash command logic & constraints - Load into Claude (v4.16: /calibrate added, Focus + Revenue/Growth fields in /score + /hunt; StressTests #14-36)
 ├── SOURCES.md                          ← Gmail scan config: senders, target domains, contacts for /brief (v4.14: 8 new senders)
 ├── dream-job-criteria.md               ← Scoring rubric: weights, hard filters, WATCH OUT triggers — loaded by /score and /hunt
 ├── FUTURE_FEATURES.md                  ← Roadmap for future development
