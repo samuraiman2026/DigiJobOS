@@ -19,6 +19,7 @@ This document tracks proposed enhancements for future versions of the Job Search
 - **/hunt title variants expanded** ✓ — added "Head of BD", "Head of Business Development", "VP Partnerships", "GM Partnerships", "Managing Director Business Development" to search queries.
 - **/negotiate multi-offer framework** ✓ — `<competing_offer>` tag triggers multi-offer leverage section + walk-away line.
 - **Story D strengthened + Story F added** ✓ — CLAUDE.md Story D now includes specific advisory companies and metrics; Story F added for conflict/setback/failure behavioral questions.
+- **StressTests #37-49** ✓ — 13 new stress tests covering all v4.17 features: scoring single source of truth, midpoint calibration, alignment signal visibility and cap, template type detection and auditability, Apply-with-Bridge output order, referral gate domain check, plain-text score parsing, dynamic brief window, competing offer in script, /mock default mode, Story F in /prep.
 
 ## Shipped in v4.16
 

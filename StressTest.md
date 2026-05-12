@@ -440,3 +440,189 @@
   ├─────┼──────────────────────────────────┼──────────────────────────────────────────┤
   │ 32  │ Focus Bleeds Into Sub-Threshold  │ Truncation rule must cover new fields    │
   └─────┴──────────────────────────────────┴──────────────────────────────────────────┘
+
+
+---
+
+## v4.17 Stress Tests (#37–#49)
+
+  #37 - /score Ignores Updated dream-job-criteria.md Weights
+  - Scenario: /calibrate has updated dream-job-criteria.md, changing AI-native weight from 20% to
+    25% and Ecosystem weight from 25% to 20%. User immediately runs /score on a new JD.
+  - Failure: /score applies the old weights from WORKFLOW_GUIDE.md session context (25/25/20/20/10%),
+    not the updated file values. The recalibrated weights have no effect — /calibrate's purpose
+    is nullified.
+  - Fix: /score must read dream-job-criteria.md fresh at scoring time, never from hardcoded values
+    or cached session copy. Weights come from the file only. This is the single source of truth
+    established in v4.17.
+
+  #38 - Midpoint Calibration Ignored in Scoring
+  - Scenario: A role has a well-established partner program (not 0-to-1) and moderate API integration
+    requirements. Per the midpoint calibration in dream-job-criteria.md, both "0-to-1 builder" and
+    "Technical BD depth" are approximately 5/10 for this evidence level. Claude scores both 8/10
+    with no explanation.
+  - Failure: Scores are inflated above what the calibration specifies. The midpoint column has no
+    behavioral effect — it is documentation theater. An 8 where a 5 is correct inflates the total
+    score by 6-9 points, potentially converting a Pass into an Apply with Bridge.
+  - Fix: Scores must be anchored to the midpoint calibration descriptions in dream-job-criteria.md.
+    A score above 5 requires explicit evidence that exceeds the "5/10 looks like" bar. Deviating
+    from calibration requires reasoning stated in the score output.
+
+  #39 - Alignment Signal Boost Applied But Not Noted in Role Card
+  - Scenario: A JD includes "build our partner ecosystem from scratch" and mentions MCP integration
+    protocols. Both should trigger Strongest Alignment Signal boosts. The score card shows a final
+    number with no mention of which signals fired.
+  - Failure: +0.5 boosts are applied invisibly. Pranjal cannot verify whether the elevated score
+    reflects genuine signal detection or arbitrary inflation. The signals-fired list required by
+    WORKFLOW_GUIDE.md /score instruction 3 is absent.
+  - Fix: /score must explicitly note which Alignment Signals fired in the role card output, e.g.,
+    "Signals fired: 'first BD hire' -> +0.5 to 0-to-1 dimension; MCP -> +0.5 to Technical BD depth
+    + AI-native dimensions." No silent boosts — every +0.5 is attributed and visible.
+
+  #40 - Alignment Signal Boosts Exceed Dimension Cap
+  - Scenario: A role has 3 separate signals that all map to the Ecosystem / partner motion dimension
+    (+0.5 each). Base score on that dimension is 9.5/10. Applying all three would push it to 11/10.
+  - Failure: Dimension score reported above 10, corrupting the weighted multiplication and producing
+    a total score above 100. Or Claude silently truncates without noting the cap was hit.
+  - Fix: Each dimension is capped at 10 regardless of how many signals fire. Multiple signals on the
+    same dimension do not stack beyond 10. Cap applied before weighted multiplication and noted:
+    "Ecosystem: 9.5 + 1.5 from 3 signals -> capped at 10."
+
+  #41 - /apply Assigns Wrong Template Type
+  - Scenario: A role is "Director of Partnerships, Edge AI Platform" at a company building NPU-powered
+    inference hardware. JD mentions "device OEM integrations", "NPU silicon partners", and
+    "on-device AI." Claude classifies this as enterprise (large company, ecosystem language) and
+    uses enterprise bullet IDs (p1, p2, h1-h6).
+  - Failure: edgeai and hardware bullet IDs (h7-h10, pa2-pa3, q5-q7) — specifically tailored for
+    edge computing and device ecosystem narratives — are skipped. The resume uses enterprise-framed
+    bullets that miss the on-device AI angle entirely.
+  - Fix: Template type detection must prioritize technical product signals (NPU, SoC, on-device AI,
+    edge) over company size signals. edgeai or hardware takes precedence over enterprise when the
+    JD core product is edge/device technology. Signal hierarchy matters.
+
+  #42 - /apply Template Type Not Stated in Output
+  - Scenario: Claude generates a resume restructure using the correct bullet IDs internally, but
+    doesn't name the template type anywhere in the output.
+  - Failure: Pranjal cannot verify which template was used or whether the bullet selection was
+    correct. If the type was wrong, there is no way to catch it without manually cross-referencing
+    BULLET_LIBRARY.md against every bullet in the output.
+  - Fix: /apply must state the detected template type at the start of the Resume Restructure section:
+    e.g., "Template type: edgeai — using bullet IDs h7, h8, q5, q6, pa2, pa3." Visible and
+    verifiable, not implicit.
+
+  #43 - /apply Apply-with-Bridge Buries the Gap Narrative
+  - Scenario: /score returned 69/100 (Apply with Bridge). User runs /apply with <score>69</score>.
+    Claude generates output in standard order: JD Analysis -> CORE COMPETENCIES -> Resume
+    Restructure -> Gap & Bridge Analysis at the end.
+  - Failure: Gap & Bridge Analysis appears after the full resume build. For an Apply with Bridge
+    submission, the bridge narrative is the most important framing element — but it is buried where
+    neither Pranjal nor a hiring manager will encounter it first. WORKFLOW_GUIDE.md /apply
+    instruction 2b requiring it to appear before Resume Restructure is violated.
+  - Fix: For any score in the 65-74 range (Apply with Bridge), Gap & Bridge Analysis must appear
+    immediately after JD Analysis, before CORE COMPETENCIES and Resume Restructure. Output order:
+    JD Analysis -> Gap & Bridge -> CORE COMPETENCIES -> Resume Restructure.
+
+  #44 - /apply Score Verdict Wiring Ignores Plain-Text Score
+  - Scenario: User types "/apply — this scored 78" as plain text. No <score> XML tag present.
+    Claude generates standard apply output with no Apply Now framing, no alignment-first lead,
+    no referral gate triggered.
+  - Failure: Score verdict wiring only fires on XML tag presence. Plain-text score references are
+    silently ignored. Pranjal must remember XML syntax to get structured output — the system
+    penalizes natural input.
+  - Fix: /apply must recognize score mentions in plain text as well as XML tags (e.g., "scored 78",
+    "score: 78", "78/100", "scored an 80"). If a score is identifiable anywhere in the user's
+    message, apply the corresponding verdict framing. XML is preferred but not required.
+
+  #45 - /apply Referral Gate Misses Target Company Domain
+  - Scenario: User runs /apply for a role at Scale AI (@scale.ai). The domain is in SOURCES.md
+    Target Company Domains. No <score> is provided. Claude generates the full application package
+    with no Referral Strategy section.
+  - Failure: The referral-first gate only checks for explicit score >=75, silently skipping the
+    SOURCES.md domain check. A Scale AI role — a target company — gets no referral strategy,
+    losing the highest-value action in the workflow.
+  - Fix: /apply must check SOURCES.md target domains as an independent trigger (OR condition
+    alongside score >=75). The domain check requires no score — just the company name/domain in
+    the JD. When triggered, Referral Strategy appears first regardless of score presence.
+
+  #46 - /brief Hardcodes 72h Window After a 4-Day Gap
+  - Scenario: It is Monday morning. The last /brief was Thursday. User runs /brief. Claude scans
+    exactly 72 hours back (Friday morning), missing all Thursday emails — including a recruiter
+    reply from a target company domain.
+  - Failure: A hard 72h cap silently drops Thursday content. The WORKFLOW_GUIDE.md instruction to
+    use "whichever captures more, max 5 days" is ignored. A high-priority email is invisible with
+    no indication it was missed.
+  - Fix: /brief must extend the scan window when the gap since the last brief is longer than 72h.
+    If the gap is mentioned in the user's message or determinable from context (e.g., "back from
+    weekend"), use that gap duration as the window floor. Unknown gap -> default to 96h. Cap is
+    5 days regardless.
+
+  #47 - Competing Offer Present But Not Integrated Into Negotiation Script
+  - Scenario: User provides <competing_offer>$310K total comp from Cohere</competing_offer>.
+    Claude generates a negotiation script referencing "market rate" generically. The Cohere offer
+    appears in a separate "Multi-offer bridge" bullet but is never spoken in the script.
+  - Failure: The competing offer — the strongest leverage available — is acknowledged in the Deliver
+    section but absent from the word-for-word script. Pranjal has no scripted line to use. The
+    <competing_offer> tag adds no value to the call preparation.
+  - Fix: When <competing_offer> is provided, it must appear by name in the negotiation script
+    itself: e.g., "I do have another offer on the table — it is at $310K total comp from Cohere —
+    but I'd prefer to make this work with you." The multi-offer reference is not optional and
+    not a footnote.
+
+  #48 - /mock Default Mode Runs as Single-Question Session
+  - Scenario: User types "/mock" with no mode specified. Claude asks one question, scores the
+    answer, and stops — never indicating it will continue to 8 questions or that Full mode is
+    running.
+  - Failure: The default mode (Full = 8 questions) collapses to a single-question exchange.
+    Pranjal does not know whether the session is ongoing or complete. The session generates
+    insufficient data for /pattern to detect weaknesses.
+  - Fix: When no mode is specified, /mock must run Full mode (8 questions). Opening message must
+    state: "Running Full mode — 8 questions covering ecosystem/GTM, deal structure, behavioral,
+    leadership, and tell-me-about-yourself. Question 1 of 8:" Session scope declared upfront.
+
+  #49 - /prep Maps All Behavioral Questions to Stories A-D, Ignores Story F
+  - Scenario: /prep is run for an interview at an AI startup. Behavioral questions include "Tell
+    me about a time you had to change course on a major initiative" and "Describe when external
+    factors derailed your plan." Claude maps both to Story A (Huawei Ecosystem) or Story B
+    (Qualia founding GTM).
+  - Failure: Story F (Huawei 2021 geopolitical pivot — constraint hit mid-motion, re-routed to
+    EMEA/APAC, preserved relationships) is the designated story for adversity and
+    decision-under-uncertainty questions. It is never surfaced. /prep story mapping was not
+    updated when Story F was added in v4.17.
+  - Fix: /prep must evaluate Story F alongside A-E for every behavioral question. For questions
+    involving adversity, failure, change of course, or external constraint, Story F must appear
+    as the recommended or top-ranked story. Its designation in CLAUDE.md as the conflict/setback
+    story is binding.
+
+---
+
+## Suggested Fix Order (v4.17 additions)
+
+  ┌─────┬──────────────────────────────────┬──────────────────────────────────────────┐
+  │  #  │           Scenario               │               Why Now                    │
+  ├─────┼──────────────────────────────────┼──────────────────────────────────────────┤
+  │ 41  │ Wrong Template Type Assigned     │ Wrong template = wrong resume bullets    │
+  ├─────┼──────────────────────────────────┼──────────────────────────────────────────┤
+  │ 45  │ Referral Gate Misses Domain      │ Target company loses highest-value action│
+  ├─────┼──────────────────────────────────┼──────────────────────────────────────────┤
+  │ 43  │ Apply-with-Bridge Buries Gap     │ Bridge submission structurally broken    │
+  ├─────┼──────────────────────────────────┼──────────────────────────────────────────┤
+  │ 37  │ Score Ignores dream-job-criteria │ /calibrate updates have zero effect      │
+  ├─────┼──────────────────────────────────┼──────────────────────────────────────────┤
+  │ 47  │ Competing Offer Not in Script    │ <competing_offer> tag adds no call value │
+  ├─────┼──────────────────────────────────┼──────────────────────────────────────────┤
+  │ 39  │ Signal Boost Not Noted           │ Invisible boosts break scoring trust     │
+  ├─────┼──────────────────────────────────┼──────────────────────────────────────────┤
+  │ 40  │ Signal Boosts Exceed Cap         │ Scores above 100 corrupt calculation     │
+  ├─────┼──────────────────────────────────┼──────────────────────────────────────────┤
+  │ 48  │ Mock Default Single Question     │ /mock unusable; no data for /pattern     │
+  ├─────┼──────────────────────────────────┼──────────────────────────────────────────┤
+  │ 44  │ Score Verdict Ignores Plain Text │ Informal input bypasses all wiring       │
+  ├─────┼──────────────────────────────────┼──────────────────────────────────────────┤
+  │ 49  │ Story F Not Used in /prep        │ Conflict questions get wrong story       │
+  ├─────┼──────────────────────────────────┼──────────────────────────────────────────┤
+  │ 46  │ Brief Hardcodes 72h After Gap    │ Monday briefs silently miss Thursday     │
+  ├─────┼──────────────────────────────────┼──────────────────────────────────────────┤
+  │ 42  │ Template Type Not Stated         │ Can't verify bullet selection            │
+  ├─────┼──────────────────────────────────┼──────────────────────────────────────────┤
+  │ 38  │ Midpoint Calibration Ignored     │ Inflated scores; calibration decorative  │
+  └─────┴──────────────────────────────────┴──────────────────────────────────────────┘
