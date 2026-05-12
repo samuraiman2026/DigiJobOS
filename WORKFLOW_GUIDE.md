@@ -17,10 +17,11 @@
    - **Networking contacts:** last 5 days. Flag any reply from a person listed in the "Warm Intro Threads" section.
    - **Newsletters:** last 48 hours. Extract market signals or company news relevant to BD/AI partnerships.
 4. Review the provided `<pipeline>` and `<overdue_followups>`.
+5. **Pre-filter job alerts before surfacing:** For each new role found in job alert emails, do a fast fit check based on title, seniority level, and company type. Only surface roles that appear to be a 65%+ fit for a senior BD/Partnerships exec at an AI-native company. At the bottom of the job alerts section, add a single line: `(X roles below threshold — not shown)` with the count of skipped roles.
 **Deliver:**
 - Top 3 actions for today, ranked by impact.
 - Any pipeline roles going cold.
-- New job alerts worth scoring (from any source in SOURCES.md).
+- New job alerts worth scoring (65%+ fit only — pre-filtered per step 5 above).
 - HIGH PRIORITY: any email from a target company domain.
 - Referral outreach to send today.
 - One-line status on each active pipeline role.
@@ -28,7 +29,8 @@
 **Seniority rule:** Do not flag Senior Manager or Manager roles as "below target" unless the stated or estimated salary is below $150K. A strong skill match overrides title level.
 
 ## /score - JD Fit Analysis
-**Purpose:** Analyze JD fit against profile dimensions.
+**Purpose:** Analyze JD fit against profile dimensions and produce a structured role card.
+**Reference:** Load `dream-job-criteria.md` for scoring weights, hard pass filters, and WATCH OUT triggers.
 **Instructions:**
 1. Score 1-10 on each (show visual bars):
    - Ecosystem/partner motion match (25%)
@@ -36,11 +38,20 @@
    - Technical BD depth needed (20%)
    - AI-native / Edge AI angle (20%)
    - Seniority and scope match (10%)
-2. Calculate overall weighted score + verdict: Apply Now / Apply with Bridge / Pass.
+2. Calculate overall weighted score (0-100) + verdict: **Apply Now** (75+) / **Apply with Bridge** (65-74) / **Pass** (<65).
 3. **Seniority rule:** Do NOT penalize Senior Manager or Manager titles. Score seniority on scope, ownership, and team size - not title alone. Only flag a seniority gap if the role is clearly IC-only (no team, no budget ownership) or if stated compensation is below $150K.
+4. If score is below 65, output only the score, verdict (Pass), and one-line reason. Do not generate the full card.
+5. For roles scoring 65+, do a brief web search to surface: funding stage, approximate comp range (from JD, Levels.fyi, or Glassdoor), and reports-to level if not stated in JD.
 **Deliver:**
 - Weighted score + Verdict.
-- 2 strongest angles + biggest gap for this specific role.
+- **Role Card** (65+ only):
+  - Funding stage (Seed / Series A-C / Public / PE-backed / Unknown)
+  - Approx comp range (from JD or web — flag if unverified)
+  - Reports to (title level)
+  - Location / remote policy
+- **WHY IT'S:** 2-3 bullets on why this specific role fits Pranjal's profile and target motion.
+- **BIGGEST GAP + BRIDGE:** One sentence each.
+- **WATCH OUTS:** Red flags to investigate before committing time. Examples: comp not disclosed, IC-only structure, requires non-English language, equity uncertain (early stage), very small team (<20), role reports below VP, location mismatch, high churn signal, ATS-heavy company unlikely to move fast.
 
 ## /apply - Application Workflow
 **Purpose:** Create a complete application package.
@@ -127,6 +138,30 @@
 - Story over-reliance / underuse flags.
 - **Drill Plan:** 3 question types to practice.
 - "Stop doing" / "Do more" items.
+
+## /hunt - Proactive Job Discovery
+**Purpose:** Actively web-search for open BD/Partnerships roles at AI-native companies — bypassing email alert filters to find roles posted directly on company career pages. Designed to run as a nightly scheduled task.
+**Reference:** Load `dream-job-criteria.md` for scoring weights, hard filters, and WATCH OUT triggers.
+**Instructions:**
+1. Search the web using these queries (run all, deduplicate results):
+   - `"Director of Business Development" OR "Director of Partnerships" AI site:jobs.lever.co OR site:boards.greenhouse.io OR site:ashby.com`
+   - `"Head of Partnerships" OR "VP Business Development" AI-native OR "AI platform" OR "LLM" -site:linkedin.com`
+   - `"BD" OR "partnerships" "0 to 1" OR "founding" AI startup 2026`
+   - Check career pages of target companies in `CLAUDE.md` (OpenAI, Anthropic, Scale AI, Cohere, Mistral, Perplexity, Together AI, Anyscale, Databricks) for any open BD/Partnerships roles.
+2. Apply hard pass filters from `dream-job-criteria.md` immediately. Discard anything that fails a hard filter.
+3. Score each remaining role 0-100 using the weighted rubric from `dream-job-criteria.md`.
+4. Only include roles scoring 65+.
+5. For each qualifying role, do a brief research pass: funding stage, comp range (JD or Levels.fyi/Glassdoor), reports-to level.
+**Deliver:**
+- **Ranked table:** Rank, Company, Role Title, Score/100, Verdict, Apply Link.
+- **Deep-dive cards for top 3-5 roles** (same format as /score):
+  - Funding stage, approx comp range, reports-to, location/remote
+  - WHY IT'S: 2-3 bullets on fit
+  - BIGGEST GAP + BRIDGE
+  - WATCH OUTS
+  - LINK TO APPLY
+- Footer line: `(X roles found, Y below threshold — not shown)`
+**Scheduling:** Can be set as a nightly scheduled task in Claude Cowork (desktop app). Set folder to this project directory so it reads `dream-job-criteria.md` and writes output to a dated file (e.g., `hunt-2026-05-13.md`).
 
 ## /post - LinkedIn Post Generation
 **Purpose:** Practitioner-grade thought leadership.

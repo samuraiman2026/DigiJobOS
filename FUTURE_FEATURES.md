@@ -4,6 +4,14 @@ This document tracks proposed enhancements for future versions of the Job Search
 
 ---
 
+## Shipped in v4.15
+
+- **WATCH OUTS in /score** ✓ — every role card now includes red flags (comp not disclosed, IC-only structure, equity uncertainty, language requirements, churn signals, reports-to level).
+- **Deep-dive role card in /score** ✓ — funding stage, approx comp range, reports-to level, WHY IT'S bullets added to scoring output.
+- **Min score threshold in /brief** ✓ — job alerts pre-filtered to 65%+ fit; suppressed count shown at bottom.
+- **dream-job-criteria.md** ✓ — explicit scoring rubric with weights, hard pass filters, role preferences, and WATCH OUT triggers. Loaded by /score and /hunt.
+- **/hunt command** ✓ — proactive nightly web search for BD/Partnerships roles at AI-native companies, bypassing email alert dependency. Schedulable via Claude Cowork.
+
 ## Shipped in v4.7
 
 - **Outreach tracker backup** ✓ — Clearing browser cookies no longer wipes the outreach tracker. Backed up to `chrome.storage.local` on every save, auto-restored on next load.
