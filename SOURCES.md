@@ -9,14 +9,31 @@ Claude reads this file before each morning briefing to determine which inboxes a
 These senders are scanned for new job postings, recruiter outreach, and application status updates.
 
 ```
+# LinkedIn (multiple sender variants active)
 jobs-noreply@linkedin.com
 jobalerts-noreply@linkedin.com
+jobs-listings@linkedin.com
+
+# Job boards & aggregators
 no-reply@glassdoor.com
 noreply@indeed.com
+support@builtin.com
+hello@trueup.io
+no-reply@match.jobgether.com
+team@hi.wellfound.com
+
+# VC portfolio boards
+hello@getro.com                    — True Ventures portfolio job board (daily, BD/partnerships signal)
+noreply@niceboard.co               — Niceboard BD/Partnerships digest
+
+# ATS direct
 no-reply@lever.co
 notifications@greenhouse.io
 no-reply@ashbyhq.com
 no-reply@smartrecruiters.com
+careers-noreply@google.com
+
+# Other company career alerts
 donotreply@email.careers.microsoft.com
 help@welcometothejungle.com
 
